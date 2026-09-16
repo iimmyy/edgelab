@@ -1,0 +1,340 @@
+{
+  "source_commit": "624c4bf3b3a07fbabcc2f731c5b2f5cda651fcba",
+  "benchmark": [
+    {
+      "route": "direct",
+      "repetition": 0,
+      "attempts": 1018838,
+      "failures": 0,
+      "timeouts": 0
+    },
+    {
+      "route": "proxy",
+      "repetition": 0,
+      "attempts": 1392867,
+      "failures": 0,
+      "timeouts": 0
+    },
+    {
+      "route": "direct",
+      "repetition": 1,
+      "attempts": 1009360,
+      "failures": 0,
+      "timeouts": 0
+    },
+    {
+      "route": "proxy",
+      "repetition": 1,
+      "attempts": 1251546,
+      "failures": 6,
+      "timeouts": 0
+    },
+    {
+      "route": "direct",
+      "repetition": 2,
+      "attempts": 1014943,
+      "failures": 0,
+      "timeouts": 0
+    },
+    {
+      "route": "proxy",
+      "repetition": 2,
+      "attempts": 1393933,
+      "failures": 1,
+      "timeouts": 0
+    }
+  ],
+  "kernel_observations": [
+    {
+      "ns": 2809693046317,
+      "state": 9,
+      "sport": 43677,
+      "dport": 47042,
+      "rcv_nxt": 2295923062,
+      "snd_nxt": 1044905945,
+      "snd_una": 1044905944,
+      "kind": "challenge",
+      "utc_approx": "2026-09-16T20:50:21.072135+00:00"
+    },
+    {
+      "ns": 2809693065608,
+      "reason": 36,
+      "sport": 47042,
+      "dport": 43677,
+      "seq": 2295922627,
+      "kind": "drop",
+      "utc_approx": "2026-09-16T20:50:21.072155+00:00"
+    },
+    {
+      "ns": 2832718675062,
+      "state": 9,
+      "sport": 43677,
+      "dport": 42548,
+      "rcv_nxt": 673634821,
+      "snd_nxt": 1533038866,
+      "snd_una": 1533038865,
+      "kind": "challenge",
+      "utc_approx": "2026-09-16T20:50:44.097764+00:00"
+    },
+    {
+      "ns": 2832718687520,
+      "reason": 36,
+      "sport": 42548,
+      "dport": 43677,
+      "seq": 673634480,
+      "kind": "drop",
+      "utc_approx": "2026-09-16T20:50:44.097777+00:00"
+    },
+    {
+      "ns": 2833866379905,
+      "state": 9,
+      "sport": 43677,
+      "dport": 51484,
+      "rcv_nxt": 2555880978,
+      "snd_nxt": 1659079968,
+      "snd_una": 1659079967,
+      "kind": "challenge",
+      "utc_approx": "2026-09-16T20:50:45.245469+00:00"
+    },
+    {
+      "ns": 2833866575613,
+      "reason": 36,
+      "sport": 51484,
+      "dport": 43677,
+      "seq": 2555881545,
+      "kind": "drop",
+      "utc_approx": "2026-09-16T20:50:45.245665+00:00"
+    },
+    {
+      "ns": 2839742870187,
+      "state": 9,
+      "sport": 43677,
+      "dport": 42348,
+      "rcv_nxt": 2045930842,
+      "snd_nxt": 2042219300,
+      "snd_una": 2042219299,
+      "kind": "challenge",
+      "utc_approx": "2026-09-16T20:50:51.121959+00:00"
+    },
+    {
+      "ns": 2839742912187,
+      "reason": 36,
+      "sport": 42348,
+      "dport": 43677,
+      "seq": 2045978511,
+      "kind": "drop",
+      "utc_approx": "2026-09-16T20:50:51.122001+00:00"
+    },
+    {
+      "ns": 2923310269081,
+      "state": 9,
+      "sport": 43677,
+      "dport": 35150,
+      "rcv_nxt": 372940926,
+      "snd_nxt": 3582044240,
+      "snd_una": 3582044239,
+      "kind": "challenge",
+      "utc_approx": "2026-09-16T20:52:14.689358+00:00"
+    },
+    {
+      "ns": 2923310314706,
+      "reason": 36,
+      "sport": 35150,
+      "dport": 43677,
+      "seq": 373577062,
+      "kind": "drop",
+      "utc_approx": "2026-09-16T20:52:14.689404+00:00"
+    },
+    {
+      "ns": 2955789144343,
+      "state": 9,
+      "sport": 43677,
+      "dport": 43394,
+      "rcv_nxt": 2385231455,
+      "snd_nxt": 2651964250,
+      "snd_una": 2651964249,
+      "kind": "challenge",
+      "utc_approx": "2026-09-16T20:52:47.168233+00:00"
+    },
+    {
+      "ns": 2955789163343,
+      "reason": 36,
+      "sport": 43394,
+      "dport": 43677,
+      "seq": 2385231997,
+      "kind": "drop",
+      "utc_approx": "2026-09-16T20:52:47.168252+00:00"
+    }
+  ],
+  "backend_timeouts": [
+    {
+      "proxy_log": {
+        "timestamp": "2026-09-16T20:50:46.579193Z",
+        "level": "WARN",
+        "fields": {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:43677",
+          "remote": "127.0.0.1:43677",
+          "local": "Some(127.0.0.1:59658)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        "target": "edgelab_proxy"
+      },
+      "local_port": 59658,
+      "matched_kernel_events": []
+    },
+    {
+      "proxy_log": {
+        "timestamp": "2026-09-16T20:50:54.871960Z",
+        "level": "WARN",
+        "fields": {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:43677",
+          "remote": "127.0.0.1:43677",
+          "local": "Some(127.0.0.1:53486)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        "target": "edgelab_proxy"
+      },
+      "local_port": 53486,
+      "matched_kernel_events": []
+    },
+    {
+      "proxy_log": {
+        "timestamp": "2026-09-16T20:51:01.735938Z",
+        "level": "WARN",
+        "fields": {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:43677",
+          "remote": "127.0.0.1:43677",
+          "local": "Some(127.0.0.1:54170)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        "target": "edgelab_proxy"
+      },
+      "local_port": 54170,
+      "matched_kernel_events": []
+    },
+    {
+      "proxy_log": {
+        "timestamp": "2026-09-16T20:51:03.586018Z",
+        "level": "WARN",
+        "fields": {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:43677",
+          "remote": "127.0.0.1:43677",
+          "local": "Some(127.0.0.1:41748)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        "target": "edgelab_proxy"
+      },
+      "local_port": 41748,
+      "matched_kernel_events": []
+    },
+    {
+      "proxy_log": {
+        "timestamp": "2026-09-16T20:51:04.536171Z",
+        "level": "WARN",
+        "fields": {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:43677",
+          "remote": "127.0.0.1:43677",
+          "local": "Some(127.0.0.1:44990)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        "target": "edgelab_proxy"
+      },
+      "local_port": 44990,
+      "matched_kernel_events": []
+    },
+    {
+      "proxy_log": {
+        "timestamp": "2026-09-16T20:51:07.684975Z",
+        "level": "WARN",
+        "fields": {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:43677",
+          "remote": "127.0.0.1:43677",
+          "local": "Some(127.0.0.1:38508)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        "target": "edgelab_proxy"
+      },
+      "local_port": 38508,
+      "matched_kernel_events": []
+    },
+    {
+      "proxy_log": {
+        "timestamp": "2026-09-16T20:52:56.780136Z",
+        "level": "WARN",
+        "fields": {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:43677",
+          "remote": "127.0.0.1:43677",
+          "local": "Some(127.0.0.1:54366)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        "target": "edgelab_proxy"
+      },
+      "local_port": 54366,
+      "matched_kernel_events": []
+    }
+  ],
+  "kernel_counter_deltas_whole_suite": {
+    "ListenOverflows": 20,
+    "ListenDrops": 20,
+    "TW": 7175718,
+    "TWRecycled": 7104463,
+    "TCPTimeWaitOverflow": 3947093,
+    "TCPSYNChallenge": 6,
+    "TCPChallengeACK": 6,
+    "TCPSynRetrans": 9,
+    "RetransSegs": 13
+  },
+  "coverage_limits": [
+    "Counters span fault gates plus benchmark; intentional backlog failures prevent attributing cumulative ListenDrops/Overflows to P10.",
+    "Original probes see only selected drop reasons plus challenge ACK calls; TIME_WAIT-specific behavior may follow other paths.",
+    "Broadened all-SYN-drop probe metadata saved at20:52:56.742645UTC, less than40ms before finaltimeout20:52:56.780136. It missed the initialSYN of that500ms operation; actual attach followed metadata write.",
+    "No exact failed tuple matches observed LAST_ACK challenge/drop events. These cannot establish causality for seven benchmark failures.",
+    "No missed-event warning present in trace output; absence from selected probes is not proof of no kernel event."
+  ],
+  "conclusion": "Six LAST_ACK challenge/INVALID_SYN events are verified during the benchmark, but all involve different tuples from the seven failed backend connections. Specific root cause of the seven failures remains unresolved.",
+  "sources": [
+    {
+      "url": "https://github.com/torvalds/linux/blob/v6.8/net/ipv4/tcp_input.c#L5574-L5594",
+      "supports": "Upstream6.8 SYN challenge path sends challengeACK and recordsTCP_INVALID_SYN."
+    },
+    {
+      "url": "https://github.com/torvalds/linux/blob/v6.8/net/ipv4/tcp_minisocks.c#L194-L234",
+      "supports": "SeparateTIME_WAIT path checks sequence/timestamps and may ACK instead of accepting newSYN; a competing explanation, not proven in this run."
+    }
+  ]
+}

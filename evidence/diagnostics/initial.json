@@ -1,0 +1,91 @@
+{
+  "identity": {
+    "backend": 35261,
+    "front": 47853,
+    "binary_sha256": "74fac61291e7e2bedc0baafc1b5dfd939e79dcd24941c0e8f11916e988ba93fa",
+    "target_ms": 500,
+    "concurrency": 100,
+    "payload_bytes": 1024
+  },
+  "trials": [
+    {
+      "attempts": 241196,
+      "backends": {
+        "diag1": 241196
+      },
+      "concurrency": 100,
+      "failures": 0,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 159.299,
+      "p50_ms": 3.57,
+      "p95_ms": 30.225,
+      "p99_ms": 53.245,
+      "payload_bytes": 1024,
+      "seconds": 15.003008244,
+      "successes": 241196,
+      "successes_per_second": 16076.50919584471,
+      "timeouts": 0
+    },
+    {
+      "attempts": 925851,
+      "backends": {
+        "diag1": 925850
+      },
+      "concurrency": 100,
+      "failures": 1,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 1084.133,
+      "p50_ms": 3.805,
+      "p95_ms": 31.501,
+      "p99_ms": 53.047,
+      "payload_bytes": 1024,
+      "seconds": 60.01483354,
+      "successes": 925850,
+      "successes_per_second": 15427.019378182884,
+      "timeouts": 0
+    }
+  ],
+  "failure_logs": [
+    {
+      "timestamp": "2026-09-16T20:39:06.459034Z",
+      "level": "WARN",
+      "fields": {
+        "event": "connect_timeout",
+        "stage": "tcp_connect",
+        "deadline_source": "application",
+        "app": "diag",
+        "target": "127.0.0.1:35261",
+        "remote": "127.0.0.1:35261",
+        "local": "Some(127.0.0.1:57684)",
+        "so_error": 0,
+        "diagnostic_error": "None"
+      },
+      "target": "edgelab_proxy"
+    },
+    {
+      "timestamp": "2026-09-16T20:39:06.459043Z",
+      "level": "WARN",
+      "fields": {
+        "event": "session_failed",
+        "app": "diag",
+        "error": "backend establishment deadline",
+        "elapsed_ms": 500
+      },
+      "target": "edgelab_proxy"
+    }
+  ],
+  "client_failures": [
+    {
+      "id": 435462,
+      "started": "2026-09-16T20:39:05.939527286Z",
+      "elapsed_ms": 519.679,
+      "error": "read tcp 127.0.0.1:39532->127.0.0.1:47853: read: connection reset by peer",
+      "timeout": false
+    }
+  ],
+  "capture": "tcpdump: listening on lo, link-type EN10MB (Ethernet), snapshot length 96 bytes\n1130514 packets captured\n2261154 packets received by filter\n0 packets dropped by kernel\n",
+  "capture_limits": "Initial capture commands failed due privilege-drop directory permissions. Corrected SYN/RST-only capture covers reproduced timeout with zero kernel drops; omits ACK/FIN and early trial portion.",
+  "observation": "SYN at20:39:05.959192 from57684 to35261 had no captured SYN-ACK before500ms application deadline. Same tuple reused shortly beforehand. No backend ListenDrops/Overflows increments; TIME_WAIT cap reached. Exact kernel path unresolved.",
+  "packet_excerpt": "failure-tuple-packets.txt",
+  "full_packet_source": "handshake-live.pcap0"
+}

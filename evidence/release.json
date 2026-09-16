@@ -1,0 +1,77 @@
+{
+  "source_commit": "624c4bf3b3a07fbabcc2f731c5b2f5cda651fcba",
+  "readiness": "pending: backend establishment failures remain unattributed",
+  "gates": {
+    "P01": "passed",
+    "P02": "passed",
+    "P03": "passed",
+    "P04": "passed",
+    "P05": "passed",
+    "P06": "passed",
+    "P07": "passed",
+    "P08": "passed",
+    "P09": "passed",
+    "P10": "passed"
+  },
+  "control_tests": "passed",
+  "measurement": {
+    "direct": {
+      "attempts": 3043141,
+      "successes": 3043141,
+      "failures": 0,
+      "timeouts": 0
+    },
+    "proxy": {
+      "attempts": 4038346,
+      "successes": 4038339,
+      "failures": 7,
+      "timeouts": 0
+    }
+  },
+  "checks": [
+    "Rust tests and clippy -D warnings",
+    "Go vet and Go test (integration verification is external)",
+    "P01-P10 short and full profiles",
+    "Blocked log sink and overlapping reload faults",
+    "Exported full evidence matches committed source and artifact hashes",
+    "Missing request history and mismatched commit rejected"
+  ],
+  "archives": [
+    {
+      "path": "evidence/raw/initial-investigation.tar.gz",
+      "bytes": 645041118,
+      "sha256": "aa5598050142657f871699bc87a4d85763b1007a01ae4781073a75908e5c7103",
+      "tracked_in_git": false
+    },
+    {
+      "path": "evidence/raw/release-1-async.tar.gz",
+      "bytes": 116826614,
+      "sha256": "596397442fd64b36c8a0d8acf578116c396b3bf506b75149765946093722f2f0",
+      "tracked_in_git": false
+    },
+    {
+      "path": "evidence/raw/review-async.tar.gz",
+      "bytes": 5470915,
+      "sha256": "e25195127751171dad8e1607c64561530faee8c5111ea86c4a8457c5e335df9f",
+      "tracked_in_git": false
+    },
+    {
+      "path": "evidence/raw/kernel-diagnostics.tar.gz",
+      "bytes": 18793747,
+      "sha256": "6e22750bd2fc2514690219cd71333bbcc5782d03ef00486f87ba7784bd63b959",
+      "tracked_in_git": false
+    }
+  ],
+  "diagnosis": {
+    "status": "unresolved",
+    "failure_stage": "tcp_connect",
+    "deadline_source": "application",
+    "so_error": 0,
+    "observed_LAST_ACK_collisions_match_failed_tuples": false,
+    "final_preinstrumented_trial": {
+      "attempts": 927612,
+      "failures": 0
+    },
+    "summaries": "evidence/diagnostics/"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "blocked_logging": [
+    {
+      "resumed": true,
+      "drops": 5521,
+      "b": {
+        "attempts": 30,
+        "backends": {
+          "b1": 30
+        },
+        "concurrency": 4,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 0.428,
+        "p50_ms": 0.197,
+        "p95_ms": 0.425,
+        "p99_ms": 0.428,
+        "payload_bytes": 1024,
+        "seconds": 0.001940694,
+        "successes": 30,
+        "successes_per_second": 15458.387566509713,
+        "timeouts": 0,
+        "client_pid": 18255
+      },
+      "before": {
+        "time": 1789591531.5168436,
+        "pid": 18240,
+        "rss_bytes": 4653056,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.0
+      },
+      "after": {
+        "time": 1789591531.7211597,
+        "pid": 18240,
+        "rss_bytes": 5046272,
+        "fds": 12,
+        "threads": 7,
+        "cpu_seconds": 0.23
+      }
+    },
+    {
+      "resumed": false,
+      "exit_seconds": 0.5357859079999798,
+      "b": {
+        "attempts": 30,
+        "backends": {
+          "b1": 30
+        },
+        "concurrency": 4,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 0.711,
+        "p50_ms": 0.25,
+        "p95_ms": 0.546,
+        "p99_ms": 0.57,
+        "payload_bytes": 1024,
+        "seconds": 0.002341275,
+        "successes": 30,
+        "successes_per_second": 12813.531088829805,
+        "timeouts": 0,
+        "client_pid": 18279
+      },
+      "before": {
+        "time": 1789591533.0298727,
+        "pid": 18264,
+        "rss_bytes": 4673536,
+        "fds": 14,
+        "threads": 7,
+        "cpu_seconds": 0.0
+      },
+      "after": {
+        "time": 1789591533.2870116,
+        "pid": 18264,
+        "rss_bytes": 5029888,
+        "fds": 12,
+        "threads": 7,
+        "cpu_seconds": 0.28
+      }
+    }
+  ],
+  "reload": {
+    "probes": {
+      "attempts": 100,
+      "backends": {
+        "a1": 100
+      },
+      "concurrency": 4,
+      "failures": 0,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 3.133,
+      "p50_ms": 0.653,
+      "p95_ms": 1.809,
+      "p99_ms": 2.323,
+      "payload_bytes": 1024,
+      "seconds": 0.020232022,
+      "successes": 100,
+      "successes_per_second": 4942.659710433292,
+      "timeouts": 0,
+      "client_pid": 18302
+    },
+    "superseded": [
+      {
+        "event": "reload_superseded",
+        "generation": 1
+      }
+    ],
+    "invalid_newest_retained_active": true,
+    "exit_during_validation_seconds": 0.5641835960000208
+  }
+}

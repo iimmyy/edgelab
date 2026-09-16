@@ -1,0 +1,57 @@
+{
+  "identity": {
+    "backend": 42051,
+    "front": 46707,
+    "binary_sha256": "74fac61291e7e2bedc0baafc1b5dfd939e79dcd24941c0e8f11916e988ba93fa",
+    "target_ms": 500,
+    "concurrency": 100,
+    "payload_bytes": 1024
+  },
+  "traffic": {
+    "attempts": 927612,
+    "backends": {
+      "diag1": 927612
+    },
+    "concurrency": 100,
+    "failures": 0,
+    "latency_population": "all attempts including failures and timeouts",
+    "max_ms": 1080.352,
+    "p50_ms": 3.454,
+    "p95_ms": 28.108,
+    "p99_ms": 64.683,
+    "payload_bytes": 1024,
+    "seconds": 60.003966758,
+    "successes": 927612,
+    "successes_per_second": 15459.177953036356,
+    "timeouts": 0
+  },
+  "probe_attachment": "All4 probes confirmed attached before traffic; see trace.log and trace.bt.",
+  "observations": "No logged backend SYNdrop,challengeACK or exceptional TIME_WAIT action. No failed operation available for correlation.",
+  "kernel_deltas": {
+    "ListenOverflows": 0,
+    "ListenDrops": 0,
+    "TW": 1717823,
+    "TWRecycled": 1685056,
+    "TCPTimeWaitOverflow": 137401,
+    "TCPSYNChallenge": 0,
+    "TCPChallengeACK": 0,
+    "TCPSynRetrans": 5,
+    "RetransSegs": 5
+  },
+  "conclusion": "Exact cause of prior backend deadlines remains unresolved. This zero-failure diagnostic does not invalidate earlier failures and does not establish a fix.",
+  "limitations": [
+    "Instrumentation changes workload overhead; this is fact-finding, not performance evidence.",
+    "No sysctls,timeouts or source changed. No extension after this sole60s trial.",
+    "A prior compile-only attempt under timewait-diagnostic failed due a BTF fieldname; no traffic ran in thatattempt."
+  ],
+  "timewait_action_mapping": {
+    "0": "TCP_TW_SUCCESS",
+    "1": "TCP_TW_RST",
+    "2": "TCP_TW_ACK",
+    "3": "TCP_TW_SYN"
+  },
+  "source_links": [
+    "https://github.com/torvalds/linux/blob/v6.8/include/net/tcp.h#L354-L359",
+    "https://github.com/torvalds/linux/blob/v6.8/net/ipv4/tcp_minisocks.c#L194-L234"
+  ]
+}

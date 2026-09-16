@@ -1,0 +1,129 @@
+{
+  "binary": {
+    "backend": 47071,
+    "front": 40617,
+    "binary_sha256": "74fac61291e7e2bedc0baafc1b5dfd939e79dcd24941c0e8f11916e988ba93fa",
+    "target_ms": 500,
+    "concurrency": 100,
+    "payload_bytes": 1024
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "traffic": {
+        "attempts": 916527,
+        "backends": {
+          "diag1": 916527
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 1123.87,
+        "p50_ms": 4.204,
+        "p95_ms": 27.432,
+        "p99_ms": 50.526,
+        "payload_bytes": 1024,
+        "seconds": 60.019813915,
+        "successes": 916527,
+        "successes_per_second": 15270.407224154087,
+        "timeouts": 0
+      },
+      "capture": "tcpdump: listening on lo, link-type EN10MB (Ethernet), snapshot length 128 bytes\n12349919 packets captured\n24699838 packets received by filter\n0 packets dropped by kernel\n",
+      "kernel_deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TW": 1714816,
+        "TWRecycled": 1682048,
+        "TCPTimeWaitOverflow": 118238,
+        "TCPSYNChallenge": 0,
+        "TCPChallengeACK": 0,
+        "TCPSynRetrans": 5,
+        "RetransSegs": 5
+      },
+      "drop_events": [
+        {
+          "utc_approx": "2026-09-16T20:43:05.366110+00:00",
+          "kernel_monotonic_ns": 2373987021924,
+          "reason": 33,
+          "sport": 40617,
+          "dport": 54480,
+          "seq": 2058925577
+        },
+        {
+          "utc_approx": "2026-09-16T20:43:07.249151+00:00",
+          "kernel_monotonic_ns": 2375870062586,
+          "reason": 33,
+          "sport": 40617,
+          "dport": 40836,
+          "seq": 2674207711
+        },
+        {
+          "utc_approx": "2026-09-16T20:43:48.382348+00:00",
+          "kernel_monotonic_ns": 2417003260407,
+          "reason": 33,
+          "sport": 40617,
+          "dport": 46038,
+          "seq": 1872405478
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "traffic": {
+        "attempts": 914729,
+        "backends": {
+          "diag1": 914729
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 1071.038,
+        "p50_ms": 4.339,
+        "p95_ms": 26.042,
+        "p99_ms": 52.388,
+        "payload_bytes": 1024,
+        "seconds": 60.001326774,
+        "successes": 914729,
+        "successes_per_second": 15245.14621893951,
+        "timeouts": 0
+      },
+      "capture": "tcpdump: listening on lo, link-type EN10MB (Ethernet), snapshot length 128 bytes\n12319510 packets captured\n24639020 packets received by filter\n0 packets dropped by kernel\n",
+      "kernel_deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TW": 1719799,
+        "TWRecycled": 1718152,
+        "TCPTimeWaitOverflow": 109659,
+        "TCPSYNChallenge": 1,
+        "TCPChallengeACK": 1,
+        "TCPSynRetrans": 5,
+        "RetransSegs": 5
+      },
+      "drop_events": [
+        {
+          "utc_approx": "2026-09-16T20:43:59.276124+00:00",
+          "kernel_monotonic_ns": 2427897036129,
+          "reason": 33,
+          "sport": 40617,
+          "dport": 39734,
+          "seq": 2458034943
+        },
+        {
+          "utc_approx": "2026-09-16T20:44:02.078723+00:00",
+          "kernel_monotonic_ns": 2430699634527,
+          "reason": 36,
+          "sport": 47772,
+          "dport": 40617,
+          "seq": 1896481507
+        }
+      ]
+    }
+  ],
+  "scope": "Bounded diagnostics; no sysctl or timeout changes. Not matched performance comparisons.",
+  "conclusion": "No backend failure reproduced in these two fully captured trials. Earlier SYN-only diagnostic reproduced one establishment timeout, but exact kernel cause remains unproven.",
+  "source": "https://github.com/torvalds/linux/blob/v6.8/net/ipv4/tcp_input.c#L5574-L5594",
+  "drop_reason_mapping": {
+    "33": "TCP_OLD_SEQUENCE",
+    "36": "TCP_INVALID_SYN"
+  }
+}

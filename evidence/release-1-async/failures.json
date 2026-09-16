@@ -1,0 +1,58 @@
+[
+  {
+    "history": "036-benchmark-proxy-1.jsonl",
+    "id": 612753,
+    "started": "2026-09-16T20:50:46.076082431Z",
+    "elapsed_ms": 503.167,
+    "error": "read tcp 127.0.0.1:39720->127.0.0.1:34617: read: connection reset by peer",
+    "timeout": false
+  },
+  {
+    "history": "036-benchmark-proxy-1.jsonl",
+    "id": 800498,
+    "started": "2026-09-16T20:50:54.3683088Z",
+    "elapsed_ms": 503.692,
+    "error": "read tcp 127.0.0.1:56338->127.0.0.1:34617: read: connection reset by peer",
+    "timeout": false
+  },
+  {
+    "history": "036-benchmark-proxy-1.jsonl",
+    "id": 956635,
+    "started": "2026-09-16T20:51:01.226209901Z",
+    "elapsed_ms": 509.78,
+    "error": "read tcp 127.0.0.1:50662->127.0.0.1:34617: read: connection reset by peer",
+    "timeout": false
+  },
+  {
+    "history": "036-benchmark-proxy-1.jsonl",
+    "id": 997915,
+    "started": "2026-09-16T20:51:03.080349075Z",
+    "elapsed_ms": 506.178,
+    "error": "read tcp 127.0.0.1:53514->127.0.0.1:34617: read: connection reset by peer",
+    "timeout": false
+  },
+  {
+    "history": "036-benchmark-proxy-1.jsonl",
+    "id": 1017643,
+    "started": "2026-09-16T20:51:04.031190485Z",
+    "elapsed_ms": 505.061,
+    "error": "read tcp 127.0.0.1:33380->127.0.0.1:34617: read: connection reset by peer",
+    "timeout": false
+  },
+  {
+    "history": "036-benchmark-proxy-1.jsonl",
+    "id": 1086793,
+    "started": "2026-09-16T20:51:07.18116741Z",
+    "elapsed_ms": 503.987,
+    "error": "read tcp 127.0.0.1:33980->127.0.0.1:34617: read: connection reset by peer",
+    "timeout": false
+  },
+  {
+    "history": "038-benchmark-proxy-2.jsonl",
+    "id": 901420,
+    "started": "2026-09-16T20:52:56.278106923Z",
+    "elapsed_ms": 502.092,
+    "error": "read tcp 127.0.0.1:48362->127.0.0.1:34617: read: connection reset by peer",
+    "timeout": false
+  }
+]

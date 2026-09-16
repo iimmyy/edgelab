@@ -1,0 +1,59 @@
+{
+  "uname": [
+    "Linux",
+    "infra-lab",
+    "6.8.0-139-generic",
+    "#139-Ubuntu SMP PREEMPT_DYNAMIC Sat Aug  1 03:32:48 UTC 2026",
+    "aarch64",
+    "aarch64"
+  ],
+  "cpus": 4,
+  "meminfo": "MemTotal:        8109092 kB\nMemFree:          136132 kB\nMemAvailable:    7620944 kB\nBuffers:           58472 kB\nCached:          7360016 kB\nSwapCached:            0 kB\nActive:           554128 kB\nInactive:        6983484 kB\nActive(anon):     127672 kB\nInactive(anon):       48 kB\nActive(file):     426456 kB\nInactive(file):  6983436 kB\nUnevictable:       26484 kB\nMlocked:           26484 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:                84 kB\nWriteback:             0 kB\nAnonPages:        145628 kB\nMapped:           120952 kB\nShmem:              1144 kB\nKReclaimable:     274856 kB\nSlab:             364456 kB\nSReclaimable:     274856 kB\nSUnreclaim:        89600 kB\nKernelStack:        2460 kB\nShadowCallStack:     616 kB\nPageTables:         2944 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     4054544 kB\nCommitted_AS:     355080 kB\nVmallocTotal:   133141626880 kB\nVmallocUsed:        9508 kB\nVmallocChunk:          0 kB\nPercpu:             1920 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nCmaTotal:          32768 kB\nCmaFree:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\n",
+  "commit": "624c4bf3b3a07fbabcc2f731c5b2f5cda651fcba",
+  "source_sha256": {
+    "Cargo.lock": "a44a3da499c25d0f7b4d2e5c91ff372bd33ab08777e72052a8bbfccffe2ece61",
+    "README.md": "25d1a8cf8e970380c0f9afb6d78fd7e379b7411a5540a0add06aaeb86f2f853d",
+    "NOTES.md": "fd2010073775bf80e8f79d2aa34a768c1e924aeb043efb9384477de7abc59214",
+    "INCIDENT.md": "7dbfa44da8a5f9a2af309894f5add61216fe284ec680a81f4359dfc4ada2faa1",
+    "go.mod": "5d1a135097f6ca1ecb5143c1431cd02cbece08fded11ec8c5b4ae332851abb5c",
+    ".gitignore": "9a0fad731311e7c4ba333625050f54beac13eed034166329dc0968130b2c2580",
+    "Cargo.toml": "7cffaa3ebe4f6ef3cbcdd1afe17fc219cb019718bf0747e1396d9770da44756d",
+    "rust-toolchain.toml": "887f9be066a15585a2c583578e84b0fcb541126d81546276bad3d2ff00d61167",
+    "proxy/Cargo.toml": "73e09b20271e52f892183e7bca98fb8f0b3eab41d9416c4a1cbdf06e9870b6c5",
+    "lab/build.sh": "2b1b2f94713582905471db2b61675c163b8c48d8923b6e525a21c3b77939f70b",
+    "lab/config.json": "5e941ea04935048346352bd6ee2a896c32c9ab2bfe17e2fb71320e51a11683ed",
+    "lab/acceptance-manifest.json": "b480dec8ee89355a5e5439ea90c1a9bc3bd5cbe6d984cff935c880424d18e79c",
+    "lab/check-evidence.py": "0ce1c2ad6e60d5931928f655d94aafb9244d018d77195f119dd991b17a5e2043",
+    "lab/sync.sh": "d9e629f9428fc21920cde66d99157e3ca6166f1d8d626c6e4b56d6457f9b8c74",
+    "tests/verify.py": "d2c2c47e4c93612c7a10f98150fc7e72ab9a37cdb2e51e3e1efcc678bc5a8e09",
+    "tests/control.py": "4b842869bd3c29bb393f9f580b611b223a0b97a4d09ffd3207d79e63bd4902e6",
+    "proxy/src/main.rs": "200f7143c0fcd24ffded9118b4d04f4f80aaf907daddca19f4f43704b852746a",
+    "cmd/traffic/main.go": "23642280db01791d5c8ab19ff3656be04a44816b41da6fb7296014957ddde98e",
+    "cmd/echo/main.go": "b777900760376bd5d48ad75f9a6cea5c3b09542995e1f02b02b2a88c556b3a18"
+  },
+  "command": [
+    "tests/verify.py",
+    "--out",
+    ".run/release-1-async",
+    "--benchmark-seconds",
+    "60"
+  ],
+  "limits": {
+    "test_connections_per_app": 8,
+    "benchmark_connections_per_app": 128,
+    "buffer_bytes_per_direction": 8192,
+    "target_ms": 500,
+    "connect_ms": 2000,
+    "test_drain_ms": 500
+  },
+  "b_probe_max_ms": 250,
+  "versions": {
+    "rust": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "go": "go version go1.22.2 linux/arm64"
+  },
+  "binary_sha256": {
+    "target/release/edgelab-proxy": "74fac61291e7e2bedc0baafc1b5dfd939e79dcd24941c0e8f11916e988ba93fa",
+    "bin/echo": "b2b46e707e1df5643675ef3a52e8e3df859b29e871b129dd1674265a5906bc08",
+    "bin/traffic": "4ce15528f1f9f1b9688fd4dde5c7adbbf955c3ac0343de0cacc43ed580907918"
+  }
+}

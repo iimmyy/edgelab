@@ -1,0 +1,248 @@
+[
+  {
+    "route": "direct",
+    "repetition": 0,
+    "traffic": {
+      "attempts": 1018838,
+      "backends": {
+        "a2": 1018838
+      },
+      "concurrency": 100,
+      "failures": 0,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 216.051,
+      "p50_ms": 1.682,
+      "p95_ms": 27.966,
+      "p99_ms": 64.83,
+      "payload_bytes": 1024,
+      "seconds": 60.00099454,
+      "successes": 1018838,
+      "successes_per_second": 16980.35187268081,
+      "timeouts": 0,
+      "client_pid": 19487
+    },
+    "resources": {
+      "19480": {
+        "rss_bytes": 4706304,
+        "fds": 12,
+        "cpu_seconds": 0.01
+      },
+      "19228": {
+        "rss_bytes": 11337728,
+        "fds": 278,
+        "cpu_seconds": 29.21
+      },
+      "19487": {
+        "role": "traffic client",
+        "rss_bytes": 30621696,
+        "fds": 107,
+        "sampled_cpu_seconds": 191.05
+      }
+    }
+  },
+  {
+    "route": "proxy",
+    "repetition": 0,
+    "traffic": {
+      "attempts": 1392867,
+      "backends": {
+        "a2": 1392867
+      },
+      "concurrency": 100,
+      "failures": 0,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 124.542,
+      "p50_ms": 3.802,
+      "p95_ms": 7.687,
+      "p99_ms": 15.51,
+      "payload_bytes": 1024,
+      "seconds": 60.00439035,
+      "successes": 1392867,
+      "successes_per_second": 23212.75146494343,
+      "timeouts": 0,
+      "client_pid": 19574
+    },
+    "resources": {
+      "19480": {
+        "rss_bytes": 7294976,
+        "fds": 252,
+        "cpu_seconds": 93.08
+      },
+      "19228": {
+        "rss_bytes": 11243520,
+        "fds": 233,
+        "cpu_seconds": 41.27000000000001
+      },
+      "19574": {
+        "role": "traffic client",
+        "rss_bytes": 58318848,
+        "fds": 107,
+        "sampled_cpu_seconds": 56.87
+      }
+    }
+  },
+  {
+    "route": "direct",
+    "repetition": 1,
+    "traffic": {
+      "attempts": 1009360,
+      "backends": {
+        "a2": 1009360
+      },
+      "concurrency": 100,
+      "failures": 0,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 1043.368,
+      "p50_ms": 1.684,
+      "p95_ms": 28.537,
+      "p99_ms": 66.632,
+      "payload_bytes": 1024,
+      "seconds": 60.001159412,
+      "successes": 1009360,
+      "successes_per_second": 16822.341599588024,
+      "timeouts": 0,
+      "client_pid": 19704
+    },
+    "resources": {
+      "19480": {
+        "rss_bytes": 6995968,
+        "fds": 12,
+        "cpu_seconds": 0.009999999999990905
+      },
+      "19228": {
+        "rss_bytes": 11771904,
+        "fds": 295,
+        "cpu_seconds": 28.739999999999995
+      },
+      "19704": {
+        "role": "traffic client",
+        "rss_bytes": 29597696,
+        "fds": 107,
+        "sampled_cpu_seconds": 189.01
+      }
+    }
+  },
+  {
+    "route": "proxy",
+    "repetition": 1,
+    "traffic": {
+      "attempts": 1251546,
+      "backends": {
+        "a2": 1251540
+      },
+      "concurrency": 100,
+      "failures": 6,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 509.78,
+      "p50_ms": 4.039,
+      "p95_ms": 8.375,
+      "p99_ms": 22.878,
+      "payload_bytes": 1024,
+      "seconds": 60.00447552,
+      "successes": 1251540,
+      "successes_per_second": 20857.44420152212,
+      "timeouts": 0,
+      "client_pid": 19889
+    },
+    "resources": {
+      "19480": {
+        "rss_bytes": 7585792,
+        "fds": 229,
+        "cpu_seconds": 98.99000000000001
+      },
+      "19228": {
+        "rss_bytes": 11309056,
+        "fds": 252,
+        "cpu_seconds": 37.41999999999999
+      },
+      "19889": {
+        "role": "traffic client",
+        "rss_bytes": 33882112,
+        "fds": 107,
+        "sampled_cpu_seconds": 56.83
+      }
+    }
+  },
+  {
+    "route": "direct",
+    "repetition": 2,
+    "traffic": {
+      "attempts": 1014943,
+      "backends": {
+        "a2": 1014943
+      },
+      "concurrency": 100,
+      "failures": 0,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 1073.598,
+      "p50_ms": 1.71,
+      "p95_ms": 27.781,
+      "p99_ms": 67.521,
+      "payload_bytes": 1024,
+      "seconds": 60.002557101,
+      "successes": 1014943,
+      "successes_per_second": 16914.995777456374,
+      "timeouts": 0,
+      "client_pid": 20024
+    },
+    "resources": {
+      "19480": {
+        "rss_bytes": 7311360,
+        "fds": 12,
+        "cpu_seconds": 0.0
+      },
+      "19228": {
+        "rss_bytes": 11796480,
+        "fds": 277,
+        "cpu_seconds": 29.55000000000001
+      },
+      "20024": {
+        "role": "traffic client",
+        "rss_bytes": 30670848,
+        "fds": 107,
+        "sampled_cpu_seconds": 188.89
+      }
+    }
+  },
+  {
+    "route": "proxy",
+    "repetition": 2,
+    "traffic": {
+      "attempts": 1393933,
+      "backends": {
+        "a2": 1393932
+      },
+      "concurrency": 100,
+      "failures": 1,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 502.092,
+      "p50_ms": 3.789,
+      "p95_ms": 7.749,
+      "p99_ms": 14.899,
+      "payload_bytes": 1024,
+      "seconds": 60.053825548,
+      "successes": 1393932,
+      "successes_per_second": 23211.377248329565,
+      "timeouts": 0,
+      "client_pid": 20224
+    },
+    "resources": {
+      "19480": {
+        "rss_bytes": 7917568,
+        "fds": 275,
+        "cpu_seconds": 96.57000000000002
+      },
+      "19228": {
+        "rss_bytes": 11272192,
+        "fds": 224,
+        "cpu_seconds": 40.97999999999999
+      },
+      "20224": {
+        "role": "traffic client",
+        "rss_bytes": 42729472,
+        "fds": 107,
+        "sampled_cpu_seconds": 56.41
+      }
+    }
+  }
+]

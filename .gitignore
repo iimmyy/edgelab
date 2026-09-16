@@ -6,3 +6,5 @@ __pycache__/
 /.source-tree.json
 /.ruff_cache/
 ._*
+
+/evidence/raw/
