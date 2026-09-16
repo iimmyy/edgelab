@@ -14,7 +14,7 @@ use std::{
 };
 use tokio::{
     io::copy_bidirectional_with_sizes,
-    net::{TcpListener, TcpStream},
+    net::{TcpListener, TcpSocket, TcpStream},
     signal::unix::{SignalKind, signal},
     sync::{OwnedSemaphorePermit, Semaphore},
     task::JoinSet,
@@ -38,6 +38,9 @@ struct Options {
     connect_ms: u32,
     #[arg(long, default_value_t = 5000, value_parser = clap::value_parser!(u32).range(1..=60000))]
     drain_ms: u32,
+    /// Deliberate validation delay for lab fault tests; normal reloads use zero.
+    #[arg(long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..=1000))]
+    reload_delay_ms: u32,
 }
 
 #[derive(Deserialize)]
@@ -111,6 +114,7 @@ async fn prepare(
     options: &Options,
     admissions: &mut HashMap<String, std::sync::Weak<Admission>>,
     listeners: &HashMap<u16, Arc<TcpListener>>,
+    delayed: bool,
 ) -> io::Result<(View, HashMap<u16, Arc<TcpListener>>)> {
     // A bounded read also protects against a file growing between metadata and read.
     use tokio::io::AsyncReadExt;
@@ -120,6 +124,10 @@ async fn prepare(
     let file = tokio::fs::File::open(&options.config).await?;
     let mut bytes = Vec::new();
     file.take(1024 * 1024 + 1).read_to_end(&mut bytes).await?;
+    if delayed {
+        info!(event = "reload_candidate_read");
+        tokio::time::sleep(Duration::from_millis(options.reload_delay_ms.into())).await;
+    }
     let config = parse(&bytes)?;
     let mut ports = HashMap::new();
     let mut bound = HashMap::new();
@@ -163,20 +171,78 @@ fn accept_one(tasks: &mut JoinSet<Accepted>, port: u16, listener: Arc<TcpListene
     });
 }
 
-async fn connect_target(target: &str, resolver: &TokioResolver) -> io::Result<TcpStream> {
+async fn connect_address(
+    address: SocketAddr,
+    deadline: Instant,
+    app: &str,
+    target: &str,
+) -> io::Result<TcpStream> {
+    let socket = if address.is_ipv4() {
+        TcpSocket::new_v4()?
+    } else {
+        TcpSocket::new_v6()?
+    };
+    let observer = socket2::SockRef::from(&socket).try_clone()?;
+    match timeout_at(deadline, socket.connect(address)).await {
+        Ok(Ok(stream)) => Ok(stream),
+        Ok(Err(err)) => {
+            warn!(event="connect_failed", stage="tcp_connect", app, target, remote=%address,
+                  local=?observer.local_addr().ok().and_then(|a| a.as_socket()),
+                  os_error=err.raw_os_error(), error=%err);
+            Err(err)
+        }
+        Err(_) => {
+            let pending = observer.take_error();
+            warn!(event="connect_timeout", stage="tcp_connect", deadline_source="application", app, target,
+                  remote=%address, local=?observer.local_addr().ok().and_then(|a| a.as_socket()),
+                  so_error=pending.as_ref().ok().map(|e| e.as_ref().and_then(io::Error::raw_os_error).unwrap_or(0)),
+                  diagnostic_error=?pending.err());
+            Err(io::Error::new(
+                io::ErrorKind::TimedOut,
+                "backend establishment deadline",
+            ))
+        }
+    }
+}
+
+async fn connect_target(
+    target: &str,
+    resolver: &TokioResolver,
+    deadline: Instant,
+    app: &str,
+) -> io::Result<TcpStream> {
     if let Ok(address) = target.parse::<SocketAddr>() {
-        return TcpStream::connect(address).await;
+        return connect_address(address, deadline, app, target).await;
     }
     let (host, port) = target
         .rsplit_once(':')
         .ok_or_else(|| invalid("target requires port"))?;
     let port: u16 = port.parse().map_err(|_| invalid("invalid target port"))?;
-    let addresses = resolver.lookup_ip(host).await.map_err(io::Error::other)?;
+    let addresses = match timeout_at(deadline, resolver.lookup_ip(host)).await {
+        Ok(Ok(addresses)) => addresses,
+        Ok(Err(err)) => {
+            warn!(event="connect_failed", stage="dns", app, target, error=%err);
+            return Err(io::Error::other(err));
+        }
+        Err(_) => {
+            warn!(
+                event = "connect_timeout",
+                stage = "dns",
+                deadline_source = "application",
+                app,
+                target
+            );
+            return Err(io::Error::new(io::ErrorKind::TimedOut, "DNS deadline"));
+        }
+    };
     let mut failure = io::Error::new(io::ErrorKind::NotFound, "no DNS addresses");
     for ip in addresses.iter().take(16) {
-        match TcpStream::connect((ip, port)).await {
+        match connect_address(SocketAddr::new(ip, port), deadline, app, target).await {
             Ok(stream) => return Ok(stream),
             Err(err) => failure = err,
+        }
+        if Instant::now() >= deadline {
+            break;
         }
     }
     Err(failure)
@@ -185,25 +251,56 @@ async fn connect_target(target: &str, resolver: &TokioResolver) -> io::Result<Tc
 async fn connect(app: &App, options: &Options, resolver: &TokioResolver) -> io::Result<TcpStream> {
     let start = app.admission.next.fetch_add(1, Ordering::Relaxed) % app.targets.len();
     let deadline = Instant::now() + Duration::from_millis(options.connect_ms.into());
+    let mut failure = io::Error::new(io::ErrorKind::NotFound, "no backend");
     for offset in 0..app.targets.len() {
         let target = &app.targets[(start + offset) % app.targets.len()];
         let until = deadline.min(Instant::now() + Duration::from_millis(options.target_ms.into()));
-        match timeout_at(until, connect_target(target, resolver)).await {
-            Ok(Ok(stream)) => {
+        match connect_target(target, resolver, until, &app.name).await {
+            Ok(stream) => {
                 info!(event="connected", app=%app.name, target);
                 return Ok(stream);
             }
-            Ok(Err(err)) => warn!(event="connect_failed", app=%app.name, target, error=%err),
-            Err(_) => warn!(event="connect_timeout", app=%app.name, target),
+            Err(err) => failure = err,
         }
         if Instant::now() >= deadline {
             break;
         }
     }
-    Err(io::Error::new(
-        io::ErrorKind::ConnectionRefused,
-        "backend establishment exhausted",
-    ))
+    Err(failure)
+}
+
+struct Prepared {
+    view: View,
+    listeners: HashMap<u16, Arc<TcpListener>>,
+    admissions: HashMap<String, std::sync::Weak<Admission>>,
+}
+
+fn validate_reload(
+    tasks: &mut JoinSet<(u64, io::Result<Prepared>)>,
+    generation: u64,
+    options: Options,
+    mut admissions: HashMap<String, std::sync::Weak<Admission>>,
+    listeners: HashMap<u16, Arc<TcpListener>>,
+) {
+    tasks.spawn(async move {
+        let result = timeout(
+            Duration::from_secs(2),
+            prepare(&options, &mut admissions, &listeners, true),
+        )
+        .await
+        .unwrap_or_else(|_| {
+            Err(io::Error::new(
+                io::ErrorKind::TimedOut,
+                "configuration load timeout",
+            ))
+        })
+        .map(|(view, listeners)| Prepared {
+            view,
+            listeners,
+            admissions,
+        });
+        (generation, result)
+    });
 }
 
 async fn forward(
@@ -238,12 +335,22 @@ async fn forward(
     }
 }
 
-#[tokio::main]
-async fn main() -> io::Result<()> {
-    tracing_subscriber::fmt()
-        .json()
-        .with_writer(std::io::stderr)
-        .init();
+fn main() -> io::Result<()> {
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()?;
+    let result = runtime.block_on(run());
+    runtime.shutdown_background();
+    result
+}
+
+async fn run() -> io::Result<()> {
+    let (writer, guard) = tracing_appender::non_blocking::NonBlockingBuilder::default()
+        .buffered_lines_limit(128)
+        .lossy(true)
+        .finish(std::io::stderr());
+    let log_errors = writer.error_counter();
+    tracing_subscriber::fmt().json().with_writer(writer).init();
     let options = Options::parse();
     let mut builder = Resolver::builder_tokio().map_err(io::Error::other)?;
     builder.options_mut().cache_size = 256;
@@ -251,9 +358,13 @@ async fn main() -> io::Result<()> {
     let resolver = builder.build().map_err(io::Error::other)?;
     let global = Arc::new(Semaphore::new(1024));
     let mut admissions = HashMap::new();
-    let (mut view, mut listeners) = prepare(&options, &mut admissions, &HashMap::new()).await?;
+    let (mut view, mut listeners) =
+        prepare(&options, &mut admissions, &HashMap::new(), false).await?;
     let mut accepts = JoinSet::new();
     let mut sessions = JoinSet::new();
+    let mut validations = JoinSet::new();
+    let mut generation = 0_u64;
+    let mut pending = None;
     for (&port, listener) in &listeners {
         accept_one(&mut accepts, port, listener.clone());
     }
@@ -271,20 +382,46 @@ async fn main() -> io::Result<()> {
     );
     loop {
         tokio::select! {
+            biased;
             _ = term.recv() => break,
             _ = interrupt.recv() => break,
             _ = reload.recv() => {
-                match timeout(Duration::from_secs(2), prepare(&options, &mut admissions, &listeners)).await.unwrap_or_else(|_| Err(io::Error::new(io::ErrorKind::TimedOut, "configuration load timeout"))) {
-                    Ok((candidate, bound)) => {
-                        accepts.abort_all();
-                        while accepts.join_next().await.is_some() {}
-                        view = candidate;
-                        listeners = bound;
-                        for (&port, listener) in &listeners { accept_one(&mut accepts, port, listener.clone()); }
-                        info!(event="reloaded", listeners=listeners.len());
-                    }
-                    Err(err) => warn!(event="reload_rejected", error=%err),
+                generation += 1;
+                if validations.is_empty() {
+                    validate_reload(&mut validations, generation, options.clone(), admissions.clone(), listeners.clone());
+                } else {
+                    pending = Some(generation);
                 }
+                info!(event="reload_requested", generation);
+            }
+            Some(completed) = validations.join_next() => {
+                let (finished, result) = completed.map_err(io::Error::other)?;
+                if finished != generation {
+                    info!(event="reload_superseded", generation=finished);
+                    drop(result);
+                } else {
+                    match result {
+                        Ok(candidate) => {
+                            accepts.abort_all();
+                            while accepts.join_next().await.is_some() {}
+                            view = candidate.view;
+                            listeners = candidate.listeners;
+                            admissions = candidate.admissions;
+                            for (&port, listener) in &listeners { accept_one(&mut accepts, port, listener.clone()); }
+                            info!(event="reloaded", generation=finished, listeners=listeners.len());
+                        }
+                        Err(err) => warn!(event="reload_rejected", generation=finished, error=%err.to_string().chars().take(512).collect::<String>()),
+                    }
+                }
+                if let Some(next) = pending.take() {
+                    validate_reload(&mut validations, next, options.clone(), admissions.clone(), listeners.clone());
+                }
+            }
+            _ = tick.tick() => {
+                for (name, admission) in &admissions {
+                    if let Some(a) = admission.upgrade() { info!(event="admission", app=%name, active=options.limit as usize-a.permits.available_permits()); }
+                }
+                info!(event="tasks", sessions=sessions.len(), listeners=listeners.len(), validations=validations.len(), pending_reload=pending.is_some(), logs_dropped=log_errors.dropped_lines());
             }
             Some(result) = accepts.join_next() => {
                 let (port, accepted) = result.map_err(io::Error::other)?;
@@ -309,14 +446,12 @@ async fn main() -> io::Result<()> {
                 }
             }
             Some(result) = sessions.join_next() => { if let Err(err) = result { error!(event="session_task_failed", error=%err); } }
-            _ = tick.tick() => {
-                for (name, admission) in &admissions {
-                    if let Some(a) = admission.upgrade() { info!(event="admission", app=%name, active=options.limit as usize-a.permits.available_permits()); }
-                }
-                info!(event="tasks", sessions=sessions.len(), listeners=listeners.len());
-            }
+
         }
     }
+    let drain_deadline = Instant::now() + Duration::from_millis(options.drain_ms.into());
+    validations.abort_all();
+    while validations.join_next().await.is_some() {}
     accepts.abort_all();
     while accepts.join_next().await.is_some() {}
     drop(listeners);
@@ -325,7 +460,7 @@ async fn main() -> io::Result<()> {
         sessions = sessions.len(),
         grace_ms = options.drain_ms
     );
-    if timeout(Duration::from_millis(options.drain_ms.into()), async {
+    if timeout_at(drain_deadline, async {
         while sessions.join_next().await.is_some() {}
     })
     .await
@@ -335,7 +470,14 @@ async fn main() -> io::Result<()> {
         sessions.abort_all();
         while sessions.join_next().await.is_some() {}
     }
-    info!(event = "stopped");
+    info!(event = "stopped", logs_dropped = log_errors.dropped_lines());
+    // WorkerGuard flushes synchronously. Its thread may outlive our remaining grace.
+    let (flushed, done) = tokio::sync::oneshot::channel();
+    std::thread::spawn(move || {
+        drop(guard);
+        let _ = flushed.send(());
+    });
+    let _ = timeout_at(drain_deadline, done).await;
     Ok(())
 }
 

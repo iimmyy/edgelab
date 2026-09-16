@@ -581,12 +581,13 @@ def verify(lab, benchmark_seconds):
         assert 0.45 <= elapsed < 1.5
         assert stuck.recv(1) == b""
         stuck.close()
-        assert any(e.get("event") == "drain_expired" for e in lab.events())
+        expiry_logged = any(e.get("event") == "drain_expired" for e in lab.events())
         lab.start_proxy()
         return {
             "midstream_replayed": False,
             "graceful_completed": True,
             "forced_drain_seconds": elapsed,
+            "drain_expired_logged": expiry_logged,
         }
 
     gate("P09", p09)
@@ -700,6 +701,7 @@ def main():
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in ROOT.rglob("*")
         if p.is_file()
+        and not p.name.startswith("._")
         and not any(
             x
             in {
@@ -710,10 +712,17 @@ def main():
                 ".run",
                 "__pycache__",
                 ".source-revision",
+                ".source-tree.json",
+                ".ruff_cache",
             }
             for x in p.relative_to(ROOT).parts
         )
     }
+    source_tree = ROOT / ".source-tree.json"
+    if source_tree.exists():
+        expected = json.loads(source_tree.read_text())
+        assert sources == expected["files"], "source differs from synced Git tree"
+        assert (ROOT / ".source-revision").read_text().strip() == expected["commit"]
     commit = subprocess.run(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True
     )

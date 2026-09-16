@@ -11,6 +11,7 @@ In Linux, with Rust 1.98.1, Go 1.22 or newer, a C compiler, and Python 3:
 ```sh
 bash lab/build.sh
 python3 tests/verify.py --out .run/review --benchmark-seconds 2
+python3 tests/control.py --out .run/control
 ```
 
 The driver starts only its own processes, verifies payloads and identity, fills an application's connection budget, tests broken targets and configuration, kills a backend midstream, and drains the proxy. It writes every attempt, proxy logs, resource samples, and gate results. Cleanup stops only the processes it started. The output directory must be new.
@@ -22,7 +23,7 @@ python3 tests/verify.py --out .run/full --benchmark-seconds 60
 python3 lab/check-evidence.py .run/full --commit "$(git rev-parse HEAD)"
 ```
 
-The short profile checks the same behaviors with shorter measurements; its timings are not a substitute for the full profile. Verification requires 1 GiB available memory and 6 GiB free disk for raw evidence. Detailed observations and the measured release result are under `evidence/`.
+The short profile checks the same behaviors with shorter measurements; its timings are not a substitute for the full profile. Verification requires 1 GiB available memory and 6 GiB free disk for raw evidence. Release readiness remains pending investigation of backend connection deadlines observed in the full measurement. Raw evidence currently remains on the lab VM under `.run/`.
 
 ## Try it by hand
 
@@ -35,7 +36,7 @@ target/release/edgelab-proxy --config lab/config.json
 bin/traffic --address 127.0.0.1:8101 --instances echo-a,echo-b
 ```
 
-Stop one backend and repeat the traffic command: new connections fall back to the survivor. Existing TCP streams cannot be replayed. Send SIGHUP to the proxy after editing the configuration; send SIGTERM for bounded draining. Logs are JSON on stderr.
+Stop one backend and repeat the traffic command: new connections fall back to the survivor. Existing TCP streams cannot be replayed. Send SIGHUP to the proxy after editing the configuration; send SIGTERM for bounded draining. Logs are JSON on stderr through a bounded, lossy queue. A blocked log sink cannot extend the drain deadline. The control tests exercise blocked logging and overlapping reloads.
 
 The proxy accepts `Apps`, `Name`, `Ports`, and `Targets`. Defaults are 128 connections per application, 8 KiB buffers in each direction, 500 ms per target, 2 seconds total establishment including DNS, and 5 seconds drain grace. `--help` lists the overrides. Listeners bind to loopback by default.
 

@@ -3,3 +3,6 @@
 /.run/
 __pycache__/
 /.source-revision
+/.source-tree.json
+/.ruff_cache/
+._*
