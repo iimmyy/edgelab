@@ -72,6 +72,13 @@
       "attempts": 927612,
       "failures": 0
     },
-    "summaries": "evidence/diagnostics/"
+    "summaries": "evidence/diagnostics/",
+    "combined_capture": {
+      "attempts": 4580678,
+      "failures": 0,
+      "capture_kernel_drops": 0,
+      "retained_seconds": 204.965,
+      "limitation": "instrumented throughput below original benchmark; lighter alternating diagnostic in progress"
+    }
   }
 }

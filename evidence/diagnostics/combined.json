@@ -1,0 +1,181 @@
+{
+  "identity": {
+    "backend": 36233,
+    "front": 59345,
+    "binary_sha256": "74fac61291e7e2bedc0baafc1b5dfd939e79dcd24941c0e8f11916e988ba93fa",
+    "target_ms": 500,
+    "concurrency": 100,
+    "payload_bytes": 1024,
+    "capture_ring_files": 32,
+    "capture_file_million_bytes": 128,
+    "capture_snaplen": 128
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "traffic": {
+        "attempts": 921121,
+        "backends": {
+          "diag1": 921121
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 1091.139,
+        "p50_ms": 3.912,
+        "p95_ms": 30.084,
+        "p99_ms": 51.335,
+        "payload_bytes": 1024,
+        "seconds": 60.005120812,
+        "successes": 921121,
+        "successes_per_second": 15350.706531963044,
+        "timeouts": 0
+      },
+      "deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 127337,
+        "TWRecycled": 1682138,
+        "TCPSYNChallenge": 3,
+        "TCPChallengeACK": 3,
+        "TCPSynRetrans": 9
+      }
+    },
+    {
+      "trial": 2,
+      "traffic": {
+        "attempts": 920240,
+        "backends": {
+          "diag1": 920240
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 1113.994,
+        "p50_ms": 3.994,
+        "p95_ms": 29.946,
+        "p99_ms": 51.415,
+        "payload_bytes": 1024,
+        "seconds": 60.00236551,
+        "successes": 920240,
+        "successes_per_second": 15336.728680248994,
+        "timeouts": 0
+      },
+      "deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 129869,
+        "TWRecycled": 1709557,
+        "TCPSYNChallenge": 1,
+        "TCPChallengeACK": 1,
+        "TCPSynRetrans": 4
+      }
+    },
+    {
+      "trial": 3,
+      "traffic": {
+        "attempts": 919313,
+        "backends": {
+          "diag1": 919313
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 1112.652,
+        "p50_ms": 3.934,
+        "p95_ms": 30.207,
+        "p99_ms": 52.19,
+        "payload_bytes": 1024,
+        "seconds": 60.001980214,
+        "successes": 919313,
+        "successes_per_second": 15321.37767322387,
+        "timeouts": 0
+      },
+      "deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 130861,
+        "TWRecycled": 1706881,
+        "TCPSYNChallenge": 1,
+        "TCPChallengeACK": 1,
+        "TCPSynRetrans": 5
+      }
+    },
+    {
+      "trial": 4,
+      "traffic": {
+        "attempts": 917676,
+        "backends": {
+          "diag1": 917676
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 1089.222,
+        "p50_ms": 4.017,
+        "p95_ms": 29.265,
+        "p99_ms": 52.3,
+        "payload_bytes": 1024,
+        "seconds": 60.003520441,
+        "successes": 917676,
+        "successes_per_second": 15293.702657035406,
+        "timeouts": 0
+      },
+      "deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 125475,
+        "TWRecycled": 1709026,
+        "TCPSYNChallenge": 0,
+        "TCPChallengeACK": 0,
+        "TCPSynRetrans": 6
+      }
+    },
+    {
+      "trial": 5,
+      "traffic": {
+        "attempts": 902328,
+        "backends": {
+          "diag1": 902328
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 205.896,
+        "p50_ms": 4.07,
+        "p95_ms": 24.473,
+        "p99_ms": 59.763,
+        "payload_bytes": 1024,
+        "seconds": 60.003782521,
+        "successes": 902328,
+        "successes_per_second": 15037.851983484627,
+        "timeouts": 0
+      },
+      "deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 100107,
+        "TWRecycled": 1703395,
+        "TCPSYNChallenge": 1,
+        "TCPChallengeACK": 1,
+        "TCPSynRetrans": 1
+      }
+    }
+  ],
+  "total_attempts": 4580678,
+  "total_failures": 0,
+  "capture_statistics": "tcpdump: listening on lo, link-type EN10MB (Ethernet), snapshot length 128 bytes\n61642357 packets captured\n123285454 packets received by filter\n0 packets dropped by kernel\n",
+  "retained_packet_interval": {
+    "first_unix": 1789602726.68731,
+    "last_unix": 1789602931.652728,
+    "seconds": 204.96541810035706,
+    "bytes": 4082866883,
+    "files": 32
+  },
+  "probe_observations": "Attachment succeeded beforeload. No exceptional backend SYNdrop/challenge/TIME_WAIT events logged.",
+  "conclusion": "No failure reproduced in5 bounded60s proxiedtrials. Throughput15038\u201315351/s differs materially from fullbenchmark around23k/s; instrumentation perturbsworkload. Exactcause ofearlierfailures unresolved; not evidenceofafix.",
+  "limits": [
+    "Rotatingpacketfiles overwriteearliertrials; retainedintervalexplicit above.",
+    "No source/sysctl/timeoutchanges. Samebinary; proxyonlyseries differs fromalternatingdirect/proxy benchmark."
+  ]
+}
