@@ -1,0 +1,1330 @@
+{
+  "schema_version": "1.0",
+  "project": "EdgeLab",
+  "artifact_type": "proposed_acceptance_inventory",
+  "created_date": "2026-09-16",
+  "implementation_status": "not_implemented",
+  "warning": "This file specifies tests to implement. It is not an executable test runner and contains no measured results.",
+  "allowed_result_statuses": [
+    "not_run",
+    "passed",
+    "failed",
+    "blocked",
+    "skipped"
+  ],
+  "core_test_count": 46,
+  "optional_test_count": 15,
+  "result_rules": [
+    "Freeze configured limits and the workload profile before each recorded run.",
+    "Never replace not_run/blocked/skipped with passed without executing the corresponding oracle.",
+    "Record environment and code identity, failures and timeouts, not only successful samples.",
+    "Private hiring tasks and external non-lab systems are out of scope for these fault tests."
+  ],
+  "tests": [
+    {
+      "id": "L01",
+      "module": "Lab",
+      "title": "Privileged preflight and ownership boundary",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Inspect kernel features, architecture, free space, lab marker and every candidate device before any mutation.",
+      "pass_condition": "Refuses an unmarked host, unsupported feature, insufficient capacity or device outside the lab allowlist; reports blocked, never a simulated pass.",
+      "evidence_required": [
+        "preflight.json",
+        "resource-inventory-before.json"
+      ],
+      "source_ids": [
+        "T02",
+        "T03"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "L02",
+      "module": "Lab",
+      "title": "Repeatable setup and scoped cleanup",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Create the lab twice and clean it up; keep unrelated sentinel processes, files and network rules.",
+      "pass_condition": "Setup is idempotent and cleanup removes only owned resources; unrelated sentinels remain unchanged.",
+      "evidence_required": [
+        "setup.log",
+        "resource-inventory-after.json",
+        "sentinel-checks.json"
+      ],
+      "source_ids": [],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P01",
+      "module": "Proxy",
+      "title": "All listeners and application separation",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Send uniquely identified payloads through every configured listener with multiple applications.",
+      "pass_condition": "Every successful response belongs to the expected application; no cross-app fallback; all configured ports are exercised.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P02",
+      "module": "Proxy",
+      "title": "DNS and initial-connect fallback",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Place an unresolvable and a connection-refusing target alongside a healthy target.",
+      "pass_condition": "New connections succeed via a valid target within the declared total establishment budget; failed targets are observable.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P03",
+      "module": "Proxy",
+      "title": "All backends unavailable",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Make all targets unavailable and continue opening connections.",
+      "pass_condition": "Every attempt fails within the configured deadline without stuck tasks, unbounded retries or leaked permits.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P04",
+      "module": "Proxy",
+      "title": "TCP half-close and content integrity",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Send a request, close only the client write half, then read a backend response larger than the forwarding buffer.",
+      "pass_condition": "The full response is received and verified; EOF in one direction does not prematurely cut off the other direction.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P05",
+      "module": "Proxy",
+      "title": "Per-application overload isolation",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Exhaust application A connection permits while continuously probing application B.",
+      "pass_condition": "A receives the documented overload behavior; B meets its predeclared success/latency budget; total permits remain bounded.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P06",
+      "module": "Proxy",
+      "title": "Slow reader and bounded buffers",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Keep clients open but reading slowly while backends send data.",
+      "pass_condition": "Memory/queue measurements remain within the configured budgets, and unrelated application probes keep their declared budget.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P07",
+      "module": "Proxy",
+      "title": "Connection churn resource recovery",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Run repeated connect/transfer/disconnect batches, including cancellation and backend errors.",
+      "pass_condition": "Open descriptors, tasks and permits return to the stated post-warmup band; no unexplained monotonic resource growth.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P08",
+      "module": "Proxy",
+      "title": "Atomic configuration replacement",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Apply an invalid update during traffic, then a valid one.",
+      "pass_condition": "Invalid input does not replace the last usable view; valid change follows the documented new/existing connection policy.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P09",
+      "module": "Proxy",
+      "title": "Draining and midstream failure semantics",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Drain a proxy with established sessions; separately kill a backend after it has received bytes.",
+      "pass_condition": "Drain follows its configured deadline; midstream failure is surfaced, never silently replayed to another backend.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "P10",
+      "module": "Proxy",
+      "title": "Measured direct-versus-proxy comparison",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Run the same declared workload directly and through the proxy, with repeated trials and a saturation case.",
+      "pass_condition": "Report includes environment, payloads, concurrency, successes, failures, timeouts, latency, throughput, CPU, memory and descriptors; no invented numeric results.",
+      "evidence_required": [
+        "traffic-history.jsonl",
+        "proxy.log",
+        "resource-samples.jsonl"
+      ],
+      "source_ids": [
+        "S01",
+        "S18",
+        "T01"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "N01",
+      "module": "Network",
+      "title": "Tunnel-only application access",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Probe the same HTTP service through its base-network and WireGuard addresses.",
+      "pass_condition": "Direct application access is blocked, tunnel access succeeds, encrypted transport is allowed, and management remains reachable.",
+      "evidence_required": [
+        "packet-summary.txt",
+        "routes.txt",
+        "firewall-filtered.txt",
+        "client-checks.json"
+      ],
+      "source_ids": [
+        "S02",
+        "T03"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "N02",
+      "module": "Network",
+      "title": "Seven distinct misconfiguration repairs",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Individually inject at least seven applicable original network faults and repair each running fixture.",
+      "pass_condition": "Each case has its own before/after evidence and passes N01 afterward; a known seed is labelled replay rather than blind diagnosis.",
+      "evidence_required": [
+        "fault-seeds.json",
+        "seven-diagnostic-timelines.md",
+        "seven-client-results.json"
+      ],
+      "source_ids": [
+        "S02",
+        "S03"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "N03",
+      "module": "Network",
+      "title": "In-place diagnosis rather than replacement",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Record original VM/process IDs and configuration; diagnose one composite incident without rebuilding the environment.",
+      "pass_condition": "Running configuration is actually repaired; evidence separates observation from hypothesis and identifies the changed controls.",
+      "evidence_required": [
+        "operator-transcript.txt",
+        "minimal-config-diff.txt",
+        "independent-network-verdict.json"
+      ],
+      "source_ids": [
+        "S02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "S01",
+      "module": "Storage",
+      "title": "Recover existing data volume",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Seed object checksums, inject a reversible LVM/mount configuration error, then recover the existing volume.",
+      "pass_condition": "Independent client verifies all previously acknowledged immutable data covered by the durability contract; no reformat/reseed is passed off as recovery.",
+      "evidence_required": [
+        "client-original-manifest.json",
+        "before-after-inventory.json",
+        "object-verification.json"
+      ],
+      "source_ids": [
+        "S02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "S02",
+      "module": "Storage",
+      "title": "Four devices and filesystem expansion",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Build the isolated four-by-1800-MiB fixture and enlarge the existing data LV and filesystem to at least 4 GiB.",
+      "pass_condition": "Reports physical backing, VG free extents, observed LV size and observed filesystem size; existing data hashes still match.",
+      "evidence_required": [
+        "lsblk.json",
+        "pvs-vgs-lvs.json",
+        "filesystem-capacity.json",
+        "object-verification.json"
+      ],
+      "source_ids": [
+        "S02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "S03",
+      "module": "Storage",
+      "title": "Automatic 500-MiB growth under service load",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Write immutable objects until the configured usage threshold is crossed.",
+      "pass_condition": "Controller performs the rounded equivalent of a 500-MiB increment, enlarges the filesystem and records downtime/errors honestly; retained hashes verify.",
+      "evidence_required": [
+        "capacity-series.jsonl",
+        "controller.log",
+        "traffic-history.jsonl",
+        "object-verification.json"
+      ],
+      "source_ids": [
+        "S02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "S04",
+      "module": "Storage",
+      "title": "Expansion concurrency and restart",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Start concurrent controller instances and interrupt one after the LV changed but before its final state update.",
+      "pass_condition": "Recovery reconciles actual capacity, avoids unintended duplicate growth and preserves the configured allocation cap.",
+      "evidence_required": [
+        "controller.log",
+        "allocation-history.json",
+        "operation-state.json"
+      ],
+      "source_ids": [
+        "S02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "S05",
+      "module": "Storage",
+      "title": "Insufficient backing space",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Exhaust only the fixture allocation headroom and request another growth step.",
+      "pass_condition": "Stops or degrades safely with an alert; no endless retry, no claim of added physical capacity, and no consumption beyond the lab reserve.",
+      "evidence_required": [
+        "capacity-series.jsonl",
+        "alert-event.json",
+        "resource-inventory-after.json"
+      ],
+      "source_ids": [
+        "S02",
+        "T02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "S06",
+      "module": "Storage",
+      "title": "Data owner loss is not empty-disk failover",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Stop the sole owner of the object workload while another empty worker remains up.",
+      "pass_condition": "Requests fail explicitly rather than being treated as success on an unrelated volume; after owner recovery the client hashes still verify.",
+      "evidence_required": [
+        "routing-decisions.jsonl",
+        "client-results.json",
+        "object-verification.json"
+      ],
+      "source_ids": [],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "W01",
+      "module": "Worker",
+      "title": "Supported OCI image materialization",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Fetch a pinned owned fixture, verify layers, and apply a layer that removes a prior file.",
+      "pass_condition": "Filesystem content and hashes match the independent fixture manifest; deletion semantics are observed.",
+      "evidence_required": [
+        "image-manifest.json",
+        "filesystem-verification.json",
+        "worker.log"
+      ],
+      "source_ids": [
+        "S04",
+        "T04"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "W02",
+      "module": "Worker",
+      "title": "Corrupt, missing and unsupported image input",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Serve a bad digest, missing blob and unsupported media type in separate attempts.",
+      "pass_condition": "Each failure is classified; no partial image becomes registered as usable; errors are bounded.",
+      "evidence_required": [
+        "fixture-cases.json",
+        "worker.log",
+        "resource-inventory-after.json"
+      ],
+      "source_ids": [
+        "S04"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "W03",
+      "module": "Worker",
+      "title": "Archive containment and resource bounds",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Use owned malicious fixtures containing traversal/link escapes and expansion/resource-limit cases.",
+      "pass_condition": "No write reaches sentinel paths outside the extraction root; limits are enforced and incomplete resources are not activated.",
+      "evidence_required": [
+        "sentinel-hashes-before-after.json",
+        "adversarial-results.json",
+        "worker.log"
+      ],
+      "source_ids": [
+        "S04",
+        "T04"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "W04",
+      "module": "Worker",
+      "title": "Real snapshot and immutable origin",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Prepare a real thin device, snapshot it and modify a file only in the writable snapshot.",
+      "pass_condition": "Independent reads prove origin immutability and snapshot isolation; device identities and capacity are recorded.",
+      "evidence_required": [
+        "device-inventory.json",
+        "origin-and-snapshot-hashes.json"
+      ],
+      "source_ids": [
+        "S04",
+        "T02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "W05",
+      "module": "Worker",
+      "title": "Idempotent and concurrent image requests",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Repeat one operation and submit concurrent identical-image operations.",
+      "pass_condition": "Stable identities lead to the documented deduplication outcome without conflicting devices, duplicate registered activation for the same operation or corruption.",
+      "evidence_required": [
+        "operation-history.jsonl",
+        "device-inventory.json",
+        "database-invariants.json"
+      ],
+      "source_ids": [
+        "S04"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "W06",
+      "module": "Worker",
+      "title": "Crash after side effect before commit",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Terminate the worker at every phase boundary and immediately after each external side effect but before its success record.",
+      "pass_condition": "Restart reconciles incomplete work with physical resources; no double creation, false readiness or loss of an acknowledged durable operation.",
+      "evidence_required": [
+        "fault-seeds.json",
+        "phase-history.jsonl",
+        "resource-diffs.json",
+        "independent-verdicts.json"
+      ],
+      "source_ids": [
+        "S04"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "W07",
+      "module": "Worker",
+      "title": "Thinpool data and metadata limits",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Approach configured data and metadata safety thresholds using capped fixtures.",
+      "pass_condition": "Both capacities are monitored; work stops safely before crossing defined boundaries and cleanup does not touch unrelated devices.",
+      "evidence_required": [
+        "pool-status-series.jsonl",
+        "alert-event.json",
+        "cleanup-inventory.json"
+      ],
+      "source_ids": [
+        "S04",
+        "T02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "R01",
+      "module": "Routing",
+      "title": "Deterministic convergence",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Publish an independent sequence of owner records with controlled delay, duplication, loss and reordering.",
+      "pass_condition": "All connected healthy nodes converge to the expected final state within the declared local bound after delivery resumes.",
+      "evidence_required": [
+        "input-history.jsonl",
+        "node-state-hashes.json",
+        "convergence-report.json"
+      ],
+      "source_ids": [
+        "S05",
+        "S19"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "R02",
+      "module": "Routing",
+      "title": "Control partition versus data reachability",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Block dissemination while preserving one tested data path; change a route elsewhere, then heal dissemination.",
+      "pass_condition": "Existing reachable routes follow documented stale-state policy; unknown changes are not falsely reported fresh; nodes reconcile after healing.",
+      "evidence_required": [
+        "fault-topology.json",
+        "route-age-series.jsonl",
+        "client-results.json",
+        "node-state-hashes.json"
+      ],
+      "source_ids": [
+        "S05",
+        "S19"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "R03",
+      "module": "Routing",
+      "title": "Deletion and stale-node rejoin",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Delete a route while a node is isolated; restart/rejoin that node carrying an older view.",
+      "pass_condition": "The stale record does not win or resurrect the deleted route after reconciliation; state-ordering rules are visible.",
+      "evidence_required": [
+        "owner-version-history.jsonl",
+        "node-state-hashes.json",
+        "rejoin.log"
+      ],
+      "source_ids": [
+        "S05",
+        "S19"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "R04",
+      "module": "Routing",
+      "title": "Invalid update containment",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Send a malformed or incompatible record for app A while app B is under traffic.",
+      "pass_condition": "Invalid state is rejected without replacing the last good view or breaking unrelated routing; failure is observable.",
+      "evidence_required": [
+        "invalid-record.json",
+        "routing.log",
+        "app-b-traffic.jsonl"
+      ],
+      "source_ids": [
+        "S19"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "R05",
+      "module": "Routing",
+      "title": "Slow subscriber with finite queue",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Stop consumption, publish more updates than queue capacity, then resume.",
+      "pass_condition": "Memory/queue budgets hold, overflow is observable, and a resync restores correct current state; durable administrative actions are not discarded.",
+      "evidence_required": [
+        "queue-depth-series.jsonl",
+        "memory-series.jsonl",
+        "resync-verdict.json"
+      ],
+      "source_ids": [
+        "S21"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "R06",
+      "module": "Routing",
+      "title": "Owner authority and stale restore",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Attempt one worker impersonating another and simulate restoration of old owner metadata.",
+      "pass_condition": "Unauthorized records cannot replace another owner; a stale restored incarnation cannot advertise until the recovery protocol reconciles authority.",
+      "evidence_required": [
+        "rejected-updates.jsonl",
+        "authority-policy.md",
+        "restore-transcript.txt"
+      ],
+      "source_ids": [
+        "S19"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "O01",
+      "module": "Operations",
+      "title": "Truthful request identity and status",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Compare status/identity output against independently launched worker IDs and deployed artifacts.",
+      "pass_condition": "Values identify the serving instance, not a random fleet member; query failure produces unknown/stale rather than healthy.",
+      "evidence_required": [
+        "deployment-manifest.json",
+        "identity-results.json",
+        "status-output.txt"
+      ],
+      "source_ids": [
+        "S06",
+        "S08"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "O02",
+      "module": "Operations",
+      "title": "Telemetry and management during proxy failure",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Fail the public proxy while collecting management status, metrics, logs and a deployment trace.",
+      "pass_condition": "Management remains available, alerts arrive, and correlated evidence explains customer-visible impact without publishing secrets.",
+      "evidence_required": [
+        "trace.json",
+        "metrics-sample.txt",
+        "structured-logs.jsonl",
+        "alert-event.json"
+      ],
+      "source_ids": [
+        "S17"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "O03",
+      "module": "Operations",
+      "title": "Schema-incompatible canary refusal",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Start a replacement proxy whose required query is incompatible with the fixture schema.",
+      "pass_condition": "New process does not become ready or take traffic; previous version continues under the declared budget; rollback/recovery is documented.",
+      "evidence_required": [
+        "readiness-results.json",
+        "rollout.log",
+        "old-version-traffic.jsonl"
+      ],
+      "source_ids": [
+        "S20"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "O04",
+      "module": "Operations",
+      "title": "Dependency restart during prolonged drain",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Keep a proxy draining while restarting its state service under actual service supervision.",
+      "pass_condition": "Required recovery is not indefinitely blocked by unnecessary service-order dependencies; logs record restart and drain outcomes.",
+      "evidence_required": [
+        "systemd-unit-files.txt",
+        "service-journal.txt",
+        "state-recovery-results.json"
+      ],
+      "source_ids": [
+        "S21"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "O05",
+      "module": "Operations",
+      "title": "Query plan and WAL maintenance under load",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Seed a sufficiently large table and introduce a controlled long reader or inefficient query.",
+      "pass_condition": "Shows actual plan/lock/WAL observations and supported remediation; failed reproduction is labelled honestly; no live-WAL deletion shortcut.",
+      "evidence_required": [
+        "query-plans.txt",
+        "database-metrics.jsonl",
+        "maintenance-transcript.txt"
+      ],
+      "source_ids": [
+        "S22"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "O06",
+      "module": "Operations",
+      "title": "Independent watchdog and diagnostic capture",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Stall the test proxy event loop under bounded conditions.",
+      "pass_condition": "Independent watchdog detects and mitigates within declared limits, preserving evidence; recovery does not repeatedly accept poison state.",
+      "evidence_required": [
+        "watchdog-events.jsonl",
+        "diagnostic-capture.txt",
+        "post-restart-results.json"
+      ],
+      "source_ids": [
+        "S19"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "D01",
+      "module": "Review",
+      "title": "Design and coverage claims",
+      "required_for_master": true,
+      "profile": "review",
+      "status": "not_run",
+      "procedure": "Audit the README and NOTES against implemented features and test evidence.",
+      "pass_condition": "Every positive capability claim maps to a result; limitations, tradeoffs and adapted versus literal coverage are clear.",
+      "evidence_required": [
+        "NOTES.md",
+        "coverage-map.md",
+        "claim-audit.json"
+      ],
+      "source_ids": [
+        "S01",
+        "S06",
+        "S16"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "D02",
+      "module": "Review",
+      "title": "Incident account and audience-specific writing",
+      "required_for_master": true,
+      "profile": "review",
+      "status": "not_run",
+      "procedure": "Use one real test failure to produce an operator timeline, customer update and internal handoff.",
+      "pass_condition": "The three documents agree with raw timestamps and observations; hypotheses are labelled and recovery is independently verified.",
+      "evidence_required": [
+        "incident.md",
+        "customer-update.md",
+        "internal-handoff.md",
+        "raw-timeline.jsonl"
+      ],
+      "source_ids": [
+        "S07",
+        "S17"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "D03",
+      "module": "Product",
+      "title": "Bounded volume-fork behavior",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Specify a generic fork feature and demonstrate an immutable/stopped-source fork.",
+      "pass_condition": "Source and fork initially match; later writes are isolated; notes distinguish block-level from live application consistency.",
+      "evidence_required": [
+        "fork-product-spec.md",
+        "fork-verification.json"
+      ],
+      "source_ids": [
+        "S11",
+        "T02"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "D04",
+      "module": "Product",
+      "title": "Self-service RTT diagnostic and recipe",
+      "required_for_master": true,
+      "profile": "portable",
+      "status": "not_run",
+      "procedure": "Expose a user-enabled client/server round-trip diagnostic and explain one observed run.",
+      "pass_condition": "Reports application RTT in ms using elapsed time at one endpoint, identifies the actual serving instance and makes no ICMP/pure-network claim.",
+      "evidence_required": [
+        "diagnostic-run.json",
+        "diagnostic-recipe.md"
+      ],
+      "source_ids": [
+        "S14",
+        "S08"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "D05",
+      "module": "Review",
+      "title": "Fresh environment reproduction",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Give a clean environment the pinned source and documented prerequisites, not the original developer running environment.",
+      "pass_condition": "Documented review path executes; blocked/skipped tests remain visible; published evidence is tied to the reviewed commit.",
+      "evidence_required": [
+        "environment.json",
+        "reproduction-transcript.txt",
+        "results.json"
+      ],
+      "source_ids": [],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "D06",
+      "module": "Review",
+      "title": "Integrated capstone and change request",
+      "required_for_master": true,
+      "profile": "linux",
+      "status": "not_run",
+      "procedure": "Run the combined failure sequence, then implement a small new requirement and rerun affected checks.",
+      "pass_condition": "Capstone evidence is complete and honest; the change has an explained implementation diff and relevant regression results.",
+      "evidence_required": [
+        "capstone-report.md",
+        "capstone-results.json",
+        "change-request.md",
+        "regression-results.json"
+      ],
+      "source_ids": [],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X01",
+      "module": "Billing",
+      "title": "Idempotent mock external invoice",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Simulate timeout after the fake payment service accepts a request, then retry.",
+      "pass_condition": "Independent fake-service ledger has the expected single external effect; invoice identity and retry state agree.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S09",
+        "S10"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X02",
+      "module": "Billing",
+      "title": "Monthly multi-year aggregation",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Generate seeded multi-year invoices and aggregate by month.",
+      "pass_condition": "Results match an independent computation; units/currency, finalized/corrected records and query plan are explicit.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S09",
+        "S10"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X03",
+      "module": "Billing",
+      "title": "Authoritative metering ledger",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Repeat, reorder and interrupt usage-event ingestion.",
+      "pass_condition": "Documented deduplication retains each accepted event exactly once in the local authoritative ledger; monitoring samples are not silently used as billing truth.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S09",
+        "S10"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X04",
+      "module": "Distributed",
+      "title": "Official Echo workload",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Implement a Maelstrom protocol adapter and run the current published Echo check.",
+      "pass_condition": "Actual checker accepts; command/version and artifacts preserved.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S05"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X05",
+      "module": "Distributed",
+      "title": "Official Unique IDs workload",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Run the published unique-ID workload and its required fault profile.",
+      "pass_condition": "Actual checker accepts for that profile; no stronger global guarantee inferred.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S05"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X06",
+      "module": "Distributed",
+      "title": "Official Broadcast sequence",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Run selected public Broadcast stages including network partitions and, if claimed, efficiency stages.",
+      "pass_condition": "Store a separate real result for every claimed stage; failed stages remain visible.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S05"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X07",
+      "module": "Distributed",
+      "title": "Official Grow-only Counter workload",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Implement the official workload against the required store model.",
+      "pass_condition": "Actual checker accepts; local metrics-counter tests are not substituted.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S05"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X08",
+      "module": "Distributed",
+      "title": "Official Kafka-style Log stages",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Run the declared official log stages.",
+      "pass_condition": "Actual checker results support only stages run; no local append-file equivalence claim.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S05"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X09",
+      "module": "Distributed",
+      "title": "Official Transaction stages",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Run the declared public transaction/isolation stages.",
+      "pass_condition": "Checker results match claimed isolation levels; local SQL transactions are not substituted.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S05"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X10",
+      "module": "Interface",
+      "title": "Phoenix initial snapshot plus updates",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Add a real Phoenix/LiveView console with region/instance state and a race-free initial snapshot/update handoff.",
+      "pass_condition": "A new viewer gets complete current state and later updates; framework-specific code actually executes.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S06",
+        "S12",
+        "S13"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X11",
+      "module": "Interface",
+      "title": "Read-only LLM chat UX",
+      "required_for_master": false,
+      "profile": "optional",
+      "status": "not_run",
+      "procedure": "Implement the public chat-UX themes over sanitized status/docs, with failure handling and safe structured rendering.",
+      "pass_condition": "No secret or privileged execution access; sources and errors are visible; actual selected model integration is tested.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S15"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X12",
+      "module": "Legacy",
+      "title": "Nomad workload and Elasticsearch/Kibana",
+      "required_for_master": false,
+      "profile": "optional_linux",
+      "status": "not_run",
+      "procedure": "Run an isolated legacy profile of the demonstration workload with a development Nomad deployment and log inspection.",
+      "pass_condition": "Nomad actually executes the workload and its logs appear in Elasticsearch/Kibana; not just configuration screenshots.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S03"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X13",
+      "module": "Networking",
+      "title": "Isolated BGP route withdrawal",
+      "required_for_master": false,
+      "profile": "optional_linux",
+      "status": "not_run",
+      "procedure": "Use an established router in isolated namespaces to advertise and withdraw a test prefix.",
+      "pass_condition": "Only lab routing is affected and independent probes/route tables document convergence.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S18"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X14",
+      "module": "Runtime",
+      "title": "Prepared image actually boots or executes",
+      "required_for_master": false,
+      "profile": "optional_linux",
+      "status": "not_run",
+      "procedure": "Integrate an established isolated runtime with the prepared filesystem.",
+      "pass_condition": "Running instance demonstrably uses the produced artifact; runtime/isolation limits and host requirements disclosed.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S04"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    },
+    {
+      "id": "X15",
+      "module": "Deployment",
+      "title": "Real multi-host or Fly-hosted profile",
+      "required_for_master": false,
+      "profile": "optional_linux",
+      "status": "not_run",
+      "procedure": "Deploy a chosen profile to explicitly authorized hosts/account with appropriate secrets and budget.",
+      "pass_condition": "Record actual topology and physical failure boundaries; do not label local namespaces real multi-region infrastructure.",
+      "evidence_required": [
+        "extension-run.json",
+        "raw-output.txt"
+      ],
+      "source_ids": [
+        "S08",
+        "S18"
+      ],
+      "run_id": null,
+      "commit_sha": null,
+      "result_evidence": []
+    }
+  ]
+}
