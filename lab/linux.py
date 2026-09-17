@@ -115,7 +115,9 @@ def validate_storage(f):
 
 def network():
     existing=run('ip','netns','list')
-    if CLIENT in existing and SERVER in existing: return
+    if CLIENT in existing and SERVER in existing:
+        if not (ROOT/'network-ready').exists(): baseline(); (ROOT/'network-ready').touch()
+        return
     if CLIENT in existing or SERVER in existing: raise RuntimeError('partial network; inspect before repair')
     for name in (CLIENT,SERVER): run('ip','netns','add',name); ns(name,'ip','link','set','lo','up')
     run('ip','link','add','el-c','type','veth','peer','name','el-s')
@@ -126,6 +128,7 @@ def network():
         ns(name,'ip','link','add','wg0','type','wireguard')
         ns(name,'wg','set','wg0','private-key',key,'listen-port','51820')
     baseline()
+    (ROOT/'network-ready').touch()
 
 
 def public(name): return run('wg','pubkey',input=(ROOT/(name+'.key')).read_text())
@@ -139,7 +142,7 @@ def baseline():
         ns(name,'ip','link','set','wg0','mtu','1420','up')
         ns(name,'ip','route','replace',target+'/32','dev','wg0')
     ns(SERVER,'nft','delete','table','inet','edgelab',check=False)
-    ns(SERVER,'nft','-f','-',input='table inet edgelab { chain input { type filter hook input priority 0; policy accept; iifname "el-s" tcp dport { 8101, 9000 } counter drop; } }\n')
+    ns(SERVER,'nft','-f','-',input='table inet edgelab { chain input { type filter hook input priority 0; policy accept; iifname "el-s" tcp dport { 8101, 9000 } counter drop; }; }\n')
 
 
 def alive(name):
