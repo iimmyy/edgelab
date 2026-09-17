@@ -195,7 +195,7 @@ func main() {
 		}
 	}
 	if !valid {
-		if strings.Contains(origin.Attributes, "r") {
+		if len(origin.Attributes) > 1 && origin.Attributes[1] == 'r' {
 			failed(errors.New("sealed image verification failed"))
 		}
 		if e = storage.capacity(maxExpanded); e != nil {
@@ -223,8 +223,17 @@ func main() {
 		}
 		faultPoint("unmounted")
 	}
-	if _, e = command("lvchange", "--devices", p.Device, "-pr", "edgelab_worker/"+base); e != nil {
+	origin, e = storage.inspect(base)
+	if e != nil {
 		failed(e)
+	}
+	if len(origin.Attributes) < 2 {
+		failed(errors.New("invalid origin attributes"))
+	}
+	if origin.Attributes[1] != 'r' {
+		if _, e = command("lvchange", "--devices", p.Device, "-pr", "edgelab_worker/"+base); e != nil {
+			failed(e)
+		}
 	}
 	faultPoint("seal")
 	stage("sealed")
@@ -236,8 +245,13 @@ func main() {
 	if oldUUID != "" && oldUUID != snap.UUID {
 		failed(errors.New("snapshot UUID changed"))
 	}
-	if _, e = command("lvchange", "--devices", p.Device, "-prw", "edgelab_worker/"+snapshot); e != nil {
-		failed(e)
+	if len(snap.Attributes) < 2 {
+		failed(errors.New("invalid snapshot attributes"))
+	}
+	if snap.Attributes[1] != 'w' {
+		if _, e = command("lvchange", "--devices", p.Device, "-prw", "edgelab_worker/"+snapshot); e != nil {
+			failed(e)
+		}
 	}
 	faultPoint("writable")
 	if _, e = db.Exec("UPDATE operations SET phase='registered',uuid=?,error='' WHERE id=?", snap.UUID, *id); e != nil {
