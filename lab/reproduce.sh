@@ -11,6 +11,8 @@ cp .source-revision "$output/source-commit"
 uname -a > "$output/kernel.txt"
 dpkg-query -W > "$output/packages.txt"
 free -b > "$output/memory.txt"
+rustc --version > "$output/rust-version.txt"
+go version > "$output/go-version.txt"
 lsblk --json -b > "$output/initial-block-devices.json"
 step() {
   local name=$1

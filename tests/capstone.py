@@ -77,6 +77,12 @@ def main():
             )
         return result
 
+    def worker_result(name, arguments):
+        completed = run(name, arguments)
+        events = [json.loads(line) for line in completed.stdout.splitlines()]
+        assert events and events[-1].get("ready") is True, "worker did not finish ready"
+        return events[-1]
+
     def stage(name, **details):
         stages.append({"stage": name, "time": time.time(), **details})
         save("stages.json", stages)
@@ -301,10 +307,8 @@ except urllib.error.HTTPError as error: print(json.dumps({'status':error.code,'e
             "--manifest-bytes",
             str(manifest["size"]),
         ]
-        ready = json.loads(
-            run(
-                "prepare-image", [*image_arguments, "--operation", "capstone-serving"]
-            ).stdout
+        ready = worker_result(
+            "prepare-image", [*image_arguments, "--operation", "capstone-serving"]
         )
         image_mount = out / "application"
         image_mount.mkdir()
@@ -610,6 +614,8 @@ except (ConnectionResetError,BrokenPipeError):print(json.dumps({'closed':True,'r
             "lv_size",
             "/dev/edgelab_r2/data",
         )
+        filesystem = os.statvfs(lab.ROOT / "volume")
+        before_filesystem_bytes = filesystem.f_blocks * filesystem.f_frsize
         objects(
             "fill-through-proxy", "growth-ack.jsonl", count=110, size=8 << 20, seed=123
         )
@@ -636,14 +642,30 @@ except (ConnectionResetError,BrokenPipeError):print(json.dumps({'closed':True,'r
                 > float(before)
             )
         )
+
+        def filesystem_grew():
+            current = os.statvfs(lab.ROOT / "volume")
+            size = current.f_blocks * current.f_frsize
+            return size if size > before_filesystem_bytes else None
+
+        after_filesystem_bytes = until(filesystem_grew)
         objects("grown-object-hashes", "growth-ack.jsonl", verify=True)
         objects("original-object-hashes", "monitor-ack.jsonl", verify=True)
         stage(
             "automatic-storage-growth-preserves-acknowledged-objects",
             before_bytes=float(before),
+            before_filesystem_bytes=before_filesystem_bytes,
+            after_filesystem_bytes=after_filesystem_bytes,
             acknowledged_growth_objects=110,
         )
         before_resources = inventory()
+        origin = next(
+            row
+            for row in before_resources
+            if row["lv_name"] == Path(ready["origin"]).name
+        )
+        assert origin["lv_attr"][1] == "r", "fork source must be immutable"
+
         run(
             "worker-interrupted",
             [
@@ -661,11 +683,9 @@ except (ConnectionResetError,BrokenPipeError):print(json.dumps({'closed':True,'r
             row for row in interrupted_resources if row["lv_uuid"] not in old_uuids
         ]
         assert len(created) == 1 and created[0]["origin"]
-        resumed = json.loads(
-            run(
-                "worker-resumed",
-                [*image_arguments, "--operation", "capstone-interrupted"],
-            ).stdout
+        resumed = worker_result(
+            "worker-resumed",
+            [*image_arguments, "--operation", "capstone-interrupted"],
         )
         assert resumed["snapshot_uuid"] == created[0]["lv_uuid"] and {
             r["lv_uuid"] for r in inventory()
@@ -754,11 +774,9 @@ except (ConnectionResetError,BrokenPipeError):print(json.dumps({'closed':True,'r
         )
         traffic("after-canary-and-stall", "echo-2")
         stage("canary-rejected-and-stalled-consumer-recovered")
-        fork = json.loads(
-            run(
-                "immutable-source-fork",
-                [*image_arguments, "--operation", "capstone-fork"],
-            ).stdout
+        fork = worker_result(
+            "immutable-source-fork",
+            [*image_arguments, "--operation", "capstone-fork"],
         )
         fork_mount = out / "fork"
         fork_mount.mkdir()

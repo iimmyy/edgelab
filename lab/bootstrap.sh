@@ -3,7 +3,7 @@ set -euo pipefail
 [[ $(uname -s) == Linux && $(uname -m) == aarch64 ]] || { echo 'ARM64 Linux required' >&2; exit 1; }
 sudo apt-get update
 sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  build-essential pkg-config libsqlite3-dev golang-go python3 curl ca-certificates \
+  build-essential pkg-config libsqlite3-dev golang-go python3 git curl ca-certificates \
   iproute2 wireguard-tools nftables lvm2 e2fsprogs tcpdump sqlite3
 if [[ ! -x "$HOME/.cargo/bin/rustup" ]]; then
   installer=$(mktemp -d)
