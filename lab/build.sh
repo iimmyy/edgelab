@@ -4,4 +4,4 @@ cd "$(dirname "$0")/.."
 export PATH="$HOME/.cargo/bin:$PATH"
 mkdir -p bin
 cargo build --release --locked
-for name in echo traffic objects objects-check grow; do go build -trimpath -o "bin/$name" "./cmd/$name"; done
+for name in echo traffic objects objects-check grow worker; do go build -trimpath -o "bin/$name" "./cmd/$name"; done
