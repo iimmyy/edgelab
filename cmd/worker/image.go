@@ -310,6 +310,7 @@ func applyLayers(layers [][]entry) error {
 				if closeErr != nil {
 					return closeErr
 				}
+				faultPoint("unpack-partial")
 			}
 		}
 		// Directory metadata follows children so restricted modes cannot block extraction.

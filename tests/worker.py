@@ -60,7 +60,7 @@ def main():
         for entries in [
             [
                 ("etc/", None),
-                ("etc/version", b"old"),
+                ("etc/version", ("old-" + variant).encode()),
                 ("etc/keep", b"kept"),
                 ("etc/remove", b"remove"),
                 ("opaque/", None),
@@ -367,12 +367,14 @@ def main():
             "lv",
             "format",
             "mount",
+            "unpack-partial",
             "unpack",
             "unmounted",
             "seal",
             "sealed",
             "snapshot",
             "writable",
+            "activated",
             "registered",
         ]:
             name = "crash-" + point

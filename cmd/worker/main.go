@@ -65,6 +65,11 @@ func main() {
 		fatal(e)
 	}
 	desc := descriptor{"application/vnd.oci.image.manifest.v1+json", *image, *size}
+	faultPoint = func(point string) {
+		if *crash == point {
+			os.Exit(77)
+		}
+	}
 	if *unpack != "" {
 		base := "image_" + strings.TrimPrefix(*image, "sha256:")[:24]
 		expected := filepath.Join(*root, "mounts", base)
@@ -214,7 +219,10 @@ func main() {
 		if e != nil {
 			failed(e)
 		}
-		if _, e = command(executable, "--operation", *id, "--manifest", *image, "--manifest-bytes", fmt.Sprint(*size), "--store", *storeURL, "--unpack-root", mount); e != nil {
+		if _, e = command(executable, "--operation", *id, "--manifest", *image, "--manifest-bytes", fmt.Sprint(*size), "--store", *storeURL, "--unpack-root", mount, "--crash-after", *crash); e != nil {
+			if *crash == "unpack-partial" {
+				os.Exit(77)
+			}
 			failed(e)
 		}
 		faultPoint("unpack")
@@ -254,6 +262,22 @@ func main() {
 		}
 	}
 	faultPoint("writable")
+	snap, e = storage.inspect(snapshot)
+	if e != nil {
+		failed(e)
+	}
+	if len(snap.Attributes) < 5 {
+		failed(errors.New("invalid snapshot activation state"))
+	}
+	if snap.Attributes[4] != 'a' {
+		if _, e = command("lvchange", "--devices", p.Device, "-ay", "-K", "edgelab_worker/"+snapshot); e != nil {
+			failed(e)
+		}
+	}
+	if info, e := os.Stat("/dev/edgelab_worker/" + snapshot); e != nil || info.Mode()&os.ModeDevice == 0 {
+		failed(errors.New("snapshot device is not active"))
+	}
+	faultPoint("activated")
 	if _, e = db.Exec("UPDATE operations SET phase='registered',uuid=?,error='' WHERE id=?", snap.UUID, *id); e != nil {
 		failed(e)
 	}
