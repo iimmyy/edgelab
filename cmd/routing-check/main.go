@@ -289,6 +289,7 @@ func run(binary, output string) error {
 		return nil
 	})
 	stop()
+	v.check("two-node-delay-duplicate-loss-reorder-convergence", func() error { return convergence(binary, dir, token) })
 	failed := 0
 	for _, o := range v.observations {
 		if !o.Passed {
