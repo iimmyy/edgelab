@@ -420,7 +420,13 @@ def main():
             repeated = invoke(name, d, case=name + "-repeated")
             assert repeated["snapshot_uuid"] == r["snapshot_uuid"]
             crashes.append(
-                {"point": point, "before": before, "after": inventory(), "result": r}
+                {
+                    "point": point,
+                    "phase_after_interruption": observed_phase,
+                    "before": before,
+                    "after": inventory(),
+                    "result": r,
+                }
             )
             print("recovered", point, flush=True)
         gate(
@@ -515,7 +521,7 @@ def main():
                 "source_commit": (PROJECT / ".source-revision").read_text().strip(),
                 "files": {
                     str(p.relative_to(out)): hashlib.sha256(p.read_bytes()).hexdigest()
-                    for p in out.iterdir()
+                    for p in out.rglob("*")
                     if p.is_file()
                 },
             },

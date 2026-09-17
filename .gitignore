@@ -8,3 +8,5 @@ __pycache__/
 ._*
 
 /evidence/raw/
+
+.DS_Store
