@@ -9,6 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -221,7 +222,8 @@ func main() {
 			failed(e)
 		}
 		if _, e = command(executable, "--operation", *id, "--manifest", *image, "--manifest-bytes", fmt.Sprint(*size), "--store", *storeURL, "--unpack-root", mount, "--crash-after", *crash); e != nil {
-			if *crash == "unpack-partial" {
+			var childExit *exec.ExitError
+			if *crash == "unpack-partial" && errors.As(e, &childExit) && childExit.ExitCode() == 77 {
 				os.Exit(77)
 			}
 			failed(e)

@@ -33,10 +33,16 @@ def main():
     def save(name, value):
         (out / name).write_text(json.dumps(value, indent=2) + "\n")
 
+    source = json.loads((PROJECT / ".source-tree.json").read_text())
+    for name, expected in source["files"].items():
+        assert hashlib.sha256((PROJECT / name).read_bytes()).hexdigest() == expected, (
+            name
+        )
     save(
         "source.json",
         {
             "commit": (PROJECT / ".source-revision").read_text().strip(),
+            "tree": source,
             "binaries": {
                 name: hashlib.sha256((PROJECT / "bin" / name).read_bytes()).hexdigest()
                 for name in ["worker", "image-check"]
@@ -277,6 +283,11 @@ def main():
         for attack in ["corrupt", "missing", "unsupported"]:
             result = invoke(attack, image(attack, attack), codes=(1,))
             assert not result["ready"]
+            assert {
+                "corrupt": "blob digest mismatch",
+                "missing": "fetch HTTP 404",
+                "unsupported": "unsupported layer media type",
+            }[attack] in result["error"], result
             invalid.append(result)
         gate("W02", invalid)
         hostile = []
@@ -290,6 +301,14 @@ def main():
         ]:
             result = invoke(attack, image(attack, attack), codes=(1,))
             assert not result["ready"]
+            assert {
+                "traversal": "path escape",
+                "absolute": "path escape",
+                "symlink": "unsupported link or special file",
+                "hardlink": "unsupported link or special file",
+                "count": "file count limit",
+                "expansion": "expanded size limit",
+            }[attack] in result["error"], result
             hostile.append(result)
         assert sentinel.read_text() == "untouched\n"
         gate(
@@ -387,6 +406,14 @@ def main():
                 codes=(77,),
             )
             before = inventory()
+            with sqlite3.connect(fixture.ROOT / "intent.db") as state:
+                observed_phase = state.execute(
+                    "SELECT phase FROM operations WHERE id=?", (name,)
+                ).fetchone()[0]
+            assert (observed_phase == "registered") == (point == "registered"), (
+                point,
+                observed_phase,
+            )
             r = invoke(name, d, case=name + "-resumed")
             assert r["ready"]
             verify(r, name, name + "-verified.json")
