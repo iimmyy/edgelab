@@ -343,8 +343,8 @@ def main():
                 )
             )
         concurrent = []
-        for op, p in procs:
-            stdout, stderr = p.communicate(timeout=100)
+        finished = [(op, p, *p.communicate(timeout=100)) for op, p in procs]
+        for op, p, stdout, stderr in finished:
             save(
                 op + "-first.json",
                 {"exit": p.returncode, "stdout": stdout, "stderr": stderr},

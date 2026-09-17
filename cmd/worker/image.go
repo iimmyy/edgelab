@@ -220,7 +220,7 @@ func loadLayers(store, cache string, desc descriptor) (manifest, [][]entry, erro
 				}
 			}
 			name = path.Clean(name)
-			if name == "." || strings.HasPrefix(name, ".edgelab") || seen[name] {
+			if name == "." || name == "lost+found" || strings.HasPrefix(name, "lost+found/") || strings.HasPrefix(name, ".edgelab") || seen[name] {
 				return m, nil, errors.New("reserved or duplicate path")
 			}
 			seen[name] = true

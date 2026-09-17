@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -32,7 +33,7 @@ func main() {
 	dataLimit := flag.Float64("data-limit", 80, "thinpool data percent ceiling")
 	metadataLimit := flag.Float64("metadata-limit", 70, "thinpool metadata percent ceiling")
 	flag.Parse()
-	if os.Geteuid() != 0 || *root != "/var/lib/edgelab-worker" || !validDigest(*image) || *size < 1 || *size > maxBlob || !regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`).MatchString(*id) || *dataLimit <= 0 || *dataLimit > 80 || *metadataLimit <= 0 || *metadataLimit > 70 {
+	if os.Geteuid() != 0 || *root != "/var/lib/edgelab-worker" || !validDigest(*image) || *size < 1 || *size > maxBlob || !regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`).MatchString(*id) || math.IsNaN(*dataLimit) || math.IsNaN(*metadataLimit) || *dataLimit <= 0 || *dataLimit > 80 || *metadataLimit <= 0 || *metadataLimit > 70 {
 		fatal(errors.New("invalid worker arguments"))
 	}
 	info, e := os.Lstat(*root)
