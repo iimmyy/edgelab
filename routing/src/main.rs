@@ -1,3 +1,4 @@
+mod listener;
 use axum::{
     Json, Router,
     extract::{DefaultBodyLimit, Query, State as Extract},
@@ -164,6 +165,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(DefaultBodyLimit::max(VIEW_LIMIT))
         .with_state(server);
     let listener = tokio::net::TcpListener::bind(options.listen).await?;
-    axum::serve(listener, app).await?;
+    axum::serve(
+        listener::BoundedListener {
+            socket: listener,
+            slots: Arc::new(Semaphore::new(64)),
+        },
+        app,
+    )
+    .await?;
     Ok(())
 }
