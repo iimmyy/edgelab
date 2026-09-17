@@ -65,10 +65,13 @@ type registration struct {
 	Deleted   bool   `json:"deleted"`
 }
 type workerDaemon struct {
-	config       daemonConfig
-	db           *sql.DB
-	mu           sync.Mutex
-	publications map[string]any
+	config          daemonConfig
+	db              *sql.DB
+	mu              sync.Mutex
+	publications    map[string]any
+	identities      map[string]any
+	statusVersion   int
+	deploymentEpoch *int64
 }
 
 var routeName = regexp.MustCompile(`^[a-zA-Z0-9_.-]{1,128}$`)
@@ -78,6 +81,7 @@ func serveWorker(args []string) error {
 	configPath := flags.String("config", "", "owner configuration")
 	statePath := flags.String("state", "", "intent database")
 	address := flags.String("listen", "127.0.0.1:18301", "management address")
+	statusVersion := flags.Int("status-version", 1, "status schema version: 2 requires deployment_epoch")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -149,7 +153,16 @@ func serveWorker(args []string) error {
 	if _, err = db.Exec("INSERT OR IGNORE INTO routing_state(id,body) VALUES(1,?)", initial); err != nil {
 		return err
 	}
-	daemon := workerDaemon{config: config, db: db, publications: map[string]any{}}
+	daemon := workerDaemon{config: config, db: db, publications: map[string]any{}, identities: map[string]any{}, statusVersion: *statusVersion}
+	if *statusVersion == 2 {
+		var epoch int64
+		if err = db.QueryRow("SELECT deployment_epoch FROM routing_state WHERE id=1").Scan(&epoch); err != nil {
+			return fmt.Errorf("status schema 2 readiness: %w", err)
+		}
+		daemon.deploymentEpoch = &epoch
+	} else if *statusVersion != 1 {
+		return errors.New("unsupported status schema")
+	}
 	current, err := daemon.snapshot()
 	if err != nil {
 		return err
@@ -223,11 +236,12 @@ func serveWorker(args []string) error {
 			return
 		}
 		json.NewEncoder(w).Encode(map[string]any{"revision": revision, "durable": true})
+		json.NewEncoder(os.Stdout).Encode(map[string]any{"event": "intent_committed", "owner": config.Owner, "operation": request.Operation, "instance": request.ID, "revision": revision, "deleted": request.Deleted})
 	})
 	mux.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		daemon.mu.Lock()
 		defer daemon.mu.Unlock()
-		json.NewEncoder(w).Encode(map[string]any{"owner": config.Owner, "publications": daemon.publications})
+		json.NewEncoder(w).Encode(map[string]any{"owner": config.Owner, "publications": daemon.publications, "instances": daemon.identities, "status_version": daemon.statusVersion, "deployment_epoch": daemon.deploymentEpoch})
 	})
 	go daemon.publishLoop()
 	server := http.Server{Addr: *address, Handler: mux, ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 3 * time.Second, WriteTimeout: 4 * time.Second, IdleTimeout: 2 * time.Second, MaxHeaderBytes: 8192}
@@ -392,8 +406,14 @@ func (d *workerDaemon) reconcileWorkloads(snapshot routeSnapshot) error {
 			}
 		}
 		if record.Deleted {
+			d.mu.Lock()
+			delete(d.identities, id)
+			d.mu.Unlock()
 			continue
 		}
+		d.mu.Lock()
+		d.identities[id] = map[string]any{"state": "unknown", "checked_ms": time.Now().UnixMilli()}
+		d.mu.Unlock()
 		if expected.Kind == "objects" {
 			client := http.Client{Timeout: time.Second}
 			response, err := client.Get("http://" + expected.Endpoint + "/health")
@@ -421,6 +441,9 @@ func (d *workerDaemon) reconcileWorkloads(snapshot routeSnapshot) error {
 		} else {
 			return errors.New("unsupported workload identity protocol")
 		}
+		d.mu.Lock()
+		d.identities[id] = map[string]any{"state": "verified", "app": record.App, "instance": id, "version": expected.Version, "endpoint": record.Endpoint, "checked_ms": time.Now().UnixMilli()}
+		d.mu.Unlock()
 	}
 	return nil
 }

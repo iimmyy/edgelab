@@ -186,6 +186,13 @@ func recoverWorker(args []string) error {
 		merged.Incarnation++
 		merged.Revision++
 		for id, old := range backup.Records {
+			if accepted, exists := merged.Records[id]; exists && old.Deleted && accepted.App == old.App && accepted.Endpoint == old.Endpoint {
+				accepted.Deleted = true
+				if old.Revision > accepted.Revision {
+					accepted.Revision = old.Revision
+				}
+				merged.Records[id] = accepted
+			}
 			accepted, exists := merged.Records[id]
 			if !exists || old.App != accepted.App || old.Endpoint != accepted.Endpoint || accepted.Deleted && !old.Deleted {
 				journal.Quarantined[id] = old

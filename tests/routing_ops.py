@@ -381,6 +381,155 @@ def main():
             "backup-recovery-resumes-one-node-ack-with-deletion-and-credential-fencing"
         )
 
+        canary_db = args.out / "canary.db"
+        with (
+            sqlite3.connect(args.out / "worker-1.db") as source,
+            sqlite3.connect(canary_db) as target,
+        ):
+            source.backup(target)
+        canary = subprocess.run(
+            [
+                str(ROOT / "bin/worker"),
+                "serve",
+                "--config",
+                str(args.out / "worker-1.json"),
+                "--state",
+                str(canary_db),
+                "--listen",
+                f"127.0.0.1:{ports[12]}",
+                "--status-version",
+                "2",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        assert (
+            canary.returncode != 0
+            and "no such column: deployment_epoch" in canary.stdout
+        )
+        with socket.socket() as probe:
+            assert probe.connect_ex(("127.0.0.1", ports[12])) != 0
+        traffic(1, "canary-rejected", "instance-2,instance-3")
+        save(
+            args.out / "canary.json",
+            {
+                "exit": canary.returncode,
+                "error": canary.stdout,
+                "listener_opened": False,
+                "active_profile": 1,
+                "rejected_profile": 2,
+            },
+        )
+        observations.append("schema-incompatible-canary-rejected-before-readiness")
+        database = args.out / "worker-1.db"
+        reader = sqlite3.connect(database)
+        writer = sqlite3.connect(database, timeout=0.1)
+        writer.execute("PRAGMA wal_autocheckpoint=0")
+        reader.execute("BEGIN")
+        reader.execute("SELECT count(*) FROM routing_operations").fetchone()
+        background = subprocess.Popen(
+            [
+                str(ROOT / "bin/traffic"),
+                "--address",
+                f"127.0.0.1:{public_ports[1]}",
+                "--instances",
+                "instance-2,instance-3",
+                "--duration",
+                "3s",
+                "--count",
+                "4000000",
+                "--concurrency",
+                "4",
+                "--history",
+                str(args.out / "maintenance-traffic.jsonl"),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        try:
+            writer.executemany(
+                "INSERT INTO routing_operations(id,request_hash,revision) VALUES(?,?,?)",
+                [(f"maintenance-{i}", f"{i:064x}", 1) for i in range(4096)],
+            )
+            writer.commit()
+            query = "SELECT revision FROM routing_operations WHERE request_hash=?"
+            before = writer.execute(
+                "EXPLAIN QUERY PLAN " + query, (f"{2000:064x}",)
+            ).fetchall()
+            blocked = writer.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+            peak_wal = Path(str(database) + "-wal").stat().st_size
+            assert blocked[0] == 1 and peak_wal > 0
+            reader.commit()
+            writer.execute(
+                "CREATE INDEX routing_operations_request_hash ON routing_operations(request_hash)"
+            )
+            writer.commit()
+            after = writer.execute(
+                "EXPLAIN QUERY PLAN " + query, (f"{2000:064x}",)
+            ).fetchall()
+            checkpoint = writer.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+            assert checkpoint[0] == 0
+            assert any("SCAN" in row[-1] for row in before)
+            assert any("SEARCH" in row[-1] for row in after)
+            stdout, stderr = background.communicate(timeout=7)
+            assert background.returncode == 0, stdout + stderr
+            save(
+                args.out / "maintenance.json",
+                {
+                    "seeded_rows": 4096,
+                    "before_plan": before,
+                    "after_plan": after,
+                    "blocked_checkpoint": blocked,
+                    "recovered_checkpoint": checkpoint,
+                    "peak_wal_bytes": peak_wal,
+                    "client": json.loads(stdout),
+                    "remediation": "release the controlled reader, add the lookup index, checkpoint through SQLite",
+                },
+            )
+        finally:
+            reader.close()
+            writer.close()
+            if background.poll() is None:
+                background.kill()
+                background.wait()
+        observations.append("query-plan-and-wal-maintenance-under-verified-traffic")
+        # The invalid update is rejected before it can poison the restart cache.
+        try:
+            request(
+                router_ports[1],
+                "/snapshot",
+                {
+                    "schema": 999,
+                    "owner": "worker-2",
+                    "incarnation": 1,
+                    "revision": 1,
+                    "records": {},
+                },
+                token=tokens[1],
+            )
+        except urllib.error.HTTPError as error:
+            assert error.code == 409
+        else:
+            raise AssertionError("incompatible update accepted")
+        systemctl("kill", "--signal=SIGSTOP", proxies[1])
+        subprocess.run(
+            [
+                "python3",
+                str(ROOT / "lab/watchdog.py"),
+                "--unit",
+                proxies[1],
+                "--status",
+                f"http://127.0.0.1:{management_ports[1]}/status",
+                "--out",
+                str(args.out / "watchdog"),
+            ],
+            check=True,
+            timeout=15,
+        )
+        traffic(1, "watchdog-recovered", "instance-2,instance-3")
+        observations.append("independent-watchdog-captures-stall-and-restarts-once")
         held = socket.create_connection(("127.0.0.1", public_ports[0]), timeout=2)
         held.recv(4096)
         proxy_pid = systemctl("show", "-p", "MainPID", "--value", proxies[0])
