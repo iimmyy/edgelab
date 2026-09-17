@@ -24,6 +24,12 @@ func fatal(e error) {
 	os.Exit(1)
 }
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "serve" {
+		if err := serveWorker(os.Args[2:]); err != nil {
+			fatal(err)
+		}
+		return
+	}
 	root := flag.String("root", "/var/lib/edgelab-worker", "owned worker root")
 	storeURL := flag.String("store", "http://127.0.0.1:9200", "owned fixture store")
 	id := flag.String("operation", "", "idempotency key")
