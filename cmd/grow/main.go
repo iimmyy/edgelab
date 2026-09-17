@@ -60,6 +60,20 @@ func main() {
 	if *watch && (*op != "" || *target != 0) {
 		fail(errors.New("watch uses threshold and generated operation IDs"))
 	}
+	if *root != "/var/lib/edgelab-r2" || *maximum > 6144 || *target > 6144 {
+		fail(errors.New("outside fixture allocation bounds"))
+	}
+	info, err := os.Lstat(*root)
+	if err != nil || !info.IsDir() || info.Mode().Perm() != 0700 || info.Sys().(*syscall.Stat_t).Uid != 0 {
+		fail(errors.New("untrusted fixture directory"))
+	}
+	marker, err := os.ReadFile(filepath.Join(*root, "marker.json"))
+	var marked struct {
+		Machine string `json:"machine"`
+	}
+	if err != nil || json.Unmarshal(marker, &marked) != nil {
+		fail(errors.New("unmarked environment"))
+	}
 	b, e := os.ReadFile(filepath.Join(*root, "storage.json"))
 	if e != nil {
 		fail(e)
@@ -69,7 +83,7 @@ func main() {
 		fail(e)
 	}
 	machine, e := os.ReadFile("/etc/machine-id")
-	if e != nil || strings.TrimSpace(string(machine)) != f.Machine || len(f.Devices) != 4 {
+	if e != nil || strings.TrimSpace(string(machine)) != f.Machine || len(f.Devices) != 4 || marked.Machine != f.Machine || f.LV != "/dev/edgelab_r2/data" || f.Mount != filepath.Join(*root, "volume") {
 		fail(errors.New("fixture ownership mismatch"))
 	}
 	for i, d := range f.Devices {
@@ -121,6 +135,12 @@ func main() {
 		}
 	}
 	step := func() error {
+		mounted, err := run("findmnt", "--noheadings", "--mountpoint", f.Mount, "-o", "UUID")
+		actualUUID, uuidErr := run("blkid", "-s", "UUID", "-o", "value", f.LV)
+		if err != nil || uuidErr != nil || mounted == "" || mounted != actualUUID {
+			return errors.New("owned filesystem is not mounted")
+		}
+
 		raw, e := lvm("lvs", "lv_size")
 		if e != nil {
 			return e

@@ -5,10 +5,12 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"time"
@@ -62,6 +64,8 @@ func main() {
 		record := map[string]any{"id": o.ID, "bytes": o.Bytes, "method": method, "elapsed_ms": float64(time.Since(start).Microseconds()) / 1000, "ok": err == nil, "stage": stage}
 		if err != nil {
 			record["error"] = err.Error()
+			var timeout net.Error
+			record["timeout"] = errors.As(err, &timeout) && timeout.Timeout()
 			failed = true
 		}
 		out.Encode(record)
