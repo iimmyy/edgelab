@@ -297,6 +297,15 @@ def main():
         assert len(limits["invalid"]) == 3 and all(
             row["exit"] != 0 for row in limits["invalid"]
         )
+        preflight = read(root / "lifecycle/preflight.json")
+        assert preflight["status"] == "passed"
+        assert {row["case"] for row in preflight["refusals"]} == {
+            "unmarked",
+            "capacity",
+            "missing-feature",
+            "non-allowlisted-device",
+        }
+        assert all(row["exit"] != 0 for row in preflight["refusals"])
         lifecycle = read(root / "lifecycle/cleanup.json")
         assert lifecycle["status"] == "passed"
         assert all(
