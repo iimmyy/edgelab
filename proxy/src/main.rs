@@ -321,6 +321,7 @@ async fn forward(
 ) {
     let started = Instant::now();
     let name = app.name.clone();
+    let _admission = app.admission.clone();
     let result = async move {
         let mut backend = connect(&app, &options, &resolver).await?;
         drop(app);
