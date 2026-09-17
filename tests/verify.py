@@ -356,14 +356,23 @@ def verify(lab, benchmark_seconds):
             slow = lab.traffic(
                 instances="a1", count=4, concurrency=1, label="connect-timeout-fallback"
             )
-            assert slow["max_ms"] < 2200
-            assert any(
-                e.get("event") == "connect_timeout" and e.get("target") == blackhole
+            assert 450 < slow["max_ms"] < 1000
+            deadlines = [
+                e
                 for e in lab.events()
+                if e.get("event") == "connect_timeout" and e.get("target") == blackhole
+            ]
+            assert deadlines
+            assert all(
+                e.get("stage") == "tcp_connect"
+                and e.get("deadline_source") == "application"
+                and e.get("so_error") == 0
+                and e.get("remote") == blackhole
+                for e in deadlines
             )
         lab.write_config()
         lab.reload()
-        return {"dns_and_refusal": r, "timeout_fallback": slow}
+        return {"dns_and_refusal": r, "timeout_fallback": slow, "deadlines": deadlines}
 
     gate("P02", p02)
 
