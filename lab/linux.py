@@ -179,7 +179,7 @@ def workloads():
 
 def fault(name):
     if name=='interface': ns(CLIENT,'ip','link','set','wg0','down')
-    elif name=='address': ns(CLIENT,'ip','addr','del','10.77.0.1/32','dev','wg0');ns(CLIENT,'ip','addr','add','10.77.0.9/32','dev','wg0')
+    elif name=='address': ns(CLIENT,'ip','addr','del','10.77.0.1/32','dev','wg0');ns(CLIENT,'ip','addr','add','10.77.0.9/32','dev','wg0');ns(CLIENT,'ip','route','replace','10.77.0.2/32','dev','wg0')
     elif name=='endpoint':ns(CLIENT,'wg','set','wg0','peer',public(SERVER),'endpoint','172.30.77.2:51821')
     elif name=='prefix':ns(CLIENT,'wg','set','wg0','peer',public(SERVER),'allowed-ips','10.77.0.99/32')
     elif name=='route':ns(CLIENT,'ip','route','replace','blackhole','10.77.0.2/32')
