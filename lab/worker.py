@@ -2,8 +2,8 @@
 import argparse
 import json
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import linux as lab
 
