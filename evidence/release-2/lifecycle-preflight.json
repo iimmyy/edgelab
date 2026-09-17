@@ -1,0 +1,154 @@
+{
+  "id": "L01",
+  "status": "passed",
+  "preflight": {
+    "machine": "c9fdd8524249336698a0438cb0b21e4e",
+    "kernel": "6.8.0-139-generic",
+    "architecture": "aarch64",
+    "free_bytes": 42515709952,
+    "devices": {
+      "blockdevices": [
+        {
+          "name": "loop0",
+          "size": 1887436800,
+          "type": "loop",
+          "mountpoints": [
+            null
+          ],
+          "children": [
+            {
+              "name": "edgelab_r2-data",
+              "size": 5867831296,
+              "type": "lvm",
+              "mountpoints": [
+                "/var/lib/edgelab-r2/volume"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "loop1",
+          "size": 1887436800,
+          "type": "loop",
+          "mountpoints": [
+            null
+          ],
+          "children": [
+            {
+              "name": "edgelab_r2-data",
+              "size": 5867831296,
+              "type": "lvm",
+              "mountpoints": [
+                "/var/lib/edgelab-r2/volume"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "loop2",
+          "size": 1887436800,
+          "type": "loop",
+          "mountpoints": [
+            null
+          ],
+          "children": [
+            {
+              "name": "edgelab_r2-data",
+              "size": 5867831296,
+              "type": "lvm",
+              "mountpoints": [
+                "/var/lib/edgelab-r2/volume"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "loop3",
+          "size": 1887436800,
+          "type": "loop",
+          "mountpoints": [
+            null
+          ],
+          "children": [
+            {
+              "name": "edgelab_r2-data",
+              "size": 5867831296,
+              "type": "lvm",
+              "mountpoints": [
+                "/var/lib/edgelab-r2/volume"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "sda",
+          "size": 68719476736,
+          "type": "disk",
+          "mountpoints": [
+            null
+          ],
+          "children": [
+            {
+              "name": "sda1",
+              "size": 67644669440,
+              "type": "part",
+              "mountpoints": [
+                "/"
+              ]
+            },
+            {
+              "name": "sda15",
+              "size": 103809536,
+              "type": "part",
+              "mountpoints": [
+                "/boot/efi"
+              ]
+            },
+            {
+              "name": "sda16",
+              "size": 967836160,
+              "type": "part",
+              "mountpoints": [
+                "/boot"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vda",
+          "size": 55296,
+          "type": "disk",
+          "mountpoints": [
+            null
+          ]
+        }
+      ]
+    }
+  },
+  "refusals": [
+    {
+      "case": "unmarked",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"error\": \"unmarked environment\"}\n"
+    },
+    {
+      "case": "capacity",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/home/ubuntu/edgelab/lab/linux.py\", line 73, in preflight\n    raise RuntimeError(\"insufficient free space\")\nRuntimeError: insufficient free space\n"
+    },
+    {
+      "case": "missing-feature",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/home/ubuntu/edgelab/lab/linux.py\", line 87, in preflight\n    raise RuntimeError(f\"missing {tool}\")\nRuntimeError: missing ip\n"
+    },
+    {
+      "case": "non-allowlisted-device",
+      "exit": 1,
+      "stdout": "{\"error\":\"loop device outside allowlist\",\"ok\":false}\n",
+      "stderr": ""
+    }
+  ]
+}

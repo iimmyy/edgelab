@@ -1,0 +1,54 @@
+{
+  "source_commit": "d1aca6202caa6c1e0d150bb665f5721191c909e0",
+  "binary_sha256": "11a14888e03dc6ad5bb3f2a87be64494ab011fece44cf3dc8da365b7fc6c7d25",
+  "status": "passed",
+  "case": "5597 MiB normalizes to 5600 MiB; crash/retry preserves that target; a different normalized target conflicts",
+  "records": [
+    {
+      "arguments": [
+        "--operation",
+        "rounded-target",
+        "--target-mib",
+        "5597",
+        "--crash-after",
+        "lv"
+      ],
+      "exit": 77,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "--operation",
+        "rounded-target",
+        "--target-mib",
+        "5597"
+      ],
+      "exit": 0,
+      "stdout": "{\"filesystem_bytes\":5872025600,\"lv_bytes\":5872025600,\"ok\":true,\"operation\":\"rounded-target\",\"sqlite_journal\":\"wal\",\"sqlite_synchronous\":2,\"target_bytes\":5872025600}\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "--operation",
+        "rounded-target",
+        "--target-mib",
+        "5597"
+      ],
+      "exit": 0,
+      "stdout": "{\"already_complete\":true,\"ok\":true,\"operation\":\"rounded-target\",\"target_bytes\":5872025600}\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "--operation",
+        "rounded-target",
+        "--target-mib",
+        "5601"
+      ],
+      "exit": 1,
+      "stdout": "{\"error\":\"operation identity or target conflict\",\"ok\":false}\n",
+      "stderr": ""
+    }
+  ]
+}

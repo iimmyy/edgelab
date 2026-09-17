@@ -1,0 +1,17 @@
+{
+  "id": "L02",
+  "status": "passed",
+  "same_processes_after_two_up": {
+    "objects": {
+      "pid": 6873,
+      "start": "240781"
+    },
+    "proxy": {
+      "pid": 4321,
+      "start": "215997"
+    }
+  },
+  "unrelated_process_alive": true,
+  "unrelated_file_preserved": true,
+  "unrelated_network_table_preserved": true
+}

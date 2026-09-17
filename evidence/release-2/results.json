@@ -1,0 +1,390 @@
+[
+  {
+    "id": "N01",
+    "status": "passed",
+    "details": {
+      "tunnel": {
+        "url": "http://10.77.0.2:8101/health",
+        "exit": 0,
+        "stdout": "{\"owner\":\"objects-1\"}\n",
+        "stderr": ""
+      },
+      "base": {
+        "url": "http://172.30.77.2:8101/health",
+        "exit": 28,
+        "stdout": "",
+        "stderr": "curl: (28) Connection timed out after 1132 milliseconds\n"
+      },
+      "direct": {
+        "url": "http://172.30.77.2:9000/health",
+        "exit": 28,
+        "stdout": "",
+        "stderr": "curl: (28) Connection timed out after 1065 milliseconds\n"
+      },
+      "management": {
+        "url": "http://172.30.77.2:9001/health",
+        "exit": 0,
+        "stdout": "{\"owner\":\"objects-1\"}\n",
+        "stderr": ""
+      }
+    }
+  },
+  {
+    "id": "N02",
+    "status": "passed",
+    "details": {
+      "kind": "authored replay, not withheld diagnosis",
+      "faults": [
+        {
+          "fault": "interface",
+          "failure_exit": 1,
+          "paths": {
+            "tunnel": {
+              "url": "http://10.77.0.2:8101/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            },
+            "base": {
+              "url": "http://172.30.77.2:8101/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1114 milliseconds\n"
+            },
+            "direct": {
+              "url": "http://172.30.77.2:9000/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1105 milliseconds\n"
+            },
+            "management": {
+              "url": "http://172.30.77.2:9001/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            }
+          }
+        },
+        {
+          "fault": "address",
+          "failure_exit": 1,
+          "paths": {
+            "tunnel": {
+              "url": "http://10.77.0.2:8101/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            },
+            "base": {
+              "url": "http://172.30.77.2:8101/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1084 milliseconds\n"
+            },
+            "direct": {
+              "url": "http://172.30.77.2:9000/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1150 milliseconds\n"
+            },
+            "management": {
+              "url": "http://172.30.77.2:9001/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            }
+          }
+        },
+        {
+          "fault": "endpoint",
+          "failure_exit": 1,
+          "paths": {
+            "tunnel": {
+              "url": "http://10.77.0.2:8101/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            },
+            "base": {
+              "url": "http://172.30.77.2:8101/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1019 milliseconds\n"
+            },
+            "direct": {
+              "url": "http://172.30.77.2:9000/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1060 milliseconds\n"
+            },
+            "management": {
+              "url": "http://172.30.77.2:9001/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            }
+          }
+        },
+        {
+          "fault": "prefix",
+          "failure_exit": 1,
+          "paths": {
+            "tunnel": {
+              "url": "http://10.77.0.2:8101/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            },
+            "base": {
+              "url": "http://172.30.77.2:8101/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1159 milliseconds\n"
+            },
+            "direct": {
+              "url": "http://172.30.77.2:9000/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1078 milliseconds\n"
+            },
+            "management": {
+              "url": "http://172.30.77.2:9001/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            }
+          }
+        },
+        {
+          "fault": "route",
+          "failure_exit": 1,
+          "paths": {
+            "tunnel": {
+              "url": "http://10.77.0.2:8101/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            },
+            "base": {
+              "url": "http://172.30.77.2:8101/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1061 milliseconds\n"
+            },
+            "direct": {
+              "url": "http://172.30.77.2:9000/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1139 milliseconds\n"
+            },
+            "management": {
+              "url": "http://172.30.77.2:9001/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            }
+          }
+        },
+        {
+          "fault": "firewall",
+          "failure_exit": 1,
+          "paths": {
+            "tunnel": {
+              "url": "http://10.77.0.2:8101/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            },
+            "base": {
+              "url": "http://172.30.77.2:8101/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1134 milliseconds\n"
+            },
+            "direct": {
+              "url": "http://172.30.77.2:9000/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1045 milliseconds\n"
+            },
+            "management": {
+              "url": "http://172.30.77.2:9001/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            }
+          }
+        },
+        {
+          "fault": "mtu",
+          "failure_exit": 1,
+          "paths": {
+            "tunnel": {
+              "url": "http://10.77.0.2:8101/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            },
+            "base": {
+              "url": "http://172.30.77.2:8101/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1072 milliseconds\n"
+            },
+            "direct": {
+              "url": "http://172.30.77.2:9000/health",
+              "exit": 28,
+              "stdout": "",
+              "stderr": "curl: (28) Connection timed out after 1145 milliseconds\n"
+            },
+            "management": {
+              "url": "http://172.30.77.2:9001/health",
+              "exit": 0,
+              "stdout": "{\"owner\":\"objects-1\"}\n",
+              "stderr": ""
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "N03",
+    "status": "passed",
+    "details": {
+      "kind": "authored in-place replay",
+      "paths": {
+        "tunnel": {
+          "url": "http://10.77.0.2:8101/health",
+          "exit": 0,
+          "stdout": "{\"owner\":\"objects-1\"}\n",
+          "stderr": ""
+        },
+        "base": {
+          "url": "http://172.30.77.2:8101/health",
+          "exit": 28,
+          "stdout": "",
+          "stderr": "curl: (28) Connection timed out after 1134 milliseconds\n"
+        },
+        "direct": {
+          "url": "http://172.30.77.2:9000/health",
+          "exit": 28,
+          "stdout": "",
+          "stderr": "curl: (28) Connection timed out after 1047 milliseconds\n"
+        },
+        "management": {
+          "url": "http://172.30.77.2:9001/health",
+          "exit": 0,
+          "stdout": "{\"owner\":\"objects-1\"}\n",
+          "stderr": ""
+        }
+      },
+      "processes": {
+        "objects": {
+          "pid": 8236,
+          "start": "254059"
+        },
+        "proxy": {
+          "pid": 8242,
+          "start": "254083"
+        }
+      }
+    }
+  },
+  {
+    "id": "S01",
+    "status": "passed",
+    "details": {
+      "lv_uuid": "1L5c0x-drjD-LVss-aovf-N5M0-l1x7-gnO1a1",
+      "filesystem_uuid": "2664690c-4b6f-455e-b1ca-b503390e4237",
+      "unmounted_start_exit": 1
+    }
+  },
+  {
+    "id": "S02",
+    "status": "passed",
+    "details": {
+      "growth": {
+        "filesystem_bytes": 4294967296,
+        "lv_bytes": 4294967296,
+        "ok": true,
+        "operation": "reach-4g",
+        "sqlite_journal": "wal",
+        "sqlite_synchronous": 2,
+        "target_bytes": 4294967296
+      },
+      "physical_bytes": [
+        848400384,
+        1886400512,
+        1887440896,
+        1887440896
+      ]
+    }
+  },
+  {
+    "id": "S03",
+    "status": "passed",
+    "details": {
+      "growth": [
+        {
+          "filesystem_bytes": 4819255296,
+          "lv_bytes": 4819255296,
+          "ok": true,
+          "operation": "growth-1789607209163108696",
+          "sqlite_journal": "wal",
+          "sqlite_synchronous": 2,
+          "target_bytes": 4819255296
+        }
+      ],
+      "writes_during_growth": 20
+    }
+  },
+  {
+    "id": "S04",
+    "status": "passed",
+    "details": {
+      "concurrent": [
+        {
+          "filesystem_bytes": 5343543296,
+          "lv_bytes": 5343543296,
+          "ok": true,
+          "operation": "growth-1789607223034911554",
+          "sqlite_journal": "wal",
+          "sqlite_synchronous": 2,
+          "target_bytes": 5343543296
+        },
+        {
+          "error": "controller busy",
+          "ok": false
+        }
+      ],
+      "crash_kind": "process exit after LV side effect",
+      "lv_after_crash": "5867831296",
+      "lv_after_reconciliation": "5867831296"
+    }
+  },
+  {
+    "id": "S05",
+    "status": "passed",
+    "details": {
+      "failure": {
+        "error": "insufficient backing space",
+        "ok": false
+      },
+      "host_free_bytes": 42520256512
+    }
+  },
+  {
+    "id": "S06",
+    "status": "passed",
+    "details": {
+      "owner_unavailable": {
+        "url": "http://10.77.0.2:8101/health",
+        "exit": 56,
+        "stdout": "",
+        "stderr": "curl: (56) Recv failure: Connection reset by peer\n"
+      },
+      "other_endpoint_reachable": true
+    }
+  }
+]

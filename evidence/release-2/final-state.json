@@ -1,0 +1,47 @@
+{
+  "time": 1789607239.4386742,
+  "machine": "c9fdd8524249336698a0438cb0b21e4e",
+  "namespaces": "el-server (id: 1)\nel-client (id: 0)",
+  "processes": {
+    "objects": {
+      "pid": 9199,
+      "start": "262543"
+    },
+    "proxy": {
+      "pid": 8242,
+      "start": "254083"
+    }
+  },
+  "el-client": {
+    "addresses": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"wg0\",\"flags\":[\"POINTOPOINT\",\"NOARP\",\"UP\",\"LOWER_UP\"],\"mtu\":1420,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"none\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.77.0.1\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"wg0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::75c9:9441:2358:908a\",\"prefixlen\":64,\"scope\":\"link\",\"stable-privacy\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":6,\"link_index\":5,\"ifname\":\"el-c\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"82:c5:09:97:66:c1\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1,\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.30.77.1\",\"prefixlen\":30,\"scope\":\"global\",\"label\":\"el-c\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::80c5:9ff:fe97:66c1\",\"prefixlen\":64,\"scope\":\"link\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]",
+    "routes": "[{\"dst\":\"10.77.0.2\",\"dev\":\"wg0\",\"scope\":\"link\",\"flags\":[]},{\"dst\":\"172.30.77.0/30\",\"dev\":\"el-c\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"172.30.77.1\",\"flags\":[]}]",
+    "wireguard": "interface: wg0\n  public key: ph+ttqdQOaUI8T+TZYZvSfrHhAoSB/UBGz6IvJztPzY=\n  private key: (hidden)\n  listening port: 51820\n\npeer: fBNuxXH04eJsIN5ce7s1so2PkFhGAkQl7/fx2D5COjQ=\n  endpoint: 172.30.77.2:51820\n  allowed ips: 10.77.0.2/32\n  latest handshake: 1 minute, 28 seconds ago\n  transfer: 11.34 GiB received, 3.92 GiB sent",
+    "rules": ""
+  },
+  "el-server": {
+    "addresses": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"::1\",\"prefixlen\":128,\"scope\":\"host\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"wg0\",\"flags\":[\"POINTOPOINT\",\"NOARP\",\"UP\",\"LOWER_UP\"],\"mtu\":1420,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"none\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.77.0.2\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"wg0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::6a3b:b0e2:77ab:431\",\"prefixlen\":64,\"scope\":\"link\",\"stable-privacy\":true,\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":5,\"link_index\":6,\"ifname\":\"el-s\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"46:cb:16:2a:63:93\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"172.30.77.2\",\"prefixlen\":30,\"scope\":\"global\",\"label\":\"el-s\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet6\",\"local\":\"fe80::44cb:16ff:fe2a:6393\",\"prefixlen\":64,\"scope\":\"link\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]",
+    "routes": "[{\"dst\":\"10.77.0.1\",\"dev\":\"wg0\",\"scope\":\"link\",\"flags\":[]},{\"dst\":\"172.30.77.0/30\",\"dev\":\"el-s\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"172.30.77.2\",\"flags\":[]}]",
+    "wireguard": "interface: wg0\n  public key: fBNuxXH04eJsIN5ce7s1so2PkFhGAkQl7/fx2D5COjQ=\n  private key: (hidden)\n  listening port: 51820\n\npeer: ph+ttqdQOaUI8T+TZYZvSfrHhAoSB/UBGz6IvJztPzY=\n  endpoint: 172.30.77.1:51820\n  allowed ips: 10.77.0.1/32\n  latest handshake: 1 minute, 28 seconds ago\n  transfer: 3.92 GiB received, 11.34 GiB sent",
+    "rules": "table inet edgelab {\n\tchain input {\n\t\ttype filter hook input priority filter; policy accept;\n\t\tiifname \"el-s\" tcp dport { 8101, 9000 } counter packets 4 bytes 240 drop\n\t}\n}"
+  },
+  "storage": {
+    "machine": "c9fdd8524249336698a0438cb0b21e4e",
+    "devices": [
+      "/dev/loop0",
+      "/dev/loop1",
+      "/dev/loop2",
+      "/dev/loop3"
+    ],
+    "lv": "/dev/edgelab_r2/data",
+    "mount": "/var/lib/edgelab-r2/volume",
+    "uuid": "1L5c0x-drjD-LVss-aovf-N5M0-l1x7-gnO1a1",
+    "filesystem_uuid": "2664690c-4b6f-455e-b1ca-b503390e4237"
+  },
+  "lvs": "{\n      \"report\": [\n          {\n              \"lv\": [\n                  {\"lv_name\":\"data\", \"lv_size\":\"5867831296B\", \"lv_uuid\":\"1L5c0x-drjD-LVss-aovf-N5M0-l1x7-gnO1a1\"}\n              ]\n          }\n      ]\n  }",
+  "physical_bytes": [
+    1597378560,
+    1852846080,
+    1862275072,
+    222302208
+  ]
+}

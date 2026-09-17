@@ -1,0 +1,91 @@
+{
+  "release": 2,
+  "status": "automated acceptance passed",
+  "source_commit": "671ebb64a7728ff43f616518e755f62cf7c4144b",
+  "lifecycle_source_commit": "4c6563bceb2424a50958b93b5aba4f3486309a73",
+  "rounding_regression_source_commit": "d1aca6202caa6c1e0d150bb665f5721191c909e0",
+  "gates": [
+    {
+      "id": "N01",
+      "status": "passed"
+    },
+    {
+      "id": "N02",
+      "status": "passed"
+    },
+    {
+      "id": "N03",
+      "status": "passed"
+    },
+    {
+      "id": "S01",
+      "status": "passed"
+    },
+    {
+      "id": "S02",
+      "status": "passed"
+    },
+    {
+      "id": "S03",
+      "status": "passed"
+    },
+    {
+      "id": "S04",
+      "status": "passed"
+    },
+    {
+      "id": "S05",
+      "status": "passed"
+    },
+    {
+      "id": "S06",
+      "status": "passed"
+    },
+    {
+      "id": "L01",
+      "status": "passed"
+    },
+    {
+      "id": "L02",
+      "status": "passed"
+    }
+  ],
+  "acknowledged_objects": 955,
+  "acknowledged_bytes": 3943628800,
+  "unexpected_object_failures_in_final_replay": 0,
+  "expected_network_fault_failures": 7,
+  "verified_after_owner_return": 955,
+  "verified_after_rounding_regression": 955,
+  "raw_archive": {
+    "path": "evidence/raw/release-2.tar.gz",
+    "bytes": 1701745,
+    "sha256": "6857f2c4a346c2f658babb60c6b927b0fd7592fba3da59ce08a7c14d8ea3d142"
+  },
+  "evidence_check": {
+    "files_verified": 111,
+    "missing_history_rejected": true,
+    "wrong_commit_rejected": true
+  },
+  "environment": {
+    "vm": "infra-lab",
+    "architecture": "aarch64",
+    "cpus": 4,
+    "memory_gib": 8,
+    "disk_gib": 64
+  },
+  "limitations": [
+    "Authored automated replays; no withheld or blind diagnosis claimed.",
+    "Growth interruption is process termination, not whole-VM or physical-host failure.",
+    "MTU blackhole is a namespace packet-size filter; tunnel MTU repair is real.",
+    "Single VM and static sole-owner route; distributed routing and worker supervision remain later releases.",
+    "Initial disk provisioning stops for inspection after interruption rather than formatting uncertain existing resources."
+  ],
+  "retained_failures": [
+    "Initial network repair tests omitted routes removed by interface/address changes. Those failures are archived; repairs now restore the affected route."
+  ],
+  "checks": [
+    "Go builds, go vet, and go test completed successfully; behavioral coverage is the Linux integration replay.",
+    "Fresh fixture replay passed after prior fixture teardown.",
+    "Supplementary before/after route lookups retained for all seven faults."
+  ]
+}
