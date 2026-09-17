@@ -37,7 +37,11 @@ func main() {
 		got := ""
 		if e == nil {
 			h := sha256.New()
-			_, e = io.Copy(h, io.LimitReader(f, 64<<20))
+			var n int64
+			n, e = io.Copy(h, io.LimitReader(f, (64<<20)+1))
+			if e == nil && n > 64<<20 {
+				e = errors.New("file exceeds supported size")
+			}
 			f.Close()
 			got = hex.EncodeToString(h.Sum(nil))
 		}
