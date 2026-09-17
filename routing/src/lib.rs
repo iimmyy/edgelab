@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::net::SocketAddr;
+pub mod listener;
 pub mod storage;
 
 pub const RECORD_LIMIT: usize = 4096;
@@ -78,6 +79,33 @@ fn name(value: &str) -> bool {
 }
 
 impl State {
+    pub fn validate_metadata(&self) -> Result<(), String> {
+        if self.owners.len() > 16 {
+            return Err("too many owners".into());
+        }
+        let digest =
+            |value: &str| value.len() == 64 && value.bytes().all(|b| b.is_ascii_hexdigit());
+        for (id, owner) in &self.owners {
+            if id != &owner.snapshot.owner || owner.frozen_by.as_ref().is_some_and(|op| !name(op)) {
+                return Err("invalid persisted owner metadata".into());
+            }
+            if owner
+                .credential_hash
+                .as_ref()
+                .is_some_and(|hash| !digest(hash))
+                || owner
+                    .recovery
+                    .as_ref()
+                    .is_some_and(|r| !name(&r.operation) || !digest(&r.digest))
+                || (owner.snapshot.incarnation > 1
+                    && (owner.credential_hash.is_none() || owner.recovery.is_none()))
+            {
+                return Err("missing or invalid recovery fence".into());
+            }
+        }
+        Ok(())
+    }
+
     pub fn freeze(&self, owner: &str, operation: &str) -> Result<Self, String> {
         if !name(operation) {
             return Err("invalid recovery operation".into());
@@ -313,6 +341,29 @@ mod tests {
     }
     fn policy() -> Policy {
         Policy::new(["echo".into()].into())
+    }
+
+    #[test]
+    fn recovered_history_requires_its_persisted_credential_fence() {
+        let state = State::default()
+            .accept("worker-1", snapshot(), &policy(), 1)
+            .unwrap()
+            .freeze("worker-1", "restore")
+            .unwrap();
+        let mut next = snapshot();
+        next.incarnation = 2;
+        next.revision = 2;
+        let recovered = state
+            .recover("restore", next, "a".repeat(64), &policy())
+            .unwrap();
+        assert!(recovered.validate_metadata().is_ok());
+        let mut damaged = serde_json::to_value(recovered).unwrap();
+        damaged["owners"]["worker-1"]
+            .as_object_mut()
+            .unwrap()
+            .remove("credential_hash");
+        let damaged: State = serde_json::from_value(damaged).unwrap();
+        assert!(damaged.validate_metadata().is_err());
     }
 
     #[test]

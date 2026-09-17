@@ -193,6 +193,27 @@ func run(binary, output string) error {
 		}
 		return nil
 	})
+	v.check("owner-impersonation", func() error {
+		code, _, err := v.request("POST", "/snapshot", token+"2", initial)
+		if err != nil {
+			return err
+		}
+		if code != 401 {
+			return fmt.Errorf("worker-2 credential impersonated worker-1: %d", code)
+		}
+		return nil
+	})
+	v.check("unreconciled-incarnation-on-empty-node", func() error {
+		restored := snapshot{Schema: 1, Owner: "worker-2", Incarnation: 2, Revision: 1, Records: map[string]record{"unknown": {ID: "unknown", App: "echo", Endpoint: "127.0.0.1:19500", Revision: 1}}}
+		code, _, err := v.request("POST", "/snapshot", token+"2", restored)
+		if err != nil {
+			return err
+		}
+		if code != 409 {
+			return fmt.Errorf("newer incarnation bypassed recovery: %d", code)
+		}
+		return nil
+	})
 	v.check("conflicting-revision-retains-active-view", func() error {
 		changed := snapshot{Schema: 1, Owner: "worker-1", Incarnation: 1, Revision: 1, Records: map[string]record{"one": {ID: "one", App: "echo", Endpoint: "127.0.0.1:19002", Revision: 1}}}
 		if err := v.publish(changed, 409); err != nil {

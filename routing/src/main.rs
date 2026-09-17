@@ -1,4 +1,3 @@
-mod listener;
 use axum::{
     Json, Router,
     extract::{DefaultBodyLimit, Query, State as Extract},
@@ -6,6 +5,7 @@ use axum::{
     routing::{get, post},
 };
 use clap::Parser;
+use edgelab_routing::listener;
 use edgelab_routing::{Policy, Snapshot, State, VIEW_LIMIT, storage};
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -49,7 +49,9 @@ struct Server {
 }
 type Failure = (StatusCode, Json<Value>);
 fn failure(status: StatusCode, message: impl ToString) -> Failure {
-    (status, Json(json!({"error":message.to_string()})))
+    let message = message.to_string().chars().take(512).collect::<String>();
+    tracing::warn!(event="routing_request_rejected",status=status.as_u16(),error=%message);
+    (status, Json(json!({"error":message})))
 }
 fn now_ms() -> u64 {
     SystemTime::now()
@@ -108,6 +110,14 @@ async fn publish(
     }
     let policy = Policy::new(identity.applications.clone());
     let current = server.active.borrow().clone();
+    if !current.owners.contains_key(&snapshot.owner) && snapshot.incarnation != 1 {
+        return Err(failure(
+            StatusCode::CONFLICT,
+            "new owner requires initial incarnation or administrative recovery",
+        ));
+    }
+    let owner_id = snapshot.owner.clone();
+    let revision = snapshot.revision;
     let candidate = current
         .accept(&snapshot.owner.clone(), snapshot, &policy, now_ms())
         .map_err(|e| failure(StatusCode::CONFLICT, e))?;
@@ -122,6 +132,7 @@ async fn publish(
             .map_err(|e| failure(StatusCode::INSUFFICIENT_STORAGE, e))?;
         let generation = candidate.generation;
         server.active.send_replace(candidate);
+        tracing::info!(event="routing_committed",owner=%owner_id,revision,generation);
         Ok(Json(json!({"accepted":true,"generation":generation})))
     })
     .await
@@ -232,6 +243,11 @@ async fn health(Extract(server): Extract<Arc<Server>>) -> Json<Value> {
 }
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let (writer, _guard) = tracing_appender::non_blocking::NonBlockingBuilder::default()
+        .buffered_lines_limit(128)
+        .lossy(true)
+        .finish(std::io::stderr());
+    tracing_subscriber::fmt().json().with_writer(writer).init();
     let options = Options::parse();
     let bytes = std::fs::read(&options.config)?;
     if bytes.len() > 65536 {
@@ -258,6 +274,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => State::default(),
         Err(e) => return Err(e.into()),
     };
+    state.validate_metadata()?;
     let mut validated = State::default();
     for (id, owner) in &state.owners {
         let identity = config

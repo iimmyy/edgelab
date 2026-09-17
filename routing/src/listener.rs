@@ -81,7 +81,7 @@ impl Listener for BoundedListener {
                     }
                 }
                 Err(error) => {
-                    eprintln!("accept failed: {error}");
+                    tracing::warn!(event="management_accept_failed",error=%error);
                     tokio::time::sleep(Duration::from_millis(100)).await;
                 }
             }

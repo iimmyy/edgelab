@@ -11,3 +11,6 @@ axum = "0.8"
 clap = { version = "4", features = ["derive"] }
 fs2 = "0.4"
 sha2 = "0.10"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json"] }
+tracing-appender = "=0.2.5"

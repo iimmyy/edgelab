@@ -8,7 +8,10 @@ use std::{
     io,
     net::SocketAddr,
     path::{Path, PathBuf},
-    sync::{Arc, Weak, atomic::AtomicUsize},
+    sync::{
+        Arc, Weak,
+        atomic::{AtomicBool, AtomicUsize, Ordering},
+    },
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use tokio::{
@@ -30,9 +33,11 @@ pub(super) struct Control {
     pub views: watch::Receiver<Arc<View>>,
     pub listeners: HashMap<u16, Arc<TcpListener>>,
     task: JoinHandle<()>,
+    draining: Arc<AtomicBool>,
 }
 impl Control {
     pub fn stop(&self) {
+        self.draining.store(true, Ordering::Relaxed);
         self.task.abort();
     }
 }
@@ -49,6 +54,7 @@ fn now_ms() -> u64 {
         .as_millis() as u64
 }
 fn validate(state: &State, config: &Config, previous: Option<&State>) -> io::Result<()> {
+    state.validate_metadata().map_err(|e| invalid(&e))?;
     if state.owners.len() > 16 {
         return Err(invalid("too many owners"));
     }
@@ -205,21 +211,32 @@ pub(super) async fn start(
         delivery_ms: None,
         routing_error,
     }));
+    let draining = Arc::new(AtomicBool::new(false));
+    let read_draining = draining.clone();
     let read_status = status.clone();
     let management = Router::new().route("/status", get(move || {
         let status = read_status.clone();
+        let draining = read_draining.clone();
         async move {
             let status = status.read().await;
             let owners: BTreeMap<_, Value> = status.current.as_ref().map(|s| s.owners.iter().map(|(id, owner)| {
                 (id.clone(), json!({"reconciled_ms":owner.reconciled_ms, "stale":owner.stale || now_ms().saturating_sub(owner.reconciled_ms)>5000}))
             }).collect()).unwrap_or_default();
-            Json(json!({"mode":"dynamic","available":status.current.is_some(),"generation":status.current.as_ref().map(|s|s.generation),
+            Json(json!({"mode":"dynamic","draining":draining.load(Ordering::Relaxed),"available":status.current.is_some(),"generation":status.current.as_ref().map(|s|s.generation),
                 "owners":owners,"delivery_ms":status.delivery_ms,"persistence_error":status.persistence_error,"routing_error":status.routing_error}))
         }
     }));
     let admin = TcpListener::bind(config.management).await?;
     tokio::spawn(async move {
-        if let Err(error) = axum::serve(admin, management).await {
+        if let Err(error) = axum::serve(
+            edgelab_routing::listener::BoundedListener {
+                socket: admin,
+                slots: Arc::new(Semaphore::new(32)),
+            },
+            management,
+        )
+        .await
+        {
             warn!(event="management_failed",error=%error);
         }
     });
@@ -280,5 +297,6 @@ pub(super) async fn start(
         views,
         listeners,
         task,
+        draining,
     })
 }
