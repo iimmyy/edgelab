@@ -245,8 +245,8 @@
     {
       "id": "D01",
       "title": "Design and coverage claims",
-      "evidence_profile": "release-coverage.json + separate documentation draft",
-      "status": "pending_user_prose"
+      "evidence_profile": "evidence/release-coverage.json + README.md + NOTES.md",
+      "status": "documented"
     },
     {
       "id": "D02",
@@ -261,7 +261,7 @@
       "title": "Bounded volume-fork behavior",
       "evidence_profile": "run/capstone",
       "status": "scripted_behavior_passed",
-      "documentation": "Draft supplied separately; user rewrite pending.",
+      "documentation": "User rewrite integrated in README.md and NOTES.md.",
       "adaptation": "Fork of sealed immutable image origin; no live-database application-consistency guarantee."
     },
     {
@@ -269,25 +269,29 @@
       "title": "Self-service RTT diagnostic and recipe",
       "evidence_profile": "run/capstone/*traffic* + run/operations/*traffic*; independent Go application RTT client",
       "status": "scripted_behavior_passed",
-      "documentation": "Draft supplied separately; user rewrite pending."
+      "documentation": "User rewrite integrated in README.md and NOTES.md."
     },
     {
       "id": "D05",
       "title": "Fresh environment reproduction",
       "evidence_profile": "run/capstone",
       "status": "scripted_behavior_passed",
-      "documentation": "Draft supplied separately; user rewrite pending."
+      "documentation": "User rewrite integrated in README.md and NOTES.md."
     },
     {
       "id": "D06",
       "title": "Integrated capstone and change request",
       "evidence_profile": "run/capstone",
       "status": "scripted_behavior_passed",
-      "documentation": "Draft supplied separately; user rewrite pending."
+      "documentation": "User rewrite integrated in README.md and NOTES.md."
     }
   ],
   "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
-  "artifact_type": "executed_core_coverage_with_documentation_pending",
+  "artifact_type": "executed_core_coverage",
   "system_gates_passed": 40,
-  "documentation_draft": ".run/documentation-draft.txt"
+  "maintained_documentation": [
+    "README.md",
+    "NOTES.md",
+    "INCIDENT.md"
+  ]
 }

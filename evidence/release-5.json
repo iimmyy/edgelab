@@ -1,6 +1,6 @@
 {
   "release": 5,
-  "status": "fresh scripted reproduction and capstone passed; documentation rewrite pending",
+  "status": "fresh scripted reproduction and capstone passed; user-rewritten documentation integrated",
   "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
   "verifier_commit": "9c480acbfe7debc66078ba255e827bf4e1cc31c3",
   "archive": {
@@ -18,7 +18,7 @@
     "exported_credential_fields_redacted": 30,
     "audit_log": "evidence/release-5/audit.txt"
   },
-  "publication": "local commits only; Markdown rewrite and push remain with the user",
+  "publication": "User authorized pushing the reviewed documentation and implementation commits.",
   "fresh_environment": {
     "vm": "edgelab-final",
     "image": "Ubuntu 24.04 ARM64",
@@ -106,10 +106,7 @@
       "retest": "Pre-change capstone and final fresh replay passed."
     }
   ],
-  "remaining": [
-    "User rewrite and review of separate documentation draft.",
-    "Joint release review before external publication."
-  ],
+  "remaining": [],
   "outside_scope": [
     "Withheld-fault diagnosis exercise",
     "Whole-VM interruption and physical-host durability tests",

@@ -43,7 +43,7 @@ The worker fixture stands on its own. `worker.py down` rips out that worker's po
 
 This just proves it's filesystem preparation and an activation. Again obviously not VM runtime lol.
 
-## Approved contracts for later releases
+## Approved contracts
 
 **Worker.** Write down the intended absolute size and the stable resource identity before you cause any effect. After something gets interrupted, go look at the actual external resource and reconcile instead of assuming. SQLite settings get checked, never assumed. Workloads get their own supervised units, and restarting management can't kill them or leave duplicates behind. Object writes are single-owner and immutable, with contents and directory metadata both synced before anything gets acknowledged.
 
@@ -56,6 +56,34 @@ This just proves it's filesystem preparation and an activation. Again obviously 
 **Independence.** Routing and proxy are separate supervised processes and neither one cares what order they shut down in. Management and workload units are the same deal. The verifier owns its own expectations rather than borrowing route-selection or recovery decisions off the thing it's supposed to be checking.
 
 Release 2 is where WireGuard and data-volume recovery get proven. Release 3 is where OCI materialization and real snapshots landed. Release 4 adds distributed routing and the operational failure cases. Release 5 pulls all of it together into the capstone. Private checkpoints let me poke at each working release without stopping for an approval pause. Optional extension lanes stay out of the core. Process-kill, whole-VM interruption and physical-host guarantees are different problems and I keep them that way.
+
+## Release 4
+
+Workers write down the instance state they want before they go anywhere near a supervised unit (yea we're strict here). Management can restart while healthy workloads carry on, and nothing about that restart reaches them. When the worker reconciles, it checks the unit and the identity that's actually being served before it publishes anything. If the probe fails, status comes back as unknown. Handing out the same cached information over and over doesn't make it fresh as it's known knowledge, so I'd rather the answer be that I actually don't know.
+
+Routing nodes accept complete worker histories. Revisions, deletions and endpoint reservations all live through a restart. The lab hangs onto every bit of it, 4,096 lifetime records per worker and a 16 MiB complete view. Admission reserves the deletion form of each record up front, so once you're at capacity new additions fail and you can still delete something that's already in there. That's the entire point of reserving it. Publishers get authenticated and are boxed into the applications they're configured for.
+
+A restored worker doesn't work just by bumping a number, in fact the restore mode is quite explicit and it blocks publication while it's on. Once a journalled recovery operation freezes both routing nodes, it merges their accepted histories, keeps the deletions, as well as their quarantines about anything that wasn't accepted. Both nodes have to acknowledge the same result and fence the old credentials before the worker resumes as precaution. If a node is missing, recovery just stays blocked. The one-node interruption test picks the same operation back up instead of starting over from scratch.
+
+Each proxy forwards using the last local view it validated. Updating that view happens one step at a time: write a temp file next to the cache, sync it, rename it, sync the directory, then activate. If persistence fails, the active view keeps serving and the failure then gets reported. A cache that's perfectly valid still comes back stale on restart. A cache which is missing or corrupt or incompatible leaves dynamic routing unavailable while the management listener stays reachable. Static configuration is its own separate mode as well.
+
+Cached routes that are still reachable never expire on their own. That means a retired endpoint can't get handed to a different instance for as long as the lab is alive. As well a fencing a publisher does nothing at all to a disconnected proxy's cache. Though I'm making this availability tradeoff here on purpose, and it's probably the best one I can think of to make for a small fixed topology like this.
+
+Router delivery keeps one complete pending view per subscriber. Deliveries that get superseded coalesce, and a consumer that reconnects gets the complete state. The tests pause a proxy, publish sixteen durable operations, then check both memory growth and whether resynchronization comes back then complete. Routing and proxy units don't care what order they shut down in. Worker and workload units are similarly independent.
+
+The schema-canary exercise lives with the worker, because the worker is what owns SQLite. Version two needs a real column the old schema doesn't have, so it can never come up ready, and the previous worker just keeps serving. That's me adapting the assignment's proxy-schema scenario to where ownership actually sits in this system, since the proxy has no SQL dependency whatsoever. The maintenance exercise separately shows a full table scan, an indexed lookup, a WAL reader holding up checkpoint completion, and recovery once that reader lets go.
+
+Credentials in this fixed isolated lab are configured bearer tokens. Exported evidence redacts the token fields, then routing views carry credential hashes.
+
+## Release 5
+
+The integrated demo prepares an OCI image with the exact echo and object-service binaries inside it, verifies their hashes, then starts them from a writable thin snapshot in separately supervised units. From there it piles on backend failure, tunnel repair, storage growth, snapshot interruption, routing partition, a rejected canary and watchdog recovery, all while independent clients keep checking what they're actually getting back. Running verified binaries this way shows the image-to-workload connection holds.
+
+The change after that adds per-application startup limits, so --app-limit echo=8 --app-limit objects=16. --limit stays the default for everything else. All the listeners in one app share a single allowance, and that holds across config reloads. Connections already open keep their permit and their backend. Limits only move when the process restarts, because there's no live permit-resizing protocol. The global 1,024-session ceiling is still sitting on top of all of it.
+
+Volume-fork contract: take a sealed immutable image origin and fork it into a new writable thin snapshot with its own stable operation identity. The initial file hashes have to match. A synchronized write to the fork has to leave the source completely untouched. The capstone checks both halves of that. What gets forked here is a prepared filesystem.
+
+The fresh replay uses short two-second proxy measurements to check behaviour. The original full-duration measurement and the failures I disclosed alongside it are still the performance evidence. Process interruptions and real filesystem error injection exercise the recovery paths. They don't really establish power-loss durability for the VM or for the physical host underneath it. Then the optional Maelstrom, billing, BGP and VM-runtime tracks stay outside this implementation.
 
 ## Sources
 

@@ -2,7 +2,7 @@
 
 A small edge-hosting lab that I can deploy, break, poke around inside, and put back together. Built of course with AI assistance (I mean come on lol) and shaped by the public Fly.io exercises. It's my own project and nobody's grading it. Just thought it would be fun.
 
-The first three releases cover a Rust TCP proxy, private networking, object storage that actually sticks around, and a Go worker that gets images ready on thin storage. Distributed routing and the combined demo are what's coming next.
+All five implementation releases are hooked together now. A Go worker gets an image ready on thin storage, separately supervised applications run the binaries it verified, routing nodes take the worker's complete instance history, and the Rust proxies forward off their own local routing views. An independent client sits outside the whole thing checking which identities are actually serving and whether the object hashes line up, while the lab has a crisis underneath it.
 
 Why I made the calls I made, along with the library contracts I'm leaning on, is all in the [design notes](NOTES.md). The [incident record](INCIDENT.md) though walks through how I chased down a connection timeout :D
 
@@ -55,6 +55,36 @@ sudo python3 lab/worker.py status
 
 The suite builds its own image store and checks the mounted files against hashes it worked out on its own, so nothing is being graded against its own homework. `sudo python3 lab/worker.py down` takes out the worker's pool and state. That fixture is its own thing, completely separate from the networking and storage one.
 
+### Full replay (from the Mac)
+
+For a fresh ARM64 Ubuntu VM with 4 CPUs, 8 GiB RAM and a 64 GiB disk:
+
+    bash lab/sync.sh YOUR_VM
+    multipass exec YOUR_VM -- bash -lc 'cd ~/edgelab && bash lab/bootstrap.sh'
+    multipass exec YOUR_VM -- bash -lc 'cd ~/edgelab && bash lab/reproduce.sh .run/review'
+
+The replay wants a new evidence directory and no EdgeLab storage fixtures already sitting there. It builds the pinned Rust dependencies, runs the earlier releases, puts routing and operations through their paces, then finishes with the integrated demo. As well it only ever creates and removes resources marked as the lab's. Individual logs and client results stay in the output directory, and the VM is left up so you can go poke at it afterwards.
+
+### Individual checks (inside the VM)
+
+To run the newer pieces on their own after building:
+
+    go run ./cmd/routing-check --router target/release/edgelab-routing --output .run/routing-review
+    python3 tests/dynamic.py --out .run/dynamic-review
+    sudo python3 tests/routing_ops.py --out .run/operations-review
+    sudo python3 tests/capstone.py --out .run/capstone-review
+    python3 tests/app_limits.py --out .run/limits-review
+
+The capstone wants fresh networking/storage and image-worker fixtures. It builds its own topology and clears it out when it's done. All of these are automated replays.
+
+### Application RTT
+
+With an echo endpoint running, point bin/traffic at it with --count 1 --concurrency 1, the app and instance IDs you're expecting, and an --expected-identities file you wrote yourself. So:
+
+    bin/traffic --address 127.0.0.2:8102 --app echo --instances echo-1,echo-2 --expected-identities expected-identities.json --count 1 --concurrency 1
+
+The JSON that comes back gives you milliseconds as measured by that client, plus the identity it actually got handed. That number is application RTT, so connection setup, the greeting, payload transfer and the server's own work are all baked into it. It isn't an ICMP measurement and it isn't an isolated estimate of network latency. The endpoint and identity file in this example have to belong to a lab that's actually up, and keep in mind the capstone cleans up after itself as well.
+
 ## Results
 
 | Release | What what made it | Output |
@@ -62,6 +92,12 @@ The suite builds its own image store and checks the mounted files against hashes
 | 1 | P01 through P10 and the control tests all passed. The full measurement did catch seven failures across 4,038,346 proxied attempts, (0_0) and nothing at all across 3,043,141 direct ones. (^.^) | [Proxy record](evidence/release.json) |
 | 2 | Network, storage and lifecycle gates did pass. All 955 acknowledged objects came back verified after recovery. | [Storage record](evidence/release-2.json) |
 | 3 | W01 through W07 passed, 18 interruption points were included, with 21 distinct snapshots then registered. | [Worker record](evidence/release-3.json) |
+
+Release 4: R01 through R06 and O01 through O06 passed. That's 12 routing-foundation cases, seven cache cases and eleven operational ones. See the [Release 4 record](evidence/release-4.json).
+
+Release 5: the fresh ARM64 VM replay passed against a96b0b87611797e79e14608c7f729d4916da4574. The audit verified 1,217 files. The nine-stage capstone checked 115 objects across 62 monitoring cycles. The per-application limit change went in after the first successful capstone and passed both its own regression and the final integrated replay. See the [Release 5 record](evidence/release-5.json) and [coverage map](evidence/release-coverage.json).
+
+The first capstone attempt turned up a parsing mistake in my own harness. Worker stdout emits progress events and then a ready result at the end, and the harness had been written expecting a single JSON document. It parses the event stream now and insists on that final ready result. The failed run is still sitting on the execution VM.
 
 Those seven proxy failures and what they actually mean are laid out in the incident record. Everything here is local measurement and fault replays I wrote myself. Killing a process doesn't tell you much about whole-VM or physical-host durability. Though image tests prove filesystem preparation and snapshot activation. They don't make this a VM runtime.
 
