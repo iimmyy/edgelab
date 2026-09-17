@@ -4,6 +4,7 @@ import json
 import os
 import secrets
 import socket
+import sqlite3
 import subprocess
 import time
 import urllib.error
@@ -121,10 +122,11 @@ def main():
         save(
             router_config,
             {
+                "admin_token": admin_token,
                 "owners": {
                     f"worker-{i + 1}": {"token": tokens[i], "applications": ["echo"]}
                     for i in range(3)
-                }
+                },
             },
         )
         router_units = [
@@ -172,6 +174,7 @@ def main():
                     "applications": ["echo"],
                     "token": tokens[i],
                     "admin_token": admin_token,
+                    "router_admin_token": admin_token,
                     "routers": [f"http://127.0.0.1:{port}" for port in router_ports],
                     "restore_guard": str(args.out / f"restore-{i}.guard"),
                     "workloads": {
@@ -258,6 +261,12 @@ def main():
         traffic(0, "worker-restarted")
         save(args.out / "workload-pids.json", {"before": before, "after": after})
         observations.append("workloads-survive-management-restart-without-duplicates")
+        backup_path = args.out / "worker-before-deletion.db"
+        with (
+            sqlite3.connect(args.out / "worker-0.db") as source,
+            sqlite3.connect(backup_path) as backup,
+        ):
+            source.backup(backup)
         systemctl("kill", "--signal=SIGSTOP", router_units[1])
         deletion = {
             "operation": "delete-one",
@@ -282,6 +291,96 @@ def main():
         time.sleep(0.7)
         traffic(1, "healed", "instance-2,instance-3")
         observations.append("partitioned-router-converges-to-deletion")
+        systemctl("stop", workers[0])
+        guard = args.out / "restore-0.guard"
+        with guard.open("w") as file:
+            file.write("restore-old-backup")
+            file.flush()
+            os.fsync(file.fileno())
+        with (
+            sqlite3.connect(backup_path) as backup,
+            sqlite3.connect(args.out / "worker-0.db") as restored,
+        ):
+            backup.backup(restored)
+        recovery = [
+            str(ROOT / "bin/worker"),
+            "recover",
+            "--config",
+            str(args.out / "worker-0.json"),
+            "--state",
+            str(args.out / "worker-0.db"),
+            "--journal",
+            str(args.out / "recovery.json"),
+            "--operation",
+            "restore-old-backup",
+        ]
+        interrupted = subprocess.run(
+            [*recovery, "--crash-after-first-ack"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        assert interrupted.returncode == 77, interrupted.stdout + interrupted.stderr
+        assert guard.exists()
+        first = request(router_ports[0], "/view")["owners"]["worker-1"]
+        second = request(router_ports[1], "/view")["owners"]["worker-1"]
+        assert (
+            first["snapshot"]["incarnation"] == 2
+            and second["snapshot"]["incarnation"] == 1
+        )
+        assert second["frozen_by"] == "restore-old-backup"
+        systemctl("kill", "--signal=SIGSTOP", router_units[1])
+        blocked = subprocess.run(recovery, capture_output=True, text=True, timeout=10)
+        assert blocked.returncode != 0 and guard.exists()
+        systemctl("kill", "--signal=SIGCONT", router_units[1])
+        resumed = subprocess.run(recovery, capture_output=True, text=True, timeout=10)
+        assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+        assert not guard.exists()
+        recovered = [
+            request(port, "/view")["owners"]["worker-1"] for port in router_ports
+        ]
+        assert recovered[0]["recovery"] == recovered[1]["recovery"]
+        assert all(
+            owner["snapshot"]["records"]["instance-1"]["deleted"] for owner in recovered
+        )
+        for port in router_ports:
+            try:
+                request(port, "/snapshot", recovered[0]["snapshot"], token=tokens[0])
+            except urllib.error.HTTPError as error:
+                assert error.code == 401
+            else:
+                raise AssertionError("old publishing credential accepted")
+        unit(
+            "worker-recovered",
+            [
+                ROOT / "bin/worker",
+                "serve",
+                "--config",
+                args.out / "worker-0.json",
+                "--state",
+                args.out / "worker-0.db",
+                "--listen",
+                f"127.0.0.1:{worker_ports[0]}",
+            ],
+        )
+        until(lambda: request(worker_ports[0], "/status"))
+        time.sleep(3)
+        traffic(0, "recovered", "instance-2,instance-3")
+        assert systemctl("show", "-p", "MainPID", "--value", workloads[0]) in {"", "0"}
+        save(
+            args.out / "recovery-proof.json",
+            {
+                "interrupted_exit": interrupted.returncode,
+                "blocked_exit": blocked.returncode,
+                "resumed": json.loads(resumed.stdout),
+                "matching_router_recovery": recovered[0]["recovery"],
+                "deletion_preserved": True,
+            },
+        )
+        observations.append(
+            "backup-recovery-resumes-one-node-ack-with-deletion-and-credential-fencing"
+        )
+
         held = socket.create_connection(("127.0.0.1", public_ports[0]), timeout=2)
         held.recv(4096)
         proxy_pid = systemctl("show", "-p", "MainPID", "--value", proxies[0])
