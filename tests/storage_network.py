@@ -20,6 +20,28 @@ def main():
     if out.exists() and any(out.iterdir()):
         raise RuntimeError("evidence directory must be empty")
     out.mkdir(parents=True, exist_ok=True)
+    source = json.loads((PROJECT / ".source-tree.json").read_text())
+    for name, expected in source["files"].items():
+        assert hashlib.sha256((PROJECT / name).read_bytes()).hexdigest() == expected, (
+            name
+        )
+    (out / "source.json").write_text(
+        json.dumps(
+            {
+                "tree": source,
+                "binaries": {
+                    name: hashlib.sha256((PROJECT / name).read_bytes()).hexdigest()
+                    for name in [
+                        "bin/objects",
+                        "bin/objects-check",
+                        "bin/grow",
+                        "target/release/edgelab-proxy",
+                    ]
+                },
+            },
+            indent=2,
+        )
+    )
     results = []
 
     def save(name, value):
