@@ -56,6 +56,7 @@ def main():
             timeout=5,
         )
         units.append(name)
+        (args.out / (name + ".unit")).write_text(systemctl("cat", name))
         return name
 
     def request(port, path, data=None, token=admin_token):
