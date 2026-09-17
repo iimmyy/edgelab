@@ -14,6 +14,16 @@ The global session ceiling, per-application permits, bounded messages, and bound
 
 The verifier limits concurrency to 256, payloads to 1 MiB, and attempts to four million. Its result includes every failure and timeout. Churn runs below the admission ceiling because client-observed EOF can precede final server task cleanup; saturation is tested separately. Benchmark success means a complete measurement, not zero errors. Unexplained failures keep release readiness pending. Connection diagnostics separate DNS from TCP establishment and distinguish application deadlines from operating-system errors; a deadline with SO_ERROR=0 means the kernel has not reported an error, not that the handshake succeeded. Direct and proxied workloads run sequentially on the same host with the same backend, client, payload, concurrency and duration. They are local observations, not global capacity claims.
 
+## Release 2
+
+The fixture owns four loop files, their LVM identities, two network namespaces, and separately tracked workload processes. It refuses an unmarked host or a loop device whose backing path is outside that inventory. Setup is idempotent after completion; an interruption during initial disk creation stops for inspection instead of guessing whether an existing volume may be formatted. Cleanup checks ownership and leaves unrelated resources alone.
+
+Objects are immutable and addressed by SHA-256. A write synchronizes a temporary file, links it without replacing an existing object, removes the temporary name, and synchronizes the directory before acknowledgement. The service checks the mount and owner marker on each request. Its client generates content and retains acknowledged hashes independently. Application and management listeners are separate; only the application path is blocked on the base network.
+
+The growth controller holds one nonblocking process lock. It verifies SQLite WAL/FULL, stores the operation ID and absolute target before effects, then reconciles LV size and filesystem size. A crash after `lvextend` leaves the same target pending; restart finishes `resize2fs` rather than adding another increment. The watched controller uses a two-second poll/cooldown and exits with a recorded error when growth cannot proceed. Four-MiB LVM extent rounding, the allocation cap, and backing reserve are explicit. Workload supervision by systemd belongs to Release 3; these fixture processes already survive controller restarts independently.
+
+Network fault creation and repair are separate operations. Removing the only interface address or taking the interface down also removes its route on this kernel, so those repairs restore both facts. The simulated MTU fault keeps its size filter in place during verification of the smaller tunnel MTU. None of these authored replays is presented as a blind incident investigation.
+
 ## Approved contracts for later releases
 
 **Worker:** persist intended absolute sizes and stable resource identities before effects. Reconcile external resources after interruption. SQLite uses verified WAL/FULL settings. Workloads have separate supervised units; management restart must neither kill nor duplicate them. Single-owner immutable object writes synchronize contents and directory metadata before acknowledgement.
@@ -26,7 +36,7 @@ The verifier limits concurrency to 256, payloads to 1 MiB, and attempts to four 
 
 **Independence:** routing and proxy are separate supervised processes without shutdown-order dependencies. Management and workload units are likewise independent. The verifier owns expectations rather than borrowing route-selection or recovery decisions.
 
-Release 2 proves WireGuard and data-volume recovery; Release 3 adds OCI materialization and real snapshots; Release 4 adds distributed routing and operational failure cases; Release 5 joins them into the capstone. Review each release together. Optional extension lanes remain outside the core. Process-kill, whole-VM interruption, and physical-host guarantees stay distinct.
+Release 2 proves WireGuard and data-volume recovery; Release 3 adds OCI materialization and real snapshots; Release 4 adds distributed routing and operational failure cases; Release 5 joins them into the capstone. Private checkpoints make each working release inspectable without an approval pause. Optional extension lanes remain outside the core. Process-kill, whole-VM interruption, and physical-host guarantees stay distinct.
 
 ## Sources
 
