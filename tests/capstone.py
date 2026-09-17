@@ -494,6 +494,10 @@ except urllib.error.HTTPError as error: print(json.dumps({'status':error.code,'e
                         out / f"proxy-{i}.json",
                         "--listen-ip",
                         f"127.0.0.{2 + i}",
+                        "--app-limit",
+                        "echo=8",
+                        "--app-limit",
+                        "objects=16",
                     ],
                 )
             )

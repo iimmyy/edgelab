@@ -33,6 +33,9 @@ struct Options {
     listen_ip: IpAddr,
     #[arg(long, default_value_t = 128, value_parser = clap::value_parser!(u32).range(1..=4096))]
     limit: u32,
+    /// Override the default admission limit for an application; repeat for multiple names.
+    #[arg(long, value_parser = parse_app_limit)]
+    app_limit: Vec<(String, u32)>,
     #[arg(long, default_value_t = 8192, value_parser = clap::value_parser!(u32).range(1..=65536))]
     buffer_bytes: u32,
     #[arg(long, default_value_t = 500, value_parser = clap::value_parser!(u32).range(1..=60000))]
@@ -44,6 +47,23 @@ struct Options {
     /// Deliberate validation delay for lab fault tests; normal reloads use zero.
     #[arg(long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..=1000))]
     reload_delay_ms: u32,
+}
+
+fn parse_app_limit(value: &str) -> Result<(String, u32), String> {
+    let (name, limit) = value.split_once('=').ok_or("expected NAME=LIMIT")?;
+    let limit: u32 = limit.parse().map_err(|_| "expected an integer limit")?;
+    if name.is_empty() || name.len() > 128 || !(1..=4096).contains(&limit) {
+        return Err("expected an application name and a limit in 1..4096".into());
+    }
+    Ok((name.to_owned(), limit))
+}
+impl Options {
+    fn limit_for(&self, name: &str) -> usize {
+        self.app_limit
+            .iter()
+            .find(|(app, _)| app == name)
+            .map_or(self.limit, |(_, limit)| *limit) as usize
+    }
 }
 
 #[derive(Deserialize)]
@@ -60,6 +80,7 @@ struct AppConfig {
 }
 
 struct Admission {
+    limit: usize,
     permits: Arc<Semaphore>,
     next: AtomicUsize,
 }
@@ -146,7 +167,8 @@ async fn prepare(
             .and_then(|a| a.upgrade())
             .unwrap_or_else(|| {
                 Arc::new(Admission {
-                    permits: Arc::new(Semaphore::new(options.limit as usize)),
+                    limit: options.limit_for(&item.name),
+                    permits: Arc::new(Semaphore::new(options.limit_for(&item.name))),
                     next: AtomicUsize::new(0),
                 })
             });
@@ -363,6 +385,17 @@ async fn run() -> io::Result<()> {
     let log_errors = writer.error_counter();
     tracing_subscriber::fmt().json().with_writer(writer).init();
     let options = Options::parse();
+    let mut override_names = HashSet::new();
+    if options.app_limit.len() > 64
+        || options
+            .app_limit
+            .iter()
+            .any(|(name, _)| !override_names.insert(name))
+    {
+        return Err(invalid(
+            "duplicate or excessive application limit overrides",
+        ));
+    }
     let mut builder = Resolver::builder_tokio().map_err(io::Error::other)?;
     builder.options_mut().cache_size = 256;
     builder.options_mut().max_active_requests = 32;
@@ -452,7 +485,7 @@ async fn run() -> io::Result<()> {
             }
             _ = tick.tick() => {
                 for (name, admission) in &admissions {
-                    if let Some(a) = admission.upgrade() { info!(event="admission", app=%name, active=options.limit as usize-a.permits.available_permits()); }
+                    if let Some(a) = admission.upgrade() { info!(event="admission", app=%name, active=a.limit-a.permits.available_permits(), limit=a.limit); }
                 }
                 info!(event="tasks", sessions=sessions.len(), listeners=listeners.len(), validations=validations.len(), pending_reload=pending.is_some(), logs_dropped=log_errors.dropped_lines());
             }

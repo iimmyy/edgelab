@@ -251,6 +251,10 @@ impl State {
             .collect();
         let mut endpoints = BTreeSet::new();
         for (id, record) in &next.records {
+            if matches!(record.endpoint, SocketAddr::V6(address) if address.scope_id()!=0 || address.ip().to_ipv4_mapped().is_some())
+            {
+                return Err("endpoint aliases require a canonical unscoped address".into());
+            }
             if id != &record.id
                 || !name(id)
                 || !name(&record.app)
@@ -341,6 +345,17 @@ mod tests {
     }
     fn policy() -> Policy {
         Policy::new(["echo".into()].into())
+    }
+
+    #[test]
+    fn mapped_ipv6_cannot_bypass_an_endpoint_reservation() {
+        let state = State::default()
+            .accept("worker-1", snapshot(), &policy(), 1)
+            .unwrap();
+        let mut alias = snapshot();
+        alias.owner = "worker-2".into();
+        alias.records.get_mut("one").unwrap().endpoint = "[::ffff:127.0.0.1]:9000".parse().unwrap();
+        assert!(state.accept("worker-2", alias, &policy(), 2).is_err());
     }
 
     #[test]

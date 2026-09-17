@@ -177,7 +177,8 @@ pub(super) async fn start(
             return Err(invalid("invalid application listeners"));
         }
         let admission = Arc::new(Admission {
-            permits: Arc::new(Semaphore::new(options.limit as usize)),
+            limit: options.limit_for(name),
+            permits: Arc::new(Semaphore::new(options.limit_for(name))),
             next: AtomicUsize::new(0),
         });
         weak.insert(name.clone(), Arc::downgrade(&admission));

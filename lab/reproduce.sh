@@ -25,6 +25,7 @@ step rust-tests cargo test --workspace --locked
 step go-tests go test ./cmd/traffic ./cmd/worker
 step proxy python3 tests/verify.py --out "$output/proxy" --benchmark-seconds 2
 step controls python3 tests/control.py --out "$output/controls"
+step app-limits python3 tests/app_limits.py --out "$output/app-limits"
 step linux-init sudo python3 lab/linux.py init --confirm-disposable
 step linux-up sudo python3 lab/linux.py up
 step network-storage sudo python3 tests/storage_network.py --out "$output/network-storage"

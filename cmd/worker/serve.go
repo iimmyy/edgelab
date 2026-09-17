@@ -232,7 +232,7 @@ func serveWorker(args []string) error {
 			http.Error(w, "expected literal backend endpoint", 400)
 			return
 		}
-		request.Endpoint = address.String()
+		request.Endpoint = netip.AddrPortFrom(address.Addr().Unmap(), address.Port()).String()
 		expected, ok := config.Workloads[request.ID]
 		if !ok || expected.App != request.App || expected.Endpoint != request.Endpoint {
 			http.Error(w, "instance outside configured ownership", 400)
