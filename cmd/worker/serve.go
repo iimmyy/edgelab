@@ -13,9 +13,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/netip"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -38,13 +40,21 @@ type routeSnapshot struct {
 	Revision    uint64                 `json:"revision"`
 	Records     map[string]routeRecord `json:"records"`
 }
+type workload struct {
+	Unit     string `json:"unit"`
+	App      string `json:"app"`
+	Endpoint string `json:"endpoint"`
+	Version  string `json:"version"`
+	Kind     string `json:"kind"`
+}
 type daemonConfig struct {
-	Owner        string   `json:"owner"`
-	Applications []string `json:"applications"`
-	Token        string   `json:"token"`
-	AdminToken   string   `json:"admin_token"`
-	Routers      []string `json:"routers"`
-	RestoreGuard string   `json:"restore_guard"`
+	Workloads    map[string]workload `json:"workloads"`
+	Owner        string              `json:"owner"`
+	Applications []string            `json:"applications"`
+	Token        string              `json:"token"`
+	AdminToken   string              `json:"admin_token"`
+	Routers      []string            `json:"routers"`
+	RestoreGuard string              `json:"restore_guard"`
 }
 type registration struct {
 	Operation string `json:"operation"`
@@ -201,6 +211,11 @@ func serveWorker(args []string) error {
 			return
 		}
 		request.Endpoint = address.String()
+		expected, ok := config.Workloads[request.ID]
+		if !ok || expected.App != request.App || expected.Endpoint != request.Endpoint {
+			http.Error(w, "instance outside configured ownership", 400)
+			return
+		}
 		revision, err := daemon.register(request)
 		if err != nil {
 			http.Error(w, err.Error(), 409)
@@ -215,7 +230,11 @@ func serveWorker(args []string) error {
 	})
 	go daemon.publishLoop()
 	server := http.Server{Addr: *address, Handler: mux, ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 3 * time.Second, WriteTimeout: 4 * time.Second, IdleTimeout: 2 * time.Second, MaxHeaderBytes: 8192}
-	return server.ListenAndServe()
+	listener, err := net.Listen("tcp", *address)
+	if err != nil {
+		return err
+	}
+	return server.Serve(&workerListener{Listener: listener, slots: make(chan struct{}, 32)})
 }
 func authorized(r *http.Request, token string) bool {
 	return subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+token)) == 1
@@ -309,6 +328,9 @@ func (d *workerDaemon) publishLoop() {
 				if err != nil {
 					return err
 				}
+				if err = d.reconcileWorkloads(snapshot); err != nil {
+					return err
+				}
 				data, err := json.Marshal(snapshot)
 				if err != nil {
 					return err
@@ -342,5 +364,88 @@ func (d *workerDaemon) publishLoop() {
 			}
 		}
 		time.Sleep(2 * time.Second)
+	}
+}
+
+func (d *workerDaemon) reconcileWorkloads(snapshot routeSnapshot) error {
+	for id, record := range snapshot.Records {
+		expected, ok := d.config.Workloads[id]
+		if !ok || expected.App != record.App || expected.Endpoint != record.Endpoint ||
+			!strings.HasPrefix(expected.Unit, "edgelab-") || !strings.HasSuffix(expected.Unit, ".service") ||
+			strings.ContainsAny(expected.Unit, "/ \t\n") {
+			return errors.New("workload requires ownership reconciliation")
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		active := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", expected.Unit).Run() == nil
+		cancel()
+		if record.Deleted && active || !record.Deleted && !active {
+			action := "start"
+			if record.Deleted {
+				action = "stop"
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			output, err := exec.CommandContext(ctx, "systemctl", action, expected.Unit).CombinedOutput()
+			cancel()
+			if err != nil {
+				return fmt.Errorf("supervisor %s: %w: %.256s", action, err, output)
+			}
+		}
+		if record.Deleted {
+			continue
+		}
+		if expected.Kind == "objects" {
+			client := http.Client{Timeout: time.Second}
+			response, err := client.Get("http://" + expected.Endpoint + "/health")
+			if err != nil {
+				return err
+			}
+			var identity map[string]string
+			err = json.NewDecoder(io.LimitReader(response.Body, 4096)).Decode(&identity)
+			response.Body.Close()
+			if err != nil || response.StatusCode != 200 || identity["owner"] != id {
+				return errors.New("object ownership not ready")
+			}
+		} else if expected.Kind == "echo" {
+			connection, err := net.DialTimeout("tcp", expected.Endpoint, time.Second)
+			if err != nil {
+				return err
+			}
+			connection.SetDeadline(time.Now().Add(time.Second))
+			var identity map[string]string
+			err = json.NewDecoder(io.LimitReader(connection, 4096)).Decode(&identity)
+			connection.Close()
+			if err != nil || identity["app"] != record.App || identity["instance"] != id || identity["worker"] != snapshot.Owner || identity["version"] != expected.Version {
+				return errors.New("workload serving identity not ready")
+			}
+		} else {
+			return errors.New("unsupported workload identity protocol")
+		}
+	}
+	return nil
+}
+
+type workerListener struct {
+	net.Listener
+	slots chan struct{}
+}
+type workerConnection struct {
+	net.Conn
+	release func()
+	once    sync.Once
+}
+
+func (c *workerConnection) Close() error { err := c.Conn.Close(); c.once.Do(c.release); return err }
+func (l *workerListener) Accept() (net.Conn, error) {
+	for {
+		connection, err := l.Listener.Accept()
+		if err != nil {
+			return nil, err
+		}
+		select {
+		case l.slots <- struct{}{}:
+			return &workerConnection{Conn: connection, release: func() { <-l.slots }}, nil
+		default:
+			connection.Close()
+		}
 	}
 }
