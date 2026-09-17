@@ -1,0 +1,14 @@
+{
+  "scope": "dynamic proxy foundation, not full Release 4 acceptance",
+  "passed": [
+    "missing-cache-management-alive-no-route",
+    "independent-identity-and-payload",
+    "persistence-failure-retains-active-view-and-recovers",
+    "partition-continues-serving-stale",
+    "restart-from-stale-durable-cache",
+    "corrupt-cache-management-alive-no-route",
+    "incompatible-cache-management-alive-no-route"
+  ],
+  "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
+  "interruption": "process only"
+}

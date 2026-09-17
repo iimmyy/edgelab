@@ -1,0 +1,107 @@
+{
+  "before": [
+    {
+      "lv_name": "image_20476848aa710ef1cc01bdb9",
+      "lv_uuid": "fvX5wb-kefF-S5nW-BUqj-mUtL-ZOKY-Hn0eQz",
+      "origin": "",
+      "lv_attr": "Vri-a-tz--",
+      "pool_lv": "pool"
+    },
+    {
+      "lv_name": "[lvol0_pmspare]",
+      "lv_uuid": "0uDF1f-7q4o-RElo-Y5vb-buWt-PMLI-3GGcCp",
+      "origin": "",
+      "lv_attr": "ewi-------",
+      "pool_lv": ""
+    },
+    {
+      "lv_name": "operation_109f11b6fffa709440128792",
+      "lv_uuid": "Ll5dST-N842-eGYO-J2A7-F0US-HIC8-AB3bmr",
+      "origin": "image_20476848aa710ef1cc01bdb9",
+      "lv_attr": "Vwi-aotz-k",
+      "pool_lv": "pool"
+    },
+    {
+      "lv_name": "pool",
+      "lv_uuid": "VeFrfQ-rX2E-F8Jt-QlNW-G3iX-oXvW-vUQQG6",
+      "origin": "",
+      "lv_attr": "twi-aotz--",
+      "pool_lv": ""
+    },
+    {
+      "lv_name": "[pool_tdata]",
+      "lv_uuid": "0ObkzG-d2QY-LtGv-VlD9-wnMd-PUMk-13lts8",
+      "origin": "",
+      "lv_attr": "Twi-ao----",
+      "pool_lv": ""
+    },
+    {
+      "lv_name": "[pool_tmeta]",
+      "lv_uuid": "NjWiCl-5B8J-T4qr-bAdk-e6MJ-XK48-jFGa0V",
+      "origin": "",
+      "lv_attr": "ewi-ao----",
+      "pool_lv": ""
+    }
+  ],
+  "interrupted": [
+    {
+      "lv_name": "image_20476848aa710ef1cc01bdb9",
+      "lv_uuid": "fvX5wb-kefF-S5nW-BUqj-mUtL-ZOKY-Hn0eQz",
+      "origin": "",
+      "lv_attr": "Vri-a-tz--",
+      "pool_lv": "pool"
+    },
+    {
+      "lv_name": "[lvol0_pmspare]",
+      "lv_uuid": "0uDF1f-7q4o-RElo-Y5vb-buWt-PMLI-3GGcCp",
+      "origin": "",
+      "lv_attr": "ewi-------",
+      "pool_lv": ""
+    },
+    {
+      "lv_name": "operation_109f11b6fffa709440128792",
+      "lv_uuid": "Ll5dST-N842-eGYO-J2A7-F0US-HIC8-AB3bmr",
+      "origin": "image_20476848aa710ef1cc01bdb9",
+      "lv_attr": "Vwi-aotz-k",
+      "pool_lv": "pool"
+    },
+    {
+      "lv_name": "operation_ec5ca49dfc98205910b8b369",
+      "lv_uuid": "l4Sxat-ron5-3bc2-7rNK-OJpK-ZYLw-elw7zq",
+      "origin": "image_20476848aa710ef1cc01bdb9",
+      "lv_attr": "Vwi---tz-k",
+      "pool_lv": "pool"
+    },
+    {
+      "lv_name": "pool",
+      "lv_uuid": "VeFrfQ-rX2E-F8Jt-QlNW-G3iX-oXvW-vUQQG6",
+      "origin": "",
+      "lv_attr": "twi-aotz--",
+      "pool_lv": ""
+    },
+    {
+      "lv_name": "[pool_tdata]",
+      "lv_uuid": "0ObkzG-d2QY-LtGv-VlD9-wnMd-PUMk-13lts8",
+      "origin": "",
+      "lv_attr": "Twi-ao----",
+      "pool_lv": ""
+    },
+    {
+      "lv_name": "[pool_tmeta]",
+      "lv_uuid": "NjWiCl-5B8J-T4qr-bAdk-e6MJ-XK48-jFGa0V",
+      "origin": "",
+      "lv_attr": "ewi-ao----",
+      "pool_lv": ""
+    }
+  ],
+  "resumed": {
+    "image": "sha256:20476848aa710ef1cc01bdb9753f81e59901e703ec45701e71d3e0a62b324857",
+    "operation": "capstone-interrupted",
+    "origin": "/dev/edgelab_worker/image_20476848aa710ef1cc01bdb9",
+    "ready": true,
+    "snapshot": "/dev/edgelab_worker/operation_ec5ca49dfc98205910b8b369",
+    "snapshot_uuid": "l4Sxat-ron5-3bc2-7rNK-OJpK-ZYLw-elw7zq",
+    "sqlite_journal": "wal",
+    "sqlite_synchronous": 2
+  }
+}

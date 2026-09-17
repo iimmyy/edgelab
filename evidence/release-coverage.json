@@ -1,0 +1,293 @@
+{
+  "core_gate_count": 46,
+  "gates": [
+    {
+      "id": "L01",
+      "title": "Privileged preflight and ownership boundary",
+      "evidence_profile": "lifecycle/preflight.json",
+      "status": "passed"
+    },
+    {
+      "id": "L02",
+      "title": "Repeatable setup and scoped cleanup",
+      "evidence_profile": "lifecycle",
+      "status": "passed"
+    },
+    {
+      "id": "P01",
+      "title": "All listeners and application separation",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P02",
+      "title": "DNS and initial-connect fallback",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P03",
+      "title": "All backends unavailable",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P04",
+      "title": "TCP half-close and content integrity",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P05",
+      "title": "Per-application overload isolation",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P06",
+      "title": "Slow reader and bounded buffers",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P07",
+      "title": "Connection churn resource recovery",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P08",
+      "title": "Atomic configuration replacement",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P09",
+      "title": "Draining and midstream failure semantics",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "P10",
+      "title": "Measured direct-versus-proxy comparison",
+      "evidence_profile": "run/proxy",
+      "status": "passed"
+    },
+    {
+      "id": "N01",
+      "title": "Tunnel-only application access",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "N02",
+      "title": "Seven distinct misconfiguration repairs",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "N03",
+      "title": "In-place diagnosis rather than replacement",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "S01",
+      "title": "Recover existing data volume",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "S02",
+      "title": "Four devices and filesystem expansion",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "S03",
+      "title": "Automatic 500-MiB growth under service load",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "S04",
+      "title": "Expansion concurrency and restart",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "S05",
+      "title": "Insufficient backing space",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "S06",
+      "title": "Data owner loss is not empty-disk failover",
+      "evidence_profile": "run/network-storage",
+      "status": "passed"
+    },
+    {
+      "id": "W01",
+      "title": "Supported OCI image materialization",
+      "evidence_profile": "run/worker",
+      "status": "passed"
+    },
+    {
+      "id": "W02",
+      "title": "Corrupt, missing and unsupported image input",
+      "evidence_profile": "run/worker",
+      "status": "passed"
+    },
+    {
+      "id": "W03",
+      "title": "Archive containment and resource bounds",
+      "evidence_profile": "run/worker",
+      "status": "passed"
+    },
+    {
+      "id": "W04",
+      "title": "Real snapshot and immutable origin",
+      "evidence_profile": "run/worker",
+      "status": "passed"
+    },
+    {
+      "id": "W05",
+      "title": "Idempotent and concurrent image requests",
+      "evidence_profile": "run/worker",
+      "status": "passed"
+    },
+    {
+      "id": "W06",
+      "title": "Crash after side effect before commit",
+      "evidence_profile": "run/worker",
+      "status": "passed"
+    },
+    {
+      "id": "W07",
+      "title": "Thinpool data and metadata limits",
+      "evidence_profile": "run/worker",
+      "status": "passed"
+    },
+    {
+      "id": "R01",
+      "title": "Deterministic convergence",
+      "evidence_profile": "run/routing + run/dynamic + run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "R02",
+      "title": "Control partition versus data reachability",
+      "evidence_profile": "run/routing + run/dynamic + run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "R03",
+      "title": "Deletion and stale-node rejoin",
+      "evidence_profile": "run/routing + run/dynamic + run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "R04",
+      "title": "Invalid update containment",
+      "evidence_profile": "run/routing + run/dynamic + run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "R05",
+      "title": "Slow subscriber with finite queue",
+      "evidence_profile": "run/routing + run/dynamic + run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "R06",
+      "title": "Owner authority and stale restore",
+      "evidence_profile": "run/routing + run/dynamic + run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "O01",
+      "title": "Truthful request identity and status",
+      "evidence_profile": "run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "O02",
+      "title": "Telemetry and management during proxy failure",
+      "evidence_profile": "run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "O03",
+      "title": "Schema-incompatible canary refusal",
+      "evidence_profile": "run/operations",
+      "status": "passed",
+      "adaptation": "The worker owns SQLite, so its status-schema canary requires a real missing column; the proxy has no SQL dependency."
+    },
+    {
+      "id": "O04",
+      "title": "Dependency restart during prolonged drain",
+      "evidence_profile": "run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "O05",
+      "title": "Query plan and WAL maintenance under load",
+      "evidence_profile": "run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "O06",
+      "title": "Independent watchdog and diagnostic capture",
+      "evidence_profile": "run/operations",
+      "status": "passed"
+    },
+    {
+      "id": "D01",
+      "title": "Design and coverage claims",
+      "evidence_profile": "release-coverage.json + separate documentation draft",
+      "status": "pending_user_prose"
+    },
+    {
+      "id": "D02",
+      "title": "Incident account and audience-specific writing",
+      "evidence_profile": "evidence/release.json + evidence/diagnostics/handshake-light",
+      "status": "existing_incident_preserved",
+      "limitation": "The matched kernel trace explains one reproduced failure; it does not attribute all original measurement failures.",
+      "source_commit": "624c4bf3b3a07fbabcc2f731c5b2f5cda651fcba"
+    },
+    {
+      "id": "D03",
+      "title": "Bounded volume-fork behavior",
+      "evidence_profile": "run/capstone",
+      "status": "scripted_behavior_passed",
+      "documentation": "Draft supplied separately; user rewrite pending.",
+      "adaptation": "Fork of sealed immutable image origin; no live-database application-consistency guarantee."
+    },
+    {
+      "id": "D04",
+      "title": "Self-service RTT diagnostic and recipe",
+      "evidence_profile": "run/capstone/*traffic* + run/operations/*traffic*; independent Go application RTT client",
+      "status": "scripted_behavior_passed",
+      "documentation": "Draft supplied separately; user rewrite pending."
+    },
+    {
+      "id": "D05",
+      "title": "Fresh environment reproduction",
+      "evidence_profile": "run/capstone",
+      "status": "scripted_behavior_passed",
+      "documentation": "Draft supplied separately; user rewrite pending."
+    },
+    {
+      "id": "D06",
+      "title": "Integrated capstone and change request",
+      "evidence_profile": "run/capstone",
+      "status": "scripted_behavior_passed",
+      "documentation": "Draft supplied separately; user rewrite pending."
+    }
+  ],
+  "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
+  "artifact_type": "executed_core_coverage_with_documentation_pending",
+  "system_gates_passed": 40,
+  "documentation_draft": ".run/documentation-draft.txt"
+}

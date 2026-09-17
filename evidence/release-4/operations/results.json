@@ -1,0 +1,17 @@
+{
+  "scope": "scripted routing and operations profile",
+  "passed": [
+    "three-workers-two-routers-two-proxies-identity-verified",
+    "failed-identity-query-reported-unknown",
+    "workloads-survive-management-restart-without-duplicates",
+    "partitioned-router-converges-to-deletion",
+    "backup-recovery-resumes-one-node-ack-with-deletion-and-credential-fencing",
+    "schema-incompatible-canary-rejected-before-readiness",
+    "query-plan-and-wal-maintenance-under-verified-traffic",
+    "slow-subscriber-bounded-memory-coalescing-and-complete-resync",
+    "invalid-app-update-preserves-unrelated-application",
+    "independent-watchdog-captures-stall-and-restarts-once",
+    "router-restarts-while-proxy-drains-live-stream"
+  ],
+  "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574"
+}

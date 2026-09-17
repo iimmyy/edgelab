@@ -1,0 +1,67 @@
+{
+  "seeded_rows": 4096,
+  "before_plan": [
+    [
+      2,
+      0,
+      0,
+      "SCAN routing_operations"
+    ]
+  ],
+  "after_plan": [
+    [
+      3,
+      0,
+      0,
+      "SEARCH routing_operations USING INDEX routing_operations_request_hash (request_hash=?)"
+    ]
+  ],
+  "blocked_checkpoint": [
+    1,
+    132,
+    12
+  ],
+  "recovered_checkpoint": [
+    0,
+    0,
+    0
+  ],
+  "peak_wal_bytes": 543872,
+  "client": {
+    "attempts": 41206,
+    "backends": {
+      "instance-2": 20603,
+      "instance-3": 20603
+    },
+    "concurrency": 4,
+    "failures": 0,
+    "identities": {
+      "instance-2": {
+        "app": "echo",
+        "instance": "instance-2",
+        "region": "east",
+        "version": "r4",
+        "worker": "worker-2"
+      },
+      "instance-3": {
+        "app": "echo",
+        "instance": "instance-3",
+        "region": "east",
+        "version": "r4",
+        "worker": "worker-3"
+      }
+    },
+    "latency_population": "all attempts including failures and timeouts",
+    "max_ms": 3.604,
+    "measurement": "application round-trip time including connection setup, payload transfer and server work",
+    "p50_ms": 0.252,
+    "p95_ms": 0.565,
+    "p99_ms": 0.857,
+    "payload_bytes": 1024,
+    "seconds": 3.000187476,
+    "successes": 41206,
+    "successes_per_second": 13734.475038519227,
+    "timeouts": 0
+  },
+  "remediation": "release the controlled reader, add the lookup index, checkpoint through SQLite"
+}

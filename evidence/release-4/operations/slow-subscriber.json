@@ -1,0 +1,442 @@
+{
+  "baseline": {
+    "router": {
+      "time": 1789623995.7015226,
+      "pid": 17891,
+      "rss_bytes": 4251648,
+      "fds": 15,
+      "threads": 7,
+      "cpu_seconds": 0.04
+    },
+    "proxy": {
+      "time": 1789623995.7016625,
+      "pid": 17743,
+      "rss_bytes": 6713344,
+      "fds": 13,
+      "threads": 7,
+      "cpu_seconds": 3.15
+    }
+  },
+  "samples": [
+    {
+      "router": {
+        "time": 1789623995.7112088,
+        "pid": 17891,
+        "rss_bytes": 4255744,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.711391,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 34,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7161727,
+        "pid": 17891,
+        "rss_bytes": 4276224,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.716259,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 35,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7205505,
+        "pid": 17891,
+        "rss_bytes": 4276224,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.720629,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 36,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7251494,
+        "pid": 17891,
+        "rss_bytes": 4276224,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7252278,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 37,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7296138,
+        "pid": 17891,
+        "rss_bytes": 4276224,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7296891,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 38,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7339418,
+        "pid": 17891,
+        "rss_bytes": 4276224,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7340102,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 39,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7394557,
+        "pid": 17891,
+        "rss_bytes": 4280320,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.739534,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 40,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7443197,
+        "pid": 17891,
+        "rss_bytes": 4280320,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.744402,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 41,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7496827,
+        "pid": 17891,
+        "rss_bytes": 4280320,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7497537,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 42,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7542162,
+        "pid": 17891,
+        "rss_bytes": 4280320,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7543094,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 43,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7602277,
+        "pid": 17891,
+        "rss_bytes": 4284416,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.760354,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 44,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7650425,
+        "pid": 17891,
+        "rss_bytes": 4284416,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7651262,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 45,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7694173,
+        "pid": 17891,
+        "rss_bytes": 4284416,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7695003,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 46,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.774474,
+        "pid": 17891,
+        "rss_bytes": 4284416,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.7745533,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 47,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7792177,
+        "pid": 17891,
+        "rss_bytes": 4284416,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.779324,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 48,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    },
+    {
+      "router": {
+        "time": 1789623995.7836795,
+        "pid": 17891,
+        "rss_bytes": 4284416,
+        "fds": 15,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      },
+      "proxy": {
+        "time": 1789623995.783755,
+        "pid": 17743,
+        "rss_bytes": 6713344,
+        "fds": 13,
+        "threads": 7,
+        "cpu_seconds": 3.15
+      },
+      "queue": {
+        "coalesced_deliveries": 5,
+        "generation": 49,
+        "owners": 3,
+        "pending_view_capacity": 1,
+        "ready": true,
+        "subscriber_slots": 32
+      }
+    }
+  ],
+  "final_generation": 49,
+  "resynced_revision": 19,
+  "durable_operations": 16,
+  "memory_delta_limit_bytes": 33554432
+}

@@ -1,0 +1,29 @@
+{
+  "deployment_epoch": null,
+  "instances": {
+    "aux-1": {
+      "state": "unknown",
+      "checked_ms": 1789623971754
+    },
+    "instance-2": {
+      "state": "verified",
+      "app": "echo",
+      "instance": "instance-2",
+      "version": "r4",
+      "endpoint": "127.0.0.1:45385",
+      "checked_ms": 1789623971754
+    }
+  },
+  "owner": "worker-2",
+  "publications": {
+    "http://127.0.0.1:32971": {
+      "error": "workload serving identity not ready",
+      "ok": false
+    },
+    "http://127.0.0.1:37675": {
+      "ok": true,
+      "time_ms": 1789623968680
+    }
+  },
+  "status_version": 1
+}

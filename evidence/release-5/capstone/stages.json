@@ -1,0 +1,49 @@
+[
+  {
+    "stage": "prepared-image-and-discovered-supervised-applications",
+    "time": 1789624008.2077212,
+    "snapshot_uuid": "Ll5dST-N842-eGYO-J2A7-F0US-HIC8-AB3bmr",
+    "execution": "validated ELF files from a mounted thin snapshot; host processes, not VMs"
+  },
+  {
+    "stage": "new-connection-fallback-and-existing-session-failure",
+    "time": 1789624008.2375631
+  },
+  {
+    "stage": "private-route-repaired-with-direct-path-still-blocked",
+    "time": 1789624009.9879324
+  },
+  {
+    "stage": "automatic-storage-growth-preserves-acknowledged-objects",
+    "time": 1789624017.984226,
+    "before_bytes": 1073741824.0,
+    "before_filesystem_bytes": 1020702720,
+    "after_filesystem_bytes": 1536040960,
+    "acknowledged_growth_objects": 110
+  },
+  {
+    "stage": "snapshot-side-effect-reconciled-without-duplication",
+    "time": 1789624019.0430717
+  },
+  {
+    "stage": "routing-partition-healed-without-deletion-resurrection",
+    "time": 1789624023.3665223
+  },
+  {
+    "stage": "canary-rejected-and-stalled-consumer-recovered",
+    "time": 1789624028.255052
+  },
+  {
+    "stage": "immutable-image-fork-isolated",
+    "time": 1789624028.9116077,
+    "source_origin": "/dev/edgelab_worker/image_20476848aa710ef1cc01bdb9",
+    "fork_snapshot": "jMmgeE-9OvG-1f42-fTZi-EeL3-fwL6-gMMTz3"
+  },
+  {
+    "stage": "integrated-demonstration-passed",
+    "time": 1789624029.0199149,
+    "monitor_cycles": 62,
+    "faults": "scripted replay; not withheld diagnosis",
+    "durability": "process interruption only"
+  }
+]

@@ -1,0 +1,151 @@
+{
+  "release": 4,
+  "status": "scripted acceptance passed; documentation rewrite pending",
+  "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
+  "verifier_commit": "9c480acbfe7debc66078ba255e827bf4e1cc31c3",
+  "archive": {
+    "path": "evidence/raw/edgelab-final.tgz",
+    "sha256": "9ae048e9b53727661582d725fe56b23191eb8afa9784c61740859ed830e52b21",
+    "bytes": 16669195,
+    "extracted_directory": "evidence/raw/final-export",
+    "local_only": true
+  },
+  "evidence_check": {
+    "verified_files": 1217,
+    "missing_semantic_proof_rejected": true,
+    "wrong_commit_rejected": true,
+    "missing_recovery_proof_rejected": true,
+    "exported_credential_fields_redacted": 30,
+    "audit_log": "evidence/release-5/audit.txt"
+  },
+  "publication": "local commits only; Markdown rewrite and push remain with the user",
+  "gates": [
+    {
+      "id": "R01",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "R02",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "R03",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "R04",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "R05",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "R06",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "O01",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "O02",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "O03",
+      "status": "passed",
+      "adaptation": "worker SQLite status-schema canary; proxy has no SQL dependency"
+    },
+    {
+      "id": "O04",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "O05",
+      "status": "passed",
+      "adaptation": null
+    },
+    {
+      "id": "O06",
+      "status": "passed",
+      "adaptation": null
+    }
+  ],
+  "profiles": {
+    "foundation_cases": 12,
+    "dynamic_cache_cases": 7,
+    "operations_cases": 11,
+    "topology": {
+      "workers": 3,
+      "routers": 2,
+      "proxies": 2
+    }
+  },
+  "bounds": {
+    "lifetime_records_per_owner": 4096,
+    "complete_view_bytes": 16777216,
+    "pending_complete_view_per_subscriber": 1,
+    "slow_subscriber_test_rss_delta_bytes": 33554432
+  },
+  "selected_proofs": {
+    "evidence/release-4/operations/results.json": {
+      "archive_path": "run/operations/results.json",
+      "sha256": "36f1f6c295daf309918a9a723a91af18499df03a294a3e55f7f75da12d4bcc4f"
+    },
+    "evidence/release-4/operations/recovery-proof.json": {
+      "archive_path": "run/operations/recovery-proof.json",
+      "sha256": "e8465ff0a30f518e26d013349c5a81c26f1db8287520eda76025be70399e7cc7"
+    },
+    "evidence/release-4/operations/workload-pids.json": {
+      "archive_path": "run/operations/workload-pids.json",
+      "sha256": "2cebdbe2ee143f41dd874b75caf78c5c02403c2d683addd9f1618f8f4800019f"
+    },
+    "evidence/release-4/operations/status-query-failure.json": {
+      "archive_path": "run/operations/status-query-failure.json",
+      "sha256": "09b26f41d6da2ac193fa4ef2d211eeff2f21f7bffef19f1933c78c0216270f2d"
+    },
+    "evidence/release-4/operations/canary.json": {
+      "archive_path": "run/operations/canary.json",
+      "sha256": "9904402e399a49c53258e9482ed87dae789b3f23df6de894b1a321f259b0580d"
+    },
+    "evidence/release-4/operations/maintenance.json": {
+      "archive_path": "run/operations/maintenance.json",
+      "sha256": "afd65be8e1bc8e2b726dd14c6cfffd375ee21c73c693caed1224b763d42626c0"
+    },
+    "evidence/release-4/operations/slow-subscriber.json": {
+      "archive_path": "run/operations/slow-subscriber.json",
+      "sha256": "16d0519fc78f8a00241631aca49457ea0496678b1cf612b99733481c4e0fb712"
+    },
+    "evidence/release-4/operations/independent-restart.json": {
+      "archive_path": "run/operations/independent-restart.json",
+      "sha256": "fad5f5b5f20463d76cf4fbdf242380be5f90a073d08140ef0684721c81afab49"
+    },
+    "evidence/release-4/operations/trace.json": {
+      "archive_path": "run/operations/trace.json",
+      "sha256": "87ba4c511ad29084925424eea44ab5e2badf9094282d20f8408b30b092296bbe"
+    },
+    "evidence/release-4/operations/watchdog/recovery.json": {
+      "archive_path": "run/operations/watchdog/recovery.json",
+      "sha256": "c1702f5ab4ba351eef85f079ce8d93565c79ddc7e1e7719427f667b97381fbe1"
+    },
+    "evidence/release-4/dynamic/results.json": {
+      "archive_path": "run/dynamic/results.json",
+      "sha256": "ffc1e3094503ed65abe0bdc9910df1df43383ff0c9518d366aa11a28a87ed1f7"
+    }
+  },
+  "limits": [
+    "Fixed isolated lab; complete snapshot reconciliation, not a general consensus or gossip system.",
+    "Cached reachable endpoints do not expire automatically; endpoint reservations last for the lab lifetime.",
+    "Process-kill and actual rename-error tests do not establish whole-VM or physical-host power-loss guarantees."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "error": "{\"error\":\"status schema 2 readiness: no such column: deployment_epoch\",\"ready\":false}\n",
+  "listener_opened": false,
+  "active_profile": 1,
+  "rejected_profile": 2
+}

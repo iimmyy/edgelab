@@ -1,0 +1,16 @@
+{
+  "interrupted_exit": 77,
+  "blocked_exit": 1,
+  "resumed": {
+    "acknowledgements": 2,
+    "complete": true,
+    "incarnation": 2,
+    "operation": "restore-old-backup",
+    "quarantined": 2
+  },
+  "matching_router_recovery": {
+    "operation": "restore-old-backup",
+    "digest": "d47e72987cf9525e36805cf4b09995595e29cee9459e0d9de0d3f3493a560102"
+  },
+  "deletion_preserved": true
+}

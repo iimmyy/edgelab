@@ -1,0 +1,26 @@
+{
+  "restart_count": 1,
+  "status": {
+    "available": true,
+    "delivery_ms": 1789623998745,
+    "draining": false,
+    "generation": 52,
+    "mode": "dynamic",
+    "owners": {
+      "worker-1": {
+        "reconciled_ms": 1789623997603,
+        "stale": false
+      },
+      "worker-2": {
+        "reconciled_ms": 1789623997584,
+        "stale": false
+      },
+      "worker-3": {
+        "reconciled_ms": 1789623997600,
+        "stale": false
+      }
+    },
+    "persistence_error": null,
+    "routing_error": null
+  }
+}

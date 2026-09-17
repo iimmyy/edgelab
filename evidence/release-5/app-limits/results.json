@@ -1,0 +1,82 @@
+{
+  "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
+  "limits": {
+    "a": 2,
+    "b": 3
+  },
+  "shared_listeners": true,
+  "reload_preserved_admission": true,
+  "rejections": [
+    {
+      "port": 34327,
+      "seconds": 0.0001623650000226462
+    },
+    {
+      "port": 35557,
+      "seconds": 0.00014844900002231043
+    },
+    {
+      "port": 36533,
+      "seconds": 0.00023356899998816516
+    },
+    {
+      "port": 35557,
+      "seconds": 0.00030793900000958274
+    }
+  ],
+  "healthy_b": {
+    "attempts": 30,
+    "backends": {
+      "b1": 30
+    },
+    "concurrency": 1,
+    "failures": 0,
+    "identities": {
+      "b1": {
+        "app": "b",
+        "instance": "b1",
+        "region": "local-a",
+        "version": "v1",
+        "worker": "worker-a"
+      }
+    },
+    "latency_population": "all attempts including failures and timeouts",
+    "max_ms": 0.308,
+    "measurement": "application round-trip time including connection setup, payload transfer and server work",
+    "p50_ms": 0.187,
+    "p95_ms": 0.258,
+    "p99_ms": 0.298,
+    "payload_bytes": 1024,
+    "seconds": 0.006149617,
+    "successes": 30,
+    "successes_per_second": 4878.352586835896,
+    "timeouts": 0,
+    "client_pid": 12543
+  },
+  "invalid": [
+    {
+      "flags": [
+        "--app-limit",
+        "a=0"
+      ],
+      "exit": 2,
+      "stderr": "error: invalid value 'a=0' for '--app-limit <APP_LIMIT>': expected an application name and a limit in 1..4096\n\nFor more information, try '--help'.\n"
+    },
+    {
+      "flags": [
+        "--app-limit",
+        "a=4097"
+      ],
+      "exit": 2,
+      "stderr": "error: invalid value 'a=4097' for '--app-limit <APP_LIMIT>': expected an application name and a limit in 1..4096\n\nFor more information, try '--help'.\n"
+    },
+    {
+      "flags": [
+        "--app-limit",
+        "a=3"
+      ],
+      "exit": 1,
+      "stderr": "Error: Custom { kind: InvalidInput, error: \"duplicate or excessive application limit overrides\" }\n"
+    }
+  ]
+}

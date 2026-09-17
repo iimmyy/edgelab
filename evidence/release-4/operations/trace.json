@@ -1,0 +1,26 @@
+{
+  "operation": [
+    "slow-consumer-15",
+    19
+  ],
+  "owner": "worker-2",
+  "record": {
+    "id": "instance-2",
+    "app": "echo",
+    "endpoint": "127.0.0.1:45385",
+    "revision": 19,
+    "deleted": false
+  },
+  "proxy_generation": 52,
+  "observed_client": {
+    "exit": 0,
+    "stdout": "{\"attempts\":30,\"backends\":{\"instance-2\":15,\"instance-3\":15},\"concurrency\":2,\"failures\":0,\"identities\":{\"instance-2\":{\"app\":\"echo\",\"instance\":\"instance-2\",\"region\":\"east\",\"version\":\"r4\",\"worker\":\"worker-2\"},\"instance-3\":{\"app\":\"echo\",\"instance\":\"instance-3\",\"region\":\"east\",\"version\":\"r4\",\"worker\":\"worker-3\"}},\"latency_population\":\"all attempts including failures and timeouts\",\"max_ms\":0.702,\"measurement\":\"application round-trip time including connection setup, payload transfer and server work\",\"p50_ms\":0.281,\"p95_ms\":0.465,\"p99_ms\":0.485,\"payload_bytes\":1024,\"seconds\":0.004966568,\"successes\":30,\"successes_per_second\":6040.38845335451,\"timeouts\":0}\n",
+    "stderr": ""
+  },
+  "independent_expected_identity": {
+    "app": "echo",
+    "worker": "worker-2",
+    "region": "east",
+    "version": "r4"
+  }
+}

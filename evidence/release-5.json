@@ -1,0 +1,118 @@
+{
+  "release": 5,
+  "status": "fresh scripted reproduction and capstone passed; documentation rewrite pending",
+  "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
+  "verifier_commit": "9c480acbfe7debc66078ba255e827bf4e1cc31c3",
+  "archive": {
+    "path": "evidence/raw/edgelab-final.tgz",
+    "sha256": "9ae048e9b53727661582d725fe56b23191eb8afa9784c61740859ed830e52b21",
+    "bytes": 16669195,
+    "extracted_directory": "evidence/raw/final-export",
+    "local_only": true
+  },
+  "evidence_check": {
+    "verified_files": 1217,
+    "missing_semantic_proof_rejected": true,
+    "wrong_commit_rejected": true,
+    "missing_recovery_proof_rejected": true,
+    "exported_credential_fields_redacted": 30,
+    "audit_log": "evidence/release-5/audit.txt"
+  },
+  "publication": "local commits only; Markdown rewrite and push remain with the user",
+  "fresh_environment": {
+    "vm": "edgelab-final",
+    "image": "Ubuntu 24.04 ARM64",
+    "cpus": 4,
+    "memory_gib": 8,
+    "disk_gib": 64,
+    "metadata": "environment/vm.json",
+    "bootstrap_log": "environment/bootstrap.log",
+    "source_unchanged_during_run": true
+  },
+  "reproduction": {
+    "command": "bash lab/reproduce.sh .run/final-reproduction",
+    "proxy_gates": 10,
+    "network_storage_gates": 9,
+    "worker_gates": 7,
+    "routing_gates": 6,
+    "operations_gates": 6,
+    "lifecycle_and_preflight": true,
+    "worker_interruption_points": 18,
+    "worker_registered_snapshots": 21,
+    "network_storage_acknowledged_objects": 955,
+    "proxy_measurement_seconds_per_run": 2,
+    "measurement_scope": "Short regression profile; original full measurement and disclosed failures remain in evidence/release.json."
+  },
+  "capstone": {
+    "stages": 9,
+    "monitor_cycles": 62,
+    "objects_verified": 115,
+    "cleanup_verified": true,
+    "workloads": "Verified ELF binaries executed from a prepared thin snapshot in separately supervised units; no VM runtime claim."
+  },
+  "subsequent_change": {
+    "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
+    "before_change_commit": "8c83eab916a2daa36535608924db0cd06ee9dda9",
+    "change_commit": "a96b0b87611797e79e14608c7f729d4916da4574",
+    "before_change_audit": {
+      "verified_files": 509,
+      "capstone_stages": 9,
+      "objects_verified": 115
+    },
+    "verifier_commit": "c288851bae493c427104e0c907be518c40b892f7",
+    "before_change_archive": {
+      "path": "evidence/raw/capstone-before.tgz",
+      "sha256": "ce6332f77c61997b17444cb3916bd396ee708e246b011225d9c00189e78a3e0c"
+    },
+    "change": "Per-application startup admission limits shared across listeners and configuration generations. Default and global ceilings preserved."
+  },
+  "selected_proofs": {
+    "evidence/release-5/capstone/stages.json": {
+      "archive_path": "run/capstone/stages.json",
+      "sha256": "b4e5764085964f4b89ed2136862569776651e74793b22acc241953ec8486c242"
+    },
+    "evidence/release-5/capstone/source.json": {
+      "archive_path": "run/capstone/source.json",
+      "sha256": "7b96a80660ae014d8cfba947ea5886e203155e39b9b8eeff15a3dcd749457093"
+    },
+    "evidence/release-5/capstone/network-window.json": {
+      "archive_path": "run/capstone/network-window.json",
+      "sha256": "9fb56556262f73b1e8699f084a53a794175867111c6b780fe83f337b358d7788"
+    },
+    "evidence/release-5/capstone/midstream-failure.json": {
+      "archive_path": "run/capstone/midstream-failure.json",
+      "sha256": "d7b4ed7a1b057f8662297a4be15d3e088ea6c366ca4ff54e9515eb4573b13c35"
+    },
+    "evidence/release-5/capstone/worker-resource-proof.json": {
+      "archive_path": "run/capstone/worker-resource-proof.json",
+      "sha256": "14e59476d1e20df801eb85648b77496a52243c299b3b8f355f741b5547eef072"
+    },
+    "evidence/release-5/capstone/cleanup.json": {
+      "archive_path": "run/capstone/cleanup.json",
+      "sha256": "b9143ff2843f9d6490cf8cec6b47c9c2d5d59fce1b440ebcb423f85df6458104"
+    },
+    "evidence/release-5/app-limits/results.json": {
+      "archive_path": "run/app-limits/results.json",
+      "sha256": "f5890258808a2f8224cdc3fdae2f962f2bebf98745d89a0de9879af97a4018c3"
+    }
+  },
+  "development_failures": [
+    {
+      "source_commit": "83ebd25",
+      "stage": "capstone image-preparation result parsing",
+      "cause": "Harness parsed the worker JSONL event stream as one JSON value; image preparation itself succeeded.",
+      "fix_commit": "8c83eab",
+      "evidence_location": "edgelab-repro:/home/ubuntu/edgelab/.run/reproduction-1/capstone.log",
+      "retest": "Pre-change capstone and final fresh replay passed."
+    }
+  ],
+  "remaining": [
+    "User rewrite and review of separate documentation draft.",
+    "Joint release review before external publication."
+  ],
+  "outside_scope": [
+    "Withheld-fault diagnosis exercise",
+    "Whole-VM interruption and physical-host durability tests",
+    "Optional billing, Maelstrom, BGP and VM-runtime tracks"
+  ]
+}

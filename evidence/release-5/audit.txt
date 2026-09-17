@@ -1,0 +1,4 @@
+Evidence is complete and internally consistent for a96b0b87611797e79e14608c7f729d4916da4574
+{"status": "passed", "commit": "a96b0b87611797e79e14608c7f729d4916da4574", "gates": 9, "acknowledged_objects": 955, "files_verified": 111}
+{"status": "passed", "commit": "a96b0b87611797e79e14608c7f729d4916da4574", "gates": 7, "interruption_points": 18, "registered_snapshots": 21, "files_verified": 275}
+{"verified_files": 1217, "source_commit": "a96b0b87611797e79e14608c7f729d4916da4574", "routing_gates": 6, "operations_gates": 6, "canary_profile": "worker status schema upgrade; proxy has no SQL dependency", "capstone_stages": 9, "monitor_cycles": 62, "objects_verified": 115, "subsequent_app_limit_change": "verified"}
