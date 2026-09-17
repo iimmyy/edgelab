@@ -12,6 +12,46 @@ a = p.parse_args()
 root = a.directory
 inventory = json.loads((root / "inventory.json").read_text())
 assert inventory["source_commit"] == a.commit, "wrong source commit"
+required = {
+    "source.json",
+    "preflight.json",
+    "initial.json",
+    "final-state.json",
+    "results.json",
+    "ack.jsonl",
+    "wireguard.pcap",
+    "capture.log",
+    "watch.jsonl",
+    "watch.stderr",
+    "concurrent-0.json",
+    "concurrent-1.json",
+    "composite-broken.json",
+}
+commands = [
+    "seed",
+    "unmounted-owner",
+    "recovered",
+    "initial-growth",
+    "after-4g",
+    "fill-threshold",
+    "writes-during-growth",
+    "after-auto-growth",
+    "fill-concurrent",
+    "crash-lv",
+    "resume-lv",
+    "after-crash",
+    "exhausted",
+    "owner-returned",
+]
+for fault in ["interface", "address", "endpoint", "prefix", "route", "firewall", "mtu"]:
+    required.update([fault + "-broken.json", fault + "-repaired-state.json"])
+    commands.extend([fault + "-failure", fault + "-repaired"])
+for command in commands:
+    required.update(command + suffix for suffix in [".json", ".stdout", ".stderr"])
+assert set(inventory["files"]) == required, "incomplete evidence inventory"
+assert {p.name for p in root.iterdir()} == required | {"inventory.json"}, (
+    "missing or unexpected evidence"
+)
 for name, digest in inventory["files"].items():
     assert Path(name).name == name, "invalid evidence path"
     assert hashlib.sha256((root / name).read_bytes()).hexdigest() == digest, name

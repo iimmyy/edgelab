@@ -63,6 +63,7 @@ func main() {
 	if *root != "/var/lib/edgelab-r2" || *maximum > 6144 || *target > 6144 {
 		fail(errors.New("outside fixture allocation bounds"))
 	}
+	*target = (*target + 3) / 4 * 4
 	info, err := os.Lstat(*root)
 	if err != nil || !info.IsDir() || info.Mode().Perm() != 0700 || info.Sys().(*syscall.Stat_t).Uid != 0 {
 		fail(errors.New("untrusted fixture directory"))

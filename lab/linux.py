@@ -414,6 +414,19 @@ def status():
             "wireguard": ns(n, "wg", "show"),
             "rules": ns(n, "nft", "list", "ruleset"),
         }
+    for name, address in [(CLIENT, "10.77.0.2"), (SERVER, "10.77.0.1")]:
+        lookup = subprocess.run(
+            ["ip", "netns", "exec", name, "ip", "route", "get", address],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        result[name]["route_lookup"] = {
+            "exit": lookup.returncode,
+            "stdout": lookup.stdout,
+            "stderr": lookup.stderr,
+        }
     if (ROOT / "storage.json").exists():
         f = json.loads((ROOT / "storage.json").read_text())
         result["storage"] = f
