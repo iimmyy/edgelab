@@ -1,3 +1,4 @@
+mod dynamic;
 use clap::Parser;
 use hickory_resolver::{Resolver, TokioResolver};
 use serde::Deserialize;
@@ -25,7 +26,9 @@ use tracing::{error, info, warn};
 #[derive(Parser, Clone)]
 struct Options {
     #[arg(long)]
-    config: PathBuf,
+    config: Option<PathBuf>,
+    #[arg(long, conflicts_with = "config")]
+    dynamic: Option<PathBuf>,
     #[arg(long, default_value = "127.0.0.1")]
     listen_ip: IpAddr,
     #[arg(long, default_value_t = 128, value_parser = clap::value_parser!(u32).range(1..=4096))]
@@ -65,6 +68,7 @@ struct App {
     targets: Vec<String>,
     admission: Arc<Admission>,
 }
+#[derive(Clone)]
 struct View {
     ports: HashMap<u16, Arc<App>>,
 }
@@ -118,10 +122,14 @@ async fn prepare(
 ) -> io::Result<(View, HashMap<u16, Arc<TcpListener>>)> {
     // A bounded read also protects against a file growing between metadata and read.
     use tokio::io::AsyncReadExt;
-    if !tokio::fs::metadata(&options.config).await?.is_file() {
+    let config_path = options
+        .config
+        .as_ref()
+        .ok_or_else(|| invalid("--config or --dynamic required"))?;
+    if !tokio::fs::metadata(config_path).await?.is_file() {
         return Err(invalid("configuration must be a regular file"));
     }
-    let file = tokio::fs::File::open(&options.config).await?;
+    let file = tokio::fs::File::open(config_path).await?;
     let mut bytes = Vec::new();
     file.take(1024 * 1024 + 1).read_to_end(&mut bytes).await?;
     if delayed {
@@ -312,8 +320,10 @@ async fn forward(
     resolver: TokioResolver,
 ) {
     let started = Instant::now();
-    let result = async {
+    let name = app.name.clone();
+    let result = async move {
         let mut backend = connect(&app, &options, &resolver).await?;
+        drop(app);
         client.set_nodelay(true)?;
         backend.set_nodelay(true)?;
         copy_bidirectional_with_sizes(
@@ -327,10 +337,10 @@ async fn forward(
     .await;
     match result {
         Ok((up, down)) => {
-            info!(event="closed", app=%app.name, up, down, elapsed_ms=started.elapsed().as_millis() as u64)
+            info!(event="closed", app=%name, up, down, elapsed_ms=started.elapsed().as_millis() as u64)
         }
         Err(err) => {
-            warn!(event="session_failed", app=%app.name, error=%err, elapsed_ms=started.elapsed().as_millis() as u64)
+            warn!(event="session_failed", app=%name, error=%err, elapsed_ms=started.elapsed().as_millis() as u64)
         }
     }
 }
@@ -358,8 +368,19 @@ async fn run() -> io::Result<()> {
     let resolver = builder.build().map_err(io::Error::other)?;
     let global = Arc::new(Semaphore::new(1024));
     let mut admissions = HashMap::new();
-    let (mut view, mut listeners) =
-        prepare(&options, &mut admissions, &HashMap::new(), false).await?;
+    let mut dynamic = if let Some(path) = &options.dynamic {
+        Some(dynamic::start(path, &options, &mut admissions).await?)
+    } else {
+        None
+    };
+    let (mut view, mut listeners) = if let Some(control) = &mut dynamic {
+        (
+            control.views.borrow_and_update().as_ref().clone(),
+            control.listeners.clone(),
+        )
+    } else {
+        prepare(&options, &mut admissions, &HashMap::new(), false).await?
+    };
     let mut accepts = JoinSet::new();
     let mut sessions = JoinSet::new();
     let mut validations = JoinSet::new();
@@ -385,7 +406,18 @@ async fn run() -> io::Result<()> {
             biased;
             _ = term.recv() => break,
             _ = interrupt.recv() => break,
+            changed = async {
+                match &mut dynamic {
+                    Some(control) => control.views.changed().await,
+                    None => std::future::pending().await,
+                }
+            } => {
+                changed.map_err(io::Error::other)?;
+                view = dynamic.as_mut().unwrap().views.borrow_and_update().as_ref().clone();
+                info!(event="dynamic_view_activated");
+            }
             _ = reload.recv() => {
+                if dynamic.is_some() { warn!(event="static_reload_disabled"); continue; }
                 generation += 1;
                 if validations.is_empty() {
                     validate_reload(&mut validations, generation, options.clone(), admissions.clone(), listeners.clone());
@@ -432,6 +464,7 @@ async fn run() -> io::Result<()> {
                             if let Err(err) = result { error!(event="session_task_failed", error=%err); }
                         }
                         let app = view.ports[&port].clone();
+                        if app.targets.is_empty() { warn!(event="route_unavailable", app=%app.name); continue; }
                         match app.admission.permits.clone().try_acquire_owned() {
                             Ok(permit) => {
                                 match global.clone().try_acquire_owned() {
@@ -448,6 +481,9 @@ async fn run() -> io::Result<()> {
             Some(result) = sessions.join_next() => { if let Err(err) = result { error!(event="session_task_failed", error=%err); } }
 
         }
+    }
+    if let Some(control) = &dynamic {
+        control.stop();
     }
     let drain_deadline = Instant::now() + Duration::from_millis(options.drain_ms.into());
     validations.abort_all();
