@@ -1,14 +1,14 @@
 # EdgeLab
 
-A small edge-hosting lab that I can deploy, break, poke around inside, and put back together. Built of course with AI assistance (I mean come on lol) and shaped by the public Fly.io exercises. It's my own project and nobody's grading it. Just thought it would be fun.
+This is a small edge-hosting lab that I made to deploy, break, poke around inside, and put back together. Built of course with AI assistance (I mean come on lol) and shaped by the public Fly.io exercises. It's my own project and nobody's grading it. Just thought it would be fun.
 
 All five implementation releases are hooked together now. A Go worker gets an image ready on thin storage, separately supervised applications run the binaries it verified, routing nodes take the worker's complete instance history, and the Rust proxies forward off their own local routing views. An independent client sits outside the whole thing checking which identities are actually serving and whether the object hashes line up, while the lab has a crisis underneath it.
 
-Why I made the calls I made, along with the library contracts I'm leaning on, is all in the [design notes](NOTES.md). The [incident record](INCIDENT.md) though walks through how I chased down a connection timeout :D
+To see why I made the calls I made, along with the library contracts I'm dependent on, is all in the [design notes](NOTES.md). The [incident record](INCIDENT.md) though walks through how I chase things down like for example, a connection timeout :D
 
 ## Build and run
 
-The lab runs on an ARM64 Ubuntu VM. I edit the source on my Mac and keep builds and runtime data over on the VM. The one I'm using right now is `Multipass`,  set up with an astonishing 4 CPUs, 8 GiB RAM and a 64 GiB disk. (I know, impressive specs)
+The lab runs on an ARM64 Ubuntu VM. I which then edit the source on my Mac and keep builds and runtime data over on the VM. The one I'm using right now is `Multipass`,  set up with an astonishing 4 CPUs, 8 GiB RAM and a 64 GiB disk. (I know, impressive specs)
 
 Commit your source locally first, then sync and build:
 
@@ -87,7 +87,7 @@ The JSON that comes back gives you milliseconds as measured by that client, plus
 
 ## Results
 
-| Release | What what made it | Output |
+| Release | What made it through | Output |
 | --- | --- | --- |
 | 1 | P01 through P10 and the control tests all passed. The full measurement did catch seven failures across 4,038,346 proxied attempts, (0_0) and nothing at all across 3,043,141 direct ones. (^.^) | [Proxy record](evidence/release.json) |
 | 2 | Network, storage and lifecycle gates did pass. All 955 acknowledged objects came back verified after recovery. | [Storage record](evidence/release-2.json) |
@@ -99,6 +99,6 @@ Release 5: the fresh ARM64 VM replay passed against a96b0b87611797e79e14608c7f72
 
 The first capstone attempt turned up a parsing mistake in my own harness. Worker stdout emits progress events and then a ready result at the end, and the harness had been written expecting a single JSON document. It parses the event stream now and insists on that final ready result. The failed run is still sitting on the execution VM.
 
-Those seven proxy failures and what they actually mean are laid out in the incident record. Everything here is local measurement and fault replays I wrote myself. Killing a process doesn't tell you much about whole-VM or physical-host durability. Though image tests prove filesystem preparation and snapshot activation. They don't make this a VM runtime.
+Those seven proxy failures and what they actually mean are laid out in the incident record section. Everything here is local measurement and fault replays of things I wrote myself. As well killing a process will not tell you much about whole-VM or physical-host durability. Though image tests prove filesystem preparation and snapshot activation. They don't make this a VM runtime.
 
-Every evidence record says which commit it came from and which raw archive goes with it. The big archives stay local under `evidence/raw/`. The checkers in `lab/` take an extracted run and verify it against those commits. The [original acceptance inventory](lab/acceptance-manifest.json) stays separate from the executed results, and that's on purpose.
+Every evidence record says which commit it came from and which raw archive goes with it. The big archives stay local under `evidence/raw/`. The checkers in `lab/` take an extracted run and verify it against those commits. The [original acceptance inventory](lab/acceptance-manifest.json) stays separate from the executed results.
