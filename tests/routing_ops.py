@@ -11,7 +11,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from verify import ROOT, free_port, save
+from verify import ROOT, free_port, save, resource
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
     args.out = args.out.resolve()
     args.out.mkdir(parents=True, exist_ok=False)
     ports = set()
-    while len(ports) < 13:
+    while len(ports) < 16:
         ports.add(free_port())
     ports = list(sorted(ports))
     router_ports, worker_ports, echo_ports = ports[:2], ports[2:5], ports[5:8]
@@ -124,7 +124,10 @@ def main():
             {
                 "admin_token": admin_token,
                 "owners": {
-                    f"worker-{i + 1}": {"token": tokens[i], "applications": ["echo"]}
+                    f"worker-{i + 1}": {
+                        "token": tokens[i],
+                        "applications": ["echo"] + (["aux"] if i == 1 else []),
+                    }
                     for i in range(3)
                 },
             },
@@ -188,6 +191,34 @@ def main():
                     },
                 },
             )
+            if i == 1:
+                auxiliary = unit(
+                    "aux",
+                    [
+                        ROOT / "bin/echo",
+                        "--listen",
+                        f"127.0.0.1:{ports[13]}",
+                        "--worker",
+                        worker,
+                        "--instance",
+                        "aux-1",
+                        "--app",
+                        "aux",
+                        "--version",
+                        "r4",
+                    ],
+                )
+                workloads.append(auxiliary)
+                changed = json.loads(config.read_text())
+                changed["applications"].append("aux")
+                changed["workloads"]["aux-1"] = {
+                    "unit": auxiliary,
+                    "app": "aux",
+                    "endpoint": f"127.0.0.1:{ports[13]}",
+                    "version": "r4",
+                    "kind": "echo",
+                }
+                save(config, changed)
             workers.append(
                 unit(
                     f"worker-{i}",
@@ -214,6 +245,19 @@ def main():
             first = request(worker_ports[i], "/instances", registration)
             repeated = request(worker_ports[i], "/instances", registration)
             assert first == repeated, "idempotent request changed its revision"
+            if i == 1:
+                aux_revision = request(
+                    worker_ports[i],
+                    "/instances",
+                    {
+                        "operation": "create-aux",
+                        "id": "aux-1",
+                        "app": "aux",
+                        "endpoint": f"127.0.0.1:{ports[13]}",
+                        "deleted": False,
+                    },
+                )["revision"]
+
         proxies = []
         for i in range(2):
             config = args.out / f"proxy-{i}.json"
@@ -223,7 +267,7 @@ def main():
                     "routers": [f"http://127.0.0.1:{router_ports[i]}"],
                     "cache": str(args.out / f"cache-{i}.json"),
                     "management": f"127.0.0.1:{management_ports[i]}",
-                    "applications": {"echo": [public_ports[i]]},
+                    "applications": {"echo": [public_ports[i]], "aux": [ports[14 + i]]},
                 },
             )
             proxies.append(
@@ -247,7 +291,7 @@ def main():
                         len(o["snapshot"]["records"])
                         for o in request(router_ports[i], "/view")["owners"].values()
                     )
-                    == 3
+                    == 4
                 )
             )
             time.sleep(0.6)
@@ -286,7 +330,37 @@ def main():
             seconds=8,
         )
         traffic(1, "partitioned-cache", "instance-2,instance-3")
-        systemctl("kill", "--signal=SIGCONT", router_units[1])
+        for worker_unit in workers:
+            systemctl("kill", "--signal=SIGSTOP", worker_unit)
+        stale_before = json.loads((args.out / "router-1.state").read_text())
+        assert not stale_before["owners"]["worker-1"]["snapshot"]["records"][
+            "instance-1"
+        ]["deleted"]
+        systemctl("kill", "--signal=SIGKILL", router_units[1])
+        router_units[1] = unit(
+            "router-stale-rejoin",
+            [
+                ROOT / "target/release/edgelab-routing",
+                "--config",
+                router_config,
+                "--state",
+                args.out / "router-1.state",
+                "--listen",
+                f"127.0.0.1:{router_ports[1]}",
+            ],
+        )
+        until(lambda: request(router_ports[1], "/health"))
+        stale_restarted = request(router_ports[1], "/view")
+        assert stale_restarted["owners"]["worker-1"]["stale"]
+        assert not stale_restarted["owners"]["worker-1"]["snapshot"]["records"][
+            "instance-1"
+        ]["deleted"]
+        save(
+            args.out / "stale-rejoin.json",
+            {"before": stale_before, "restarted": stale_restarted},
+        )
+        for worker_unit in workers:
+            systemctl("kill", "--signal=SIGCONT", worker_unit)
         until(lambda: route_deleted(router_ports[1]))
         time.sleep(0.7)
         traffic(1, "healed", "instance-2,instance-3")
@@ -495,6 +569,124 @@ def main():
                 background.kill()
                 background.wait()
         observations.append("query-plan-and-wal-maintenance-under-verified-traffic")
+        router_pid = int(systemctl("show", "-p", "MainPID", "--value", router_units[1]))
+        proxy_pid = int(systemctl("show", "-p", "MainPID", "--value", proxies[1]))
+        baseline_resources = {
+            "router": resource(router_pid),
+            "proxy": resource(proxy_pid),
+        }
+        prior_generation = request(management_ports[1], "/status")["generation"]
+        systemctl("kill", "--signal=SIGSTOP", proxies[1])
+        samples = []
+        for n in range(16):
+            revision = request(
+                worker_ports[1],
+                "/instances",
+                {
+                    "operation": f"slow-consumer-{n}",
+                    "id": "instance-2",
+                    "app": "echo",
+                    "endpoint": f"127.0.0.1:{echo_ports[1]}",
+                    "deleted": False,
+                },
+            )["revision"]
+            snapshot = {
+                "schema": 1,
+                "owner": "worker-2",
+                "incarnation": 1,
+                "revision": revision,
+                "records": {
+                    "instance-2": {
+                        "id": "instance-2",
+                        "app": "echo",
+                        "endpoint": f"127.0.0.1:{echo_ports[1]}",
+                        "revision": revision,
+                        "deleted": False,
+                    },
+                    "aux-1": {
+                        "id": "aux-1",
+                        "app": "aux",
+                        "endpoint": f"127.0.0.1:{ports[13]}",
+                        "revision": aux_revision,
+                        "deleted": False,
+                    },
+                },
+            }
+            until(
+                lambda: request(router_ports[1], "/snapshot", snapshot, token=tokens[1])
+            )
+            samples.append(
+                {
+                    "router": resource(router_pid),
+                    "proxy": resource(proxy_pid),
+                    "queue": request(router_ports[1], "/health"),
+                }
+            )
+        expected_generation = request(router_ports[1], "/view")["generation"]
+        assert expected_generation > prior_generation + 1
+        systemctl("kill", "--signal=SIGCONT", proxies[1])
+        until(
+            lambda: (
+                request(management_ports[1], "/status")["generation"]
+                >= expected_generation
+            )
+        )
+        assert (
+            json.loads((args.out / "cache-1.json").read_text())["owners"]["worker-2"][
+                "snapshot"
+            ]["revision"]
+            == revision
+        )
+        with sqlite3.connect(args.out / "worker-1.db") as database:
+            assert (
+                database.execute(
+                    "SELECT count(*) FROM routing_operations WHERE id LIKE 'slow-consumer-%'"
+                ).fetchone()[0]
+                == 16
+            )
+        for sample in samples:
+            assert sample["queue"]["pending_view_capacity"] == 1
+            for role in ["router", "proxy"]:
+                assert (
+                    sample[role]["rss_bytes"] - baseline_resources[role]["rss_bytes"]
+                    < 32 * 1024 * 1024
+                )
+        assert request(router_ports[1], "/health")["coalesced_deliveries"] > 0
+        save(
+            args.out / "slow-subscriber.json",
+            {
+                "baseline": baseline_resources,
+                "samples": samples,
+                "final_generation": expected_generation,
+                "resynced_revision": revision,
+                "durable_operations": 16,
+                "memory_delta_limit_bytes": 32 * 1024 * 1024,
+            },
+        )
+        traffic(1, "subscriber-resynced", "instance-2,instance-3")
+        observations.append(
+            "slow-subscriber-bounded-memory-coalescing-and-complete-resync"
+        )
+        auxiliary_traffic = subprocess.Popen(
+            [
+                str(ROOT / "bin/traffic"),
+                "--address",
+                f"127.0.0.1:{ports[15]}",
+                "--app",
+                "aux",
+                "--instances",
+                "aux-1",
+                "--duration",
+                "1s",
+                "--count",
+                "4000000",
+                "--history",
+                str(args.out / "invalid-update-aux.jsonl"),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
         # The invalid update is rejected before it can poison the restart cache.
         try:
             request(
@@ -513,6 +705,13 @@ def main():
             assert error.code == 409
         else:
             raise AssertionError("incompatible update accepted")
+        auxiliary_output, auxiliary_error = auxiliary_traffic.communicate(timeout=5)
+        assert auxiliary_traffic.returncode == 0, auxiliary_output + auxiliary_error
+        save(
+            args.out / "invalid-update.json",
+            {"status": 409, "unrelated_app": json.loads(auxiliary_output)},
+        )
+        observations.append("invalid-app-update-preserves-unrelated-application")
         systemctl("kill", "--signal=SIGSTOP", proxies[1])
         subprocess.run(
             [

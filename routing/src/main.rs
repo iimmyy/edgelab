@@ -45,6 +45,7 @@ struct Server {
     active: watch::Sender<Arc<State>>,
     writer: Arc<Mutex<()>>,
     subscribers: Semaphore,
+    coalesced: std::sync::atomic::AtomicU64,
 }
 type Failure = (StatusCode, Json<Value>);
 fn failure(status: StatusCode, message: impl ToString) -> Failure {
@@ -194,7 +195,7 @@ struct Cursor {
 async fn view(
     Extract(server): Extract<Arc<Server>>,
     Query(cursor): Query<Cursor>,
-) -> Result<Json<Arc<State>>, Failure> {
+) -> Result<(HeaderMap, Json<Arc<State>>), Failure> {
     let _slot = server.subscribers.try_acquire().map_err(|_| {
         failure(
             StatusCode::SERVICE_UNAVAILABLE,
@@ -208,13 +209,25 @@ async fn view(
     }
     // watch retains one complete replacement, never an update backlog.
     let latest = receiver.borrow_and_update().clone();
-    Ok(Json(latest))
+    let skipped = cursor
+        .after
+        .map(|after| latest.generation.saturating_sub(after).saturating_sub(1))
+        .unwrap_or(0);
+    server
+        .coalesced
+        .fetch_add(skipped, std::sync::atomic::Ordering::Relaxed);
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "x-skipped-generations",
+        skipped.to_string().parse().unwrap(),
+    );
+    Ok((headers, Json(latest)))
 }
 async fn health(Extract(server): Extract<Arc<Server>>) -> Json<Value> {
     let state = server.active.borrow();
     Json(
         json!({"ready":true,"generation":state.generation,"owners":state.owners.len(),
-                "subscriber_slots":server.subscribers.available_permits()}),
+                "subscriber_slots":server.subscribers.available_permits(),"pending_view_capacity":1,"coalesced_deliveries":server.coalesced.load(std::sync::atomic::Ordering::Relaxed)}),
     )
 }
 #[tokio::main]
@@ -265,6 +278,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         active,
         writer: Arc::new(Mutex::new(())),
         subscribers: Semaphore::new(32),
+        coalesced: std::sync::atomic::AtomicU64::new(0),
     });
     let app = Router::new()
         .route("/snapshot", post(publish))

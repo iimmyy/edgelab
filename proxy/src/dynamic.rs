@@ -115,12 +115,12 @@ fn make_view(
     }
     View { ports }
 }
-async fn fetch(client: &reqwest::Client, url: &str) -> io::Result<State> {
-    let mut response = client
-        .get(format!("{}/view", url.trim_end_matches('/')))
-        .send()
-        .await
-        .map_err(io::Error::other)?;
+async fn fetch(client: &reqwest::Client, url: &str, after: Option<u64>) -> io::Result<State> {
+    let mut request = client.get(format!("{}/view", url.trim_end_matches('/')));
+    if let Some(after) = after {
+        request = request.query(&[("after", after)]);
+    }
+    let mut response = request.send().await.map_err(io::Error::other)?;
     if !response.status().is_success() {
         return Err(io::Error::other(format!(
             "routing HTTP {}",
@@ -224,7 +224,7 @@ pub(super) async fn start(
         }
     });
     let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(2))
+        .timeout(Duration::from_secs(3))
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .map_err(io::Error::other)?;
@@ -232,7 +232,8 @@ pub(super) async fn start(
         loop {
             let mut accepted = false;
             for router in &config.routers {
-                let result = fetch(&client, router).await;
+                let after = status.read().await.current.as_ref().map(|s| s.generation);
+                let result = fetch(&client, router, after).await;
                 let candidate = match result {
                     Ok(candidate) => candidate,
                     Err(error) => {
