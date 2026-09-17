@@ -287,6 +287,32 @@ def main():
             **routing(run, args.commit),
             **capstone(run / "capstone", args.commit),
         }
+        limits = read(run / "app-limits/results.json")
+        assert limits["source_commit"] == args.commit
+        assert limits["limits"] == {"a": 2, "b": 3}
+        assert limits["shared_listeners"] and limits["reload_preserved_admission"]
+        assert len(limits["rejections"]) == 4
+        assert all(row["seconds"] < 0.25 for row in limits["rejections"])
+        assert limits["healthy_b"]["failures"] == 0
+        assert len(limits["invalid"]) == 3 and all(
+            row["exit"] != 0 for row in limits["invalid"]
+        )
+        lifecycle = read(root / "lifecycle/cleanup.json")
+        assert lifecycle["status"] == "passed"
+        assert all(
+            lifecycle[key]
+            for key in [
+                "unrelated_process_alive",
+                "unrelated_file_preserved",
+                "unrelated_network_table_preserved",
+            ]
+        )
+        rounding = read(root / "growth-rounding/results.json")
+        assert (
+            rounding["source_commit"] == args.commit and rounding["status"] == "passed"
+        )
+        assert [row["exit"] for row in rounding["records"]] == [77, 0, 0, 1]
+        result["subsequent_app_limit_change"] = "verified"
         for checker, directory in [
             ("check-evidence.py", "proxy"),
             ("check-storage-evidence.py", "network-storage"),
