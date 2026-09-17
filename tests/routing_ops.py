@@ -19,6 +19,7 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     assert os.geteuid() == 0, "supervision test requires root in the lab VM"
+    source_commit = (ROOT / ".source-revision").read_text().strip()
     args.out = args.out.resolve()
     args.out.mkdir(parents=True, exist_ok=False)
     ports = set()
@@ -336,7 +337,7 @@ def main():
         assert not stale_before["owners"]["worker-1"]["snapshot"]["records"][
             "instance-1"
         ]["deleted"]
-        systemctl("kill", "--signal=SIGKILL", router_units[1])
+        systemctl("kill", "--kill-whom=main", "--signal=SIGKILL", router_units[1])
         router_units[1] = unit(
             "router-stale-rejoin",
             [
@@ -752,8 +753,11 @@ def main():
             {
                 "scope": "routing and supervision integration; incomplete Release 4",
                 "passed": observations,
-                "source_commit": (ROOT / ".source-revision").read_text().strip(),
+                "source_commit": source_commit,
             },
+        )
+        assert (ROOT / ".source-revision").read_text().strip() == source_commit, (
+            "source changed during run"
         )
         print(json.dumps(observations))
     finally:
