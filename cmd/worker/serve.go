@@ -64,12 +64,20 @@ type registration struct {
 	Endpoint  string `json:"endpoint"`
 	Deleted   bool   `json:"deleted"`
 }
+type instanceObservation struct {
+	State     string `json:"state"`
+	App       string `json:"app,omitempty"`
+	Instance  string `json:"instance,omitempty"`
+	Version   string `json:"version,omitempty"`
+	Endpoint  string `json:"endpoint,omitempty"`
+	CheckedMS int64  `json:"checked_ms"`
+}
 type workerDaemon struct {
 	config          daemonConfig
 	db              *sql.DB
 	mu              sync.Mutex
 	publications    map[string]any
-	identities      map[string]any
+	identities      map[string]instanceObservation
 	statusVersion   int
 	deploymentEpoch *int64
 }
@@ -153,7 +161,7 @@ func serveWorker(args []string) error {
 	if _, err = db.Exec("INSERT OR IGNORE INTO routing_state(id,body) VALUES(1,?)", initial); err != nil {
 		return err
 	}
-	daemon := workerDaemon{config: config, db: db, publications: map[string]any{}, identities: map[string]any{}, statusVersion: *statusVersion}
+	daemon := workerDaemon{config: config, db: db, publications: map[string]any{}, identities: map[string]instanceObservation{}, statusVersion: *statusVersion}
 	if *statusVersion == 2 {
 		var epoch int64
 		if err = db.QueryRow("SELECT deployment_epoch FROM routing_state WHERE id=1").Scan(&epoch); err != nil {
@@ -240,8 +248,19 @@ func serveWorker(args []string) error {
 	})
 	mux.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		daemon.mu.Lock()
-		defer daemon.mu.Unlock()
-		json.NewEncoder(w).Encode(map[string]any{"owner": config.Owner, "publications": daemon.publications, "instances": daemon.identities, "status_version": daemon.statusVersion, "deployment_epoch": daemon.deploymentEpoch})
+		observations := map[string]instanceObservation{}
+		for id, observation := range daemon.identities {
+			if observation.State == "verified" && time.Now().UnixMilli()-observation.CheckedMS > 5000 {
+				observation.State = "stale"
+			}
+			observations[id] = observation
+		}
+		publications := map[string]any{}
+		for router, result := range daemon.publications {
+			publications[router] = result
+		}
+		daemon.mu.Unlock()
+		json.NewEncoder(w).Encode(map[string]any{"owner": config.Owner, "publications": publications, "instances": observations, "status_version": daemon.statusVersion, "deployment_epoch": daemon.deploymentEpoch})
 	})
 	go daemon.publishLoop()
 	server := http.Server{Addr: *address, Handler: mux, ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 3 * time.Second, WriteTimeout: 4 * time.Second, IdleTimeout: 2 * time.Second, MaxHeaderBytes: 8192}
@@ -384,6 +403,11 @@ func (d *workerDaemon) publishLoop() {
 
 func (d *workerDaemon) reconcileWorkloads(snapshot routeSnapshot) error {
 	for id, record := range snapshot.Records {
+		if !record.Deleted {
+			d.mu.Lock()
+			d.identities[id] = instanceObservation{State: "unknown", CheckedMS: time.Now().UnixMilli()}
+			d.mu.Unlock()
+		}
 		expected, ok := d.config.Workloads[id]
 		if !ok || expected.App != record.App || expected.Endpoint != record.Endpoint ||
 			!strings.HasPrefix(expected.Unit, "edgelab-") || !strings.HasSuffix(expected.Unit, ".service") ||
@@ -411,9 +435,6 @@ func (d *workerDaemon) reconcileWorkloads(snapshot routeSnapshot) error {
 			d.mu.Unlock()
 			continue
 		}
-		d.mu.Lock()
-		d.identities[id] = map[string]any{"state": "unknown", "checked_ms": time.Now().UnixMilli()}
-		d.mu.Unlock()
 		if expected.Kind == "objects" {
 			client := http.Client{Timeout: time.Second}
 			response, err := client.Get("http://" + expected.Endpoint + "/health")
@@ -442,7 +463,11 @@ func (d *workerDaemon) reconcileWorkloads(snapshot routeSnapshot) error {
 			return errors.New("unsupported workload identity protocol")
 		}
 		d.mu.Lock()
-		d.identities[id] = map[string]any{"state": "verified", "app": record.App, "instance": id, "version": expected.Version, "endpoint": record.Endpoint, "checked_ms": time.Now().UnixMilli()}
+		version := expected.Version
+		if expected.Kind == "objects" {
+			version = ""
+		}
+		d.identities[id] = instanceObservation{State: "verified", App: record.App, Instance: id, Version: version, Endpoint: record.Endpoint, CheckedMS: time.Now().UnixMilli()}
 		d.mu.Unlock()
 	}
 	return nil

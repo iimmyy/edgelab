@@ -21,9 +21,9 @@ def main():
     assert os.geteuid() == 0, "supervision test requires root in the lab VM"
     source_commit = (ROOT / ".source-revision").read_text().strip()
     args.out = args.out.resolve()
-    args.out.mkdir(parents=True, exist_ok=False)
+    args.out.mkdir(parents=True, exist_ok=False, mode=0o700)
     ports = set()
-    while len(ports) < 16:
+    while len(ports) < 17:
         ports.add(free_port())
     ports = list(sorted(ports))
     router_ports, worker_ports, echo_ports = ports[:2], ports[2:5], ports[5:8]
@@ -87,6 +87,8 @@ def main():
         result = subprocess.run(
             [
                 str(ROOT / "bin/traffic"),
+                "--expected-identities",
+                str(args.out / "expected-identities.json"),
                 "--address",
                 f"127.0.0.1:{public_ports[index]}",
                 "--instances",
@@ -117,6 +119,23 @@ def main():
             "instance-1"
         ]["deleted"]
 
+    expected_identities = {
+        f"instance-{i + 1}": {
+            "app": "echo",
+            "worker": f"worker-{i + 1}",
+            "region": "west" if i == 0 else "east",
+            "version": "r4",
+        }
+        for i in range(3)
+    }
+    expected_identities["aux-1"] = {
+        "app": "aux",
+        "worker": "worker-2",
+        "region": "local-a",
+        "version": "r4",
+    }
+    identity_manifest = args.out / "expected-identities.json"
+    save(identity_manifest, expected_identities)
     held = None
     try:
         router_config = args.out / "routers.json"
@@ -312,6 +331,37 @@ def main():
             sqlite3.connect(backup_path) as backup,
         ):
             source.backup(backup)
+        unknown_unit = unit(
+            "quarantined",
+            [
+                ROOT / "bin/echo",
+                "--listen",
+                f"127.0.0.1:{ports[16]}",
+                "--worker",
+                "worker-1",
+                "--instance",
+                "unaccepted",
+                "--version",
+                "old-backup",
+            ],
+        )
+        unknown_pid = systemctl("show", "-p", "MainPID", "--value", unknown_unit)
+        with sqlite3.connect(backup_path) as backup:
+            old = json.loads(
+                backup.execute("SELECT body FROM routing_state WHERE id=1").fetchone()[
+                    0
+                ]
+            )
+            old["records"]["unaccepted"] = {
+                "id": "unaccepted",
+                "app": "echo",
+                "endpoint": f"127.0.0.1:{ports[16]}",
+                "revision": 1,
+                "deleted": False,
+            }
+            backup.execute(
+                "UPDATE routing_state SET body=? WHERE id=1", (json.dumps(old),)
+            )
         systemctl("kill", "--signal=SIGSTOP", router_units[1])
         deletion = {
             "operation": "delete-one",
@@ -411,6 +461,13 @@ def main():
         resumed = subprocess.run(recovery, capture_output=True, text=True, timeout=10)
         assert resumed.returncode == 0, resumed.stdout + resumed.stderr
         assert not guard.exists()
+        recovery_journal = json.loads((args.out / "recovery.json").read_text())
+        assert "unaccepted" in recovery_journal["quarantined"]
+        assert "unaccepted" not in recovery_journal["snapshot"]["records"]
+        assert (
+            systemctl("show", "-p", "MainPID", "--value", unknown_unit) == unknown_pid
+        )
+
         recovered = [
             request(port, "/view")["owners"]["worker-1"] for port in router_ports
         ]
@@ -506,6 +563,8 @@ def main():
         background = subprocess.Popen(
             [
                 str(ROOT / "bin/traffic"),
+                "--expected-identities",
+                str(args.out / "expected-identities.json"),
                 "--address",
                 f"127.0.0.1:{public_ports[1]}",
                 "--instances",
@@ -671,6 +730,8 @@ def main():
         auxiliary_traffic = subprocess.Popen(
             [
                 str(ROOT / "bin/traffic"),
+                "--expected-identities",
+                str(args.out / "expected-identities.json"),
                 "--address",
                 f"127.0.0.1:{ports[15]}",
                 "--app",
@@ -714,6 +775,13 @@ def main():
         )
         observations.append("invalid-app-update-preserves-unrelated-application")
         systemctl("kill", "--signal=SIGSTOP", proxies[1])
+        save(
+            args.out / "management-during-proxy-failure.json",
+            {
+                "routing": request(router_ports[1], "/health"),
+                "worker": request(worker_ports[1], "/status"),
+            },
+        )
         subprocess.run(
             [
                 "python3",
@@ -748,6 +816,35 @@ def main():
             {"router_restart_seconds": elapsed, "draining_proxy_pid": proxy_pid},
         )
         observations.append("router-restarts-while-proxy-drains-live-stream")
+        save(
+            args.out / "deployment-manifest.json",
+            {
+                "identities": expected_identities,
+                "units": units,
+                "source_commit": source_commit,
+            },
+        )
+        with sqlite3.connect(args.out / "worker-1.db") as database:
+            operation = database.execute(
+                "SELECT id,revision FROM routing_operations WHERE id='slow-consumer-15'"
+            ).fetchone()
+        cache = json.loads((args.out / "cache-1.json").read_text())
+        save(
+            args.out / "trace.json",
+            {
+                "operation": operation,
+                "owner": "worker-2",
+                "record": cache["owners"]["worker-2"]["snapshot"]["records"][
+                    "instance-2"
+                ],
+                "proxy_generation": cache["generation"],
+                "observed_client": json.loads(
+                    (args.out / "subscriber-resynced.json").read_text()
+                ),
+                "independent_expected_identity": expected_identities["instance-2"],
+            },
+        )
+
         save(
             args.out / "results.json",
             {

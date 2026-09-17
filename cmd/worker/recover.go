@@ -208,6 +208,12 @@ func recoverWorker(args []string) error {
 			return err
 		}
 	}
+	if len(journal.Credential) != 64 || journal.Snapshot.Owner != config.Owner {
+		return errors.New("invalid prepared recovery journal")
+	}
+	if _, err = hex.DecodeString(journal.Credential); err != nil {
+		return err
+	}
 	sum := sha256.Sum256([]byte(journal.Credential))
 	hash := hex.EncodeToString(sum[:])
 	var resultDigest string
@@ -236,8 +242,16 @@ func recoverWorker(args []string) error {
 	if err != nil {
 		return err
 	}
-	if _, err = db.Exec("UPDATE routing_state SET body=? WHERE id=1", blob); err != nil {
+	updated, err := db.Exec("UPDATE routing_state SET body=? WHERE id=1", blob)
+	if err != nil {
 		return err
+	}
+	count, err := updated.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count != 1 {
+		return errors.New("restored owner row missing")
 	}
 	config.Token = journal.Credential
 	encoded, err := json.Marshal(config)

@@ -316,6 +316,43 @@ mod tests {
     }
 
     #[test]
+    fn byte_admission_reserves_a_later_deletion() {
+        let mut exercised = false;
+        for budget in 1..2048 {
+            let mut policy = policy();
+            policy.view_limit = budget;
+            if let Ok(state) = State::default().accept("worker-1", snapshot(), &policy, 1) {
+                let mut deleted = snapshot();
+                deleted.revision = u64::MAX;
+                let record = deleted.records.get_mut("one").unwrap();
+                record.revision = u64::MAX;
+                record.deleted = true;
+                assert!(
+                    state.accept("worker-1", deleted, &policy, u64::MAX).is_ok(),
+                    "deletion rejected at budget {budget}"
+                );
+                if !exercised {
+                    let mut addition = snapshot();
+                    addition.revision = 2;
+                    addition.records.insert(
+                        "another".into(),
+                        Record {
+                            id: "another".into(),
+                            app: "echo".into(),
+                            endpoint: "127.0.0.1:9001".parse().unwrap(),
+                            revision: 2,
+                            deleted: false,
+                        },
+                    );
+                    assert!(state.accept("worker-1", addition, &policy, 2).is_err());
+                    exercised = true;
+                }
+            }
+        }
+        assert!(exercised);
+    }
+
+    #[test]
     fn tombstones_survive_replay_and_reserve_endpoints() {
         let original = snapshot();
         let state = State::default()

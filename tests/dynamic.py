@@ -205,6 +205,16 @@ def main():
         assert request(admin, "/status")["available"] is False
         unavailable()
         results.append("corrupt-cache-management-alive-no-route")
+        proxy.terminate()
+        proxy.wait(timeout=2)
+        incompatible = json.loads(original_cache)
+        incompatible["owners"]["worker-1"]["snapshot"]["schema"] = 999
+        save(cache, incompatible)
+        proxy = start_proxy()
+        assert request(admin, "/status")["available"] is False
+        unavailable()
+        results.append("incompatible-cache-management-alive-no-route")
+
         save(
             args.out / "results.json",
             {
