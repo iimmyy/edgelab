@@ -1,0 +1,88 @@
+{
+  "release": 3,
+  "status": "automated acceptance passed",
+  "source_commit": "f7962ed9cf924c6fcf165cd32c83968db081fc9f",
+  "gates": [
+    {
+      "id": "W01",
+      "status": "passed"
+    },
+    {
+      "id": "W02",
+      "status": "passed"
+    },
+    {
+      "id": "W03",
+      "status": "passed"
+    },
+    {
+      "id": "W04",
+      "status": "passed"
+    },
+    {
+      "id": "W05",
+      "status": "passed"
+    },
+    {
+      "id": "W06",
+      "status": "passed"
+    },
+    {
+      "id": "W07",
+      "status": "passed"
+    }
+  ],
+  "interruption_points": 18,
+  "registered_snapshots": 21,
+  "distinct_prepared_origins": 19,
+  "evidence_check": {
+    "files_verified": 275,
+    "missing_snapshot_verification_rejected": true,
+    "wrong_commit_rejected": true
+  },
+  "supported_oci_subset": {
+    "platform": "linux/arm64",
+    "layers": "one to four gzip-compressed tar layers",
+    "entries": "root-owned regular files and directories; normal and opaque whiteouts",
+    "rejected": [
+      "symbolic links",
+      "hard links",
+      "special files",
+      "PAX attributes",
+      "setuid/setgid/sticky modes",
+      "unsupported media types",
+      "traversal and absolute archive paths"
+    ]
+  },
+  "bounds": {
+    "blob_bytes": 16777216,
+    "expanded_content_bytes": 67108864,
+    "entries": 4096,
+    "blob_cache_bytes": 536870912,
+    "lifetime_operations": 128,
+    "fetch_seconds": 5,
+    "command_seconds": 25,
+    "operation_seconds": 90,
+    "thinpool_data_limit_percent": 80,
+    "thinpool_metadata_limit_percent": 70,
+    "metadata_reserve_percentage_points": 5,
+    "materialization_data_reserve_bytes": 67108864
+  },
+  "raw_archive": {
+    "path": "evidence/raw/release-3.tar.gz",
+    "bytes": 286025,
+    "sha256": "2cc8b933c43f16f793db1b6a48a70a7cbdfab3ea6fde88954a9347311c1da626"
+  },
+  "limitations": [
+    "Materialization and activation are proved by mounting the prepared origin and real writable thin snapshots; no guest runtime integration is claimed.",
+    "All interruption tests are process exits, not VM or physical-host failures.",
+    "The worker is currently a serialized CLI; daemon APIs, workload systemd units and distributed publication belong to Release 4.",
+    "Capacity guards reserve room for worker-controlled materialization; arbitrary external writes to active snapshots are outside this test."
+  ],
+  "retained_failures": [
+    "LVM returned an error when asked to repeat an already-satisfied permission; worker now inspects permissions first.",
+    "A thin snapshot existed but was inactive; readiness now requires successful activation and a device node.",
+    "The concurrency driver retried a loser before the winning process finished; it now joins both before retrying.",
+    "The first complete evidence run asserted but omitted database phase observations; the final fresh run records them."
+  ]
+}

@@ -1,0 +1,388 @@
+[
+  {
+    "id": "W01",
+    "status": "passed",
+    "details": {
+      "image": "sha256:4a6b7c698f18136cea30b293c8767a6e5631fadf8e95ee8bbe94e09b383cd3e6",
+      "operation": "valid",
+      "origin": "/dev/edgelab_worker/image_4a6b7c698f18136cea30b293",
+      "ready": true,
+      "snapshot": "/dev/edgelab_worker/operation_ec654fac9599f62e79e2706a",
+      "snapshot_uuid": "QT2GZ8-4By5-AkFP-DZXS-W3NA-acX9-qYzguS",
+      "sqlite_journal": "wal",
+      "sqlite_synchronous": 2
+    }
+  },
+  {
+    "id": "W02",
+    "status": "passed",
+    "details": [
+      {
+        "error": "blob digest mismatch",
+        "ready": false
+      },
+      {
+        "error": "fetch HTTP 404",
+        "ready": false
+      },
+      {
+        "error": "unsupported layer media type",
+        "ready": false
+      }
+    ]
+  },
+  {
+    "id": "W03",
+    "status": "passed",
+    "details": {
+      "sentinel_sha256": "0967b63182a9178fa55b1b6b6f3db64bb615bc8ed4457d69ceb99faeecbf8ed7",
+      "cases": [
+        {
+          "error": "path escape",
+          "ready": false
+        },
+        {
+          "error": "path escape",
+          "ready": false
+        },
+        {
+          "error": "unsupported link or special file",
+          "ready": false
+        },
+        {
+          "error": "unsupported link or special file",
+          "ready": false
+        },
+        {
+          "error": "file count limit",
+          "ready": false
+        },
+        {
+          "error": "expanded size limit",
+          "ready": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "W04",
+    "status": "passed",
+    "details": {
+      "snapshot_contents": "snapshot-only",
+      "origin_unchanged": true
+    }
+  },
+  {
+    "id": "W05",
+    "status": "passed",
+    "details": {
+      "repeat": {
+        "image": "sha256:4a6b7c698f18136cea30b293c8767a6e5631fadf8e95ee8bbe94e09b383cd3e6",
+        "operation": "valid",
+        "origin": "/dev/edgelab_worker/image_4a6b7c698f18136cea30b293",
+        "ready": true,
+        "snapshot": "/dev/edgelab_worker/operation_ec654fac9599f62e79e2706a",
+        "snapshot_uuid": "QT2GZ8-4By5-AkFP-DZXS-W3NA-acX9-qYzguS",
+        "sqlite_journal": "wal",
+        "sqlite_synchronous": 2
+      },
+      "concurrent": [
+        {
+          "image": "sha256:4a6b7c698f18136cea30b293c8767a6e5631fadf8e95ee8bbe94e09b383cd3e6",
+          "operation": "parallel-a",
+          "origin": "/dev/edgelab_worker/image_4a6b7c698f18136cea30b293",
+          "ready": true,
+          "snapshot": "/dev/edgelab_worker/operation_746f866b86582623a4861eda",
+          "snapshot_uuid": "M0jzcZ-XX0i-YU7z-tiEs-89Gi-JS3c-SAjjyx",
+          "sqlite_journal": "wal",
+          "sqlite_synchronous": 2
+        },
+        {
+          "image": "sha256:4a6b7c698f18136cea30b293c8767a6e5631fadf8e95ee8bbe94e09b383cd3e6",
+          "operation": "parallel-b",
+          "origin": "/dev/edgelab_worker/image_4a6b7c698f18136cea30b293",
+          "ready": true,
+          "snapshot": "/dev/edgelab_worker/operation_ac6765395e2650cae6df9aea",
+          "snapshot_uuid": "2QkmN4-cBXi-0Ww6-QN33-Kglc-Cfaf-Jdid1l",
+          "sqlite_journal": "wal",
+          "sqlite_synchronous": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "W06",
+    "status": "passed",
+    "details": {
+      "kind": "process exit at each named phase/side-effect boundary",
+      "cases": [
+        {
+          "point": "requested",
+          "phase_after_interruption": "requested",
+          "result": {
+            "image": "sha256:cc53ec1cf8979a0c96325aaf63491b9cccc022f61101c5bfee277b730764d29a",
+            "operation": "crash-requested",
+            "origin": "/dev/edgelab_worker/image_cc53ec1cf8979a0c96325aaf",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_1ebfbde5747c1ef2bc2939a6",
+            "snapshot_uuid": "1qzKgy-oUzj-yz4B-K3fA-8Buc-fPPc-YQ2qCQ",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "manifest",
+          "phase_after_interruption": "requested",
+          "result": {
+            "image": "sha256:79cf1aa0e782afaad2af3dccd5f9cef77ceb72c604714f2d97f44201681a3bc7",
+            "operation": "crash-manifest",
+            "origin": "/dev/edgelab_worker/image_79cf1aa0e782afaad2af3dcc",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_725cec31903b4b3e4c2e8b58",
+            "snapshot_uuid": "6q9wte-eOXI-UmZA-L9Ai-e1vI-cxdc-fyB9Uj",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "config",
+          "phase_after_interruption": "requested",
+          "result": {
+            "image": "sha256:345daf65532d15c73a9920a22ef812d8049dad90635cc601fa2401ec89209a9f",
+            "operation": "crash-config",
+            "origin": "/dev/edgelab_worker/image_345daf65532d15c73a9920a2",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_4920136918f37875ea15ca53",
+            "snapshot_uuid": "fJE8l1-jXFl-hZEi-uJDt-60Sc-20Um-YFebnY",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "layer-0",
+          "phase_after_interruption": "requested",
+          "result": {
+            "image": "sha256:e34d712e17c61bbd79bfe5cbd48c64b9fd4d3484360a8fe56f1d50b6da71f6cb",
+            "operation": "crash-layer-0",
+            "origin": "/dev/edgelab_worker/image_e34d712e17c61bbd79bfe5cb",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_8d2987e8d812f52705c59c86",
+            "snapshot_uuid": "DiVafs-FixP-EIb0-19nI-5TaR-rT8Z-9pT1eh",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "layer-1",
+          "phase_after_interruption": "requested",
+          "result": {
+            "image": "sha256:7c2e64bc30f3beb9fcd848f86b54d33263ceccb56d0e7d1606dcdf8f19c3f300",
+            "operation": "crash-layer-1",
+            "origin": "/dev/edgelab_worker/image_7c2e64bc30f3beb9fcd848f8",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_2efccc8f213808c6e71fd3d1",
+            "snapshot_uuid": "RBYuit-3QQ6-oQ67-xflZ-EpYf-Vf5Q-uPdQ2o",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "verified",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:579f289620266a46f6d9aa30d25fb3f81a1f3fc20a4dbc8b26a4c74e6d6d10cd",
+            "operation": "crash-verified",
+            "origin": "/dev/edgelab_worker/image_579f289620266a46f6d9aa30",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_9bc0151f5e35aaba63ee9ed5",
+            "snapshot_uuid": "hJJ2bC-cRTS-Q4Rd-gUBK-rfK4-dply-0RzN16",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "lv",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:8c28b9cb03661462d76f4c6a7abda8e3f09420a2523e4f2b3e5efcf79731a9c8",
+            "operation": "crash-lv",
+            "origin": "/dev/edgelab_worker/image_8c28b9cb03661462d76f4c6a",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_fb2e7b9a7a8b56b12fe0c267",
+            "snapshot_uuid": "AMmc2Q-vBX6-tJgS-rqiq-yolu-BAHF-DrMVSR",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "format",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:456396db472c15c4b63343a9e1577be673ef6f21ab87d0be7f604c834d62a1fa",
+            "operation": "crash-format",
+            "origin": "/dev/edgelab_worker/image_456396db472c15c4b63343a9",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_9e31c5178b827f61e70e3b44",
+            "snapshot_uuid": "vE2BhC-eGt0-bcHf-kMQb-IC3C-NG5Q-iqWDVj",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "mount",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:2b42f9637e1deaab9d92a74f31dffc4764aaaa6975446c1f489a17eaff5c084a",
+            "operation": "crash-mount",
+            "origin": "/dev/edgelab_worker/image_2b42f9637e1deaab9d92a74f",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_55ddffe926b36ec60bf6e9e8",
+            "snapshot_uuid": "JXcK97-d8Et-WEWS-M3lC-ks1i-vfvJ-nzkD7z",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "unpack-partial",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:64cb4721e5da09cabbc8d7d175b27a91f7bd3dcf37e790de36855f13e48313ef",
+            "operation": "crash-unpack-partial",
+            "origin": "/dev/edgelab_worker/image_64cb4721e5da09cabbc8d7d1",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_fee9134491fbf2f82b755acc",
+            "snapshot_uuid": "eLpyiO-GBCZ-UUz4-Y1F2-NLia-GX4n-ejU9Qv",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "unpack",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:64b89c65f97d8f96a1fe4042bd6de095d5e5d471e1854bdeae119c90cd2ab9e3",
+            "operation": "crash-unpack",
+            "origin": "/dev/edgelab_worker/image_64b89c65f97d8f96a1fe4042",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_36e2c623630bb0d1ca78caac",
+            "snapshot_uuid": "ufKRG1-c1Xf-TjuI-7nOX-3z4o-lClc-qx2Dln",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "unmounted",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:85df38f1e69e9a5af360240bdfb833aef1a931fb4bb0177976a8aae4ba3923b5",
+            "operation": "crash-unmounted",
+            "origin": "/dev/edgelab_worker/image_85df38f1e69e9a5af360240b",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_a2e12ab906f7adb5ce04a1e3",
+            "snapshot_uuid": "x4EU69-3sew-0nHy-jksl-fGev-ez66-mn34U3",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "seal",
+          "phase_after_interruption": "verified",
+          "result": {
+            "image": "sha256:92680505c219b89f28acf610f4556f802e7f2ac0a3797463535fe664a82b00e2",
+            "operation": "crash-seal",
+            "origin": "/dev/edgelab_worker/image_92680505c219b89f28acf610",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_7f61435f1585e0045752bff1",
+            "snapshot_uuid": "mywXHF-W7Mk-cv8k-UmOF-6sZO-dSYo-AEDjIt",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "sealed",
+          "phase_after_interruption": "sealed",
+          "result": {
+            "image": "sha256:cc3fa309e363ad6a18629ee44d1963fde697689f97915df9fd08d08890555fa1",
+            "operation": "crash-sealed",
+            "origin": "/dev/edgelab_worker/image_cc3fa309e363ad6a18629ee4",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_bbab100b7ec05dffb89d5e7c",
+            "snapshot_uuid": "XestPq-MVfA-weoH-i8Jw-pzcJ-Mssy-nlVtuB",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "snapshot",
+          "phase_after_interruption": "sealed",
+          "result": {
+            "image": "sha256:f03ebc59493462711f154b3c948eaf6a43b2daf0eca86bfd33d99bad9095a647",
+            "operation": "crash-snapshot",
+            "origin": "/dev/edgelab_worker/image_f03ebc59493462711f154b3c",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_70c5788002adcb2f504fc071",
+            "snapshot_uuid": "kopMCx-oneV-zeTc-J6b9-igC5-SdSe-UVSpKU",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "writable",
+          "phase_after_interruption": "sealed",
+          "result": {
+            "image": "sha256:29eda0cc4de65e4ded503b496c2479f277bea99799ada116ee780edc4e81c648",
+            "operation": "crash-writable",
+            "origin": "/dev/edgelab_worker/image_29eda0cc4de65e4ded503b49",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_09c31d48b8760e8a4dbb98d5",
+            "snapshot_uuid": "vsCmiH-3U21-O01D-dpWp-BSlr-6IV8-bakejZ",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "activated",
+          "phase_after_interruption": "sealed",
+          "result": {
+            "image": "sha256:b045a131087be17fc33ebf5e81b88dbf4961adc46ca82380f56d8118a58d50df",
+            "operation": "crash-activated",
+            "origin": "/dev/edgelab_worker/image_b045a131087be17fc33ebf5e",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_047e80a2ad5d543a2865cd7e",
+            "snapshot_uuid": "5yMuss-Gknl-Ykdy-MvqL-MHGe-TOQH-z8cyXB",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        },
+        {
+          "point": "registered",
+          "phase_after_interruption": "registered",
+          "result": {
+            "image": "sha256:f5a2299e7508c2f2cd6b266abe3df15b3d28fd0971b49675a0911c5b84940cab",
+            "operation": "crash-registered",
+            "origin": "/dev/edgelab_worker/image_f5a2299e7508c2f2cd6b266a",
+            "ready": true,
+            "snapshot": "/dev/edgelab_worker/operation_37a5d5a3bed601cfc09fdd13",
+            "snapshot_uuid": "DL32Tz-O93f-e9o5-14t3-Ty5x-54Ru-QpiNYc",
+            "sqlite_journal": "wal",
+            "sqlite_synchronous": 2
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "W07",
+    "status": "passed",
+    "details": {
+      "data_refusal": {
+        "error": "thinpool data threshold: 14.470 percent, limit 15.470",
+        "ready": false
+      },
+      "metadata_refusal": {
+        "error": "thinpool metadata threshold: 11.990 percent, limit 16.890",
+        "ready": false
+      }
+    }
+  }
+]

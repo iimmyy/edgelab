@@ -1,0 +1,35 @@
+{
+  "source_commit": "443fb3612ec0ca85ce670e2886926f72e163a9bb",
+  "binary_sha256": "6df58e7a408852de7abe7c16c61f6d275ef3c9becfa41aab47d92c2abac4922c",
+  "status": "passed",
+  "cases": [
+    {
+      "case": "exact-limit",
+      "exit": 0,
+      "result": {
+        "files": {
+          "data": {
+            "ok": true,
+            "sha256": "3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351"
+          }
+        },
+        "ok": true,
+        "root": "/home/ubuntu/edgelab/.run/image-check-size/root"
+      }
+    },
+    {
+      "case": "extra-byte",
+      "exit": 1,
+      "result": {
+        "files": {
+          "data": {
+            "ok": false,
+            "sha256": "15f2858f9e022a4134f1cc04217049bc383b0feac1d9f0e3f9279e9b645c5b11"
+          }
+        },
+        "ok": false,
+        "root": "/home/ubuntu/edgelab/.run/image-check-size/root"
+      }
+    }
+  ]
+}

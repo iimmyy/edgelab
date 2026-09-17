@@ -2,9 +2,9 @@
 
 ## Release 1
 
-I keep initial connection establishment separate from forwarding. Round-robin chooses the first target; subsequent targets are tried only before forwarding starts. One deadline covers DNS and all attempts, with a smaller deadline for each target. An established stream is never retried.
+I keep the initial connection establishment separate from forwarding. Round-robin chooses the first target; then subsequent targets are tried before forwarding starts. One deadline covers DNS and all attempts, with a smaller deadline for each sub target.
 
-Tokio's bidirectional copy preserves half-close behavior and gives each direction an explicit buffer size. A permit stays with the forwarding task until that task finishes or is cancelled. The Go fixture emits identity, echoes bytes, and sends an EOF marker only after the client half-closes. The verifier checks the complete response.
+Tokio's bidirectional copy preserves half-close behavior and gives each direction its explicit buffer size. A permit the. stays with the forwarding task until that task finishes or is cancelled. The Go fixture emits identity, echoes bytes, and sends an EOF marker only after the client half-closes. The verifier checks the complete response.
 
 An application's listeners share admission state, including through reloads and surviving sessions. Limits remain process options. An additional 1,024-session ceiling bounds connections across old and new configurations. Configuration is limited to 1 MiB, 64 applications, 256 listener ports, and 64 targets per application. I bind new listeners before replacing the active view; a failed validation or bind retains the old one. Existing streams keep their chosen backend. Candidate loads have a two-second timeout and run outside admission. There is one running validation and one replaceable pending request. Only the newest requested generation can activate; an invalid newest candidate retains the active view. The lab can delay validation to prove that admission continues and superseded results stay discarded.
 
@@ -23,6 +23,16 @@ Objects are immutable and addressed by SHA-256. A write synchronizes a temporary
 The growth controller holds one nonblocking process lock. It verifies SQLite WAL/FULL, stores the operation ID and absolute target before effects, then reconciles LV size and filesystem size. A crash after `lvextend` leaves the same target pending; restart finishes `resize2fs` rather than adding another increment. The watched controller uses a two-second poll/cooldown and exits with a recorded error when growth cannot proceed. Four-MiB LVM extent rounding, the allocation cap, and backing reserve are explicit. Workload supervision by systemd belongs to Release 3; these fixture processes already survive controller restarts independently.
 
 Network fault creation and repair are separate operations. Removing the only interface address or taking the interface down also removes its route on this kernel, so those repairs restore both facts. The simulated MTU fault keeps its size filter in place during verification of the smaller tunnel MTU. None of these authored replays is presented as a blind incident investigation.
+
+## Release 3
+
+An operation stores its image digest, pinned manifest length and snapshot name before storage effects. Blob names are their SHA-256 digests; image origins are shared by digest, while mutable snapshots belong to operation IDs. A single process lock serializes mutations. SQLite WAL/FULL retains intent after the lock's process dies.
+
+The worker parses tar with Go's standard library and applies an explicitly limited OCI subset. Whiteouts are applied before additions in each layer, including opaque-directory deletion. It rejects links and special files before creating a volume. The extraction child changes its root to the mounted thin filesystem, so containment also has a filesystem boundary. Incomplete extraction has no completion marker and is rebuilt on the same owned device; a completed marker is checked against the filesystem before reuse.
+
+LVM state is observed rather than inferred from a command's prior exit. The origin is sealed read-only only after unmounting. Snapshot creation, permission and activation are separate facts: thin snapshots can initially be inactive, and repeating an already-satisfied permission can return an error. Registration follows explicit activation and device verification. The interruption suite includes partial extraction and the interval after snapshot creation but before SQLite registration.
+
+Capacity checks include a 64 MiB data allowance for materialization and five metadata percentage points of headroom. They bound worker-controlled preparation; they do not claim to police arbitrary writes made outside the worker to active snapshots. The independent Go verifier checks the mounted files against fixture-owned hashes and rejects extra bytes at its size limit. The [OCI layer specification](https://github.com/opencontainers/image-spec/blob/v1.1.1/layer.md) defines the supported whiteout semantics.
 
 ## Approved contracts for later releases
 

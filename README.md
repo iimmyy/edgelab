@@ -2,7 +2,7 @@
 
 A small edge-hosting lab I can deploy, break, inspect, and recover. Built with AI assistance. This is an independent project inspired by public Fly.io exercises, not an official assessment.
 
-Release 1 contains a Rust TCP proxy, Go identity/echo backends, and an independent Go traffic verifier. Release 2 adds an isolated WireGuard network, immutable object storage, and restartable LVM growth. The worker and routing releases remain planned.
+Release 1 contains a Rust TCP proxy, Go identity/echo backends, and an independent Go traffic verifier. Release 2 adds an isolated WireGuard network, immutable object storage, and restartable LVM growth. Release 3 prepares supported OCI images on thin storage and reconciles interrupted worker operations. Distributed routing remains planned.
 
 ## Run the failure demonstration
 
@@ -70,6 +70,24 @@ sudo python3 tests/lab_lifecycle.py
 The final command tests refusal paths and scoped cleanup, then removes the owned fixture. For another full run, initialize it again and choose a new evidence directory. `lab/linux.py status` reports routes, public WireGuard state, firewall counters, process identity, and storage identity. `fault --name endpoint` breaks a running tunnel; `baseline` restores the known network configuration. `down` deletes only this lab's namespaces and disposable storage.
 
 These are authored fault replays, not withheld diagnosis exercises. The MTU case simulates an underlay size limit with a packet filter and repairs it by lowering the tunnel MTU. A complete replay checks seven network faults, an in-place composite repair, recovery of existing data, growth under writes, competing controllers, a process interruption after LV expansion, exhausted backing space, and sole-owner failure. The machine record is [Release 2 evidence](evidence/release-2.json). The fresh replay passed N01–N03 and S01–S06, retaining 955 acknowledged objects (3,943,628,800 bytes) with no unexpected object failures. L01/L02 and the rounded-target interruption regression also passed. Full evidence is archived in `evidence/raw/release-2.tar.gz`; extract it and run `lab/check-storage-evidence.py` against `release-2-final` with commit `671ebb64a7728ff43f616518e755f62cf7c4144b`.
+
+## Image preparation and recovery
+
+Release 3's Go worker verifies an owned OCI fixture, applies its layers inside a separate extraction process rooted at the mounted thin volume, seals the origin read-only, and creates a distinct writable thin snapshot for each operation. Readiness requires an active device. A repeated operation retains its snapshot identity.
+
+On the same disposable VM, after building and syncing committed source:
+
+```sh
+sudo python3 lab/worker.py up
+sudo python3 tests/worker.py --out .run/image-review
+sudo python3 lab/worker.py status
+```
+
+Use a fresh worker fixture for the full replay. `lab/worker.py down` removes that worker's pool and state; the networking/storage fixture is separate. The suite generates its own image store and independent expected hashes. It tests whiteouts, corrupt/missing/unsupported input, archive containment, real copy-on-write isolation, concurrent requests, 18 interruption points, and data/metadata capacity guards. This proves filesystem preparation and activation; it does not claim a VM runtime.
+
+The supported subset is Linux/ARM64, one to four gzip tar layers, root-owned regular files and directories, and normal/opaque whiteouts. Links, special files, PAX attributes and privileged modes are rejected. Limits are 16 MiB per blob, 64 MiB expanded content, 4,096 entries, a 512 MiB blob cache and 128 retained operations. The CLI serializes mutations; a competing caller gets `worker busy` and may retry after the current operation exits.
+
+W01–W07 passed at `f7962ed`, producing 21 distinct registered snapshots. The [Release 3 record](evidence/release-3.json) links the measured limits and evidence. Extract `evidence/raw/release-3.tar.gz` and check its `worker-evidence` directory with `lab/check-worker-evidence.py --commit f7962ed9cf924c6fcf165cd32c83968db081fc9f`.
 
 ## Read the implementation
 

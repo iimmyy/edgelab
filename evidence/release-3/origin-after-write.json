@@ -1,0 +1,5 @@
+{
+  "exit": 0,
+  "stdout": "{\"files\":{\"etc/.wh.remove\":{\"absent\":true},\"etc/keep\":{\"ok\":true,\"sha256\":\"79f076abdd19a752db7267bfff2f9022161d120dea919fdaca2ffdfc24ca8c96\"},\"etc/remove\":{\"absent\":true},\"etc/version\":{\"ok\":true,\"sha256\":\"a2055e7839f2474cafd9dc6222dccd542de56fa2ab099ecec397055544705b14\"},\"opaque/.wh..wh..opq\":{\"absent\":true},\"opaque/new\":{\"ok\":true,\"sha256\":\"11507a0e2f5e69d5dfa40a62a1bd7b6ee57e6bcd85c67c9b8431b36fff21c437\"},\"opaque/old\":{\"absent\":true}},\"ok\":true,\"root\":\"/home/ubuntu/edgelab/.run/worker-evidence/inspect\"}\n",
+  "stderr": ""
+}
