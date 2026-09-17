@@ -48,13 +48,14 @@ type workload struct {
 	Kind     string `json:"kind"`
 }
 type daemonConfig struct {
-	Workloads    map[string]workload `json:"workloads"`
-	Owner        string              `json:"owner"`
-	Applications []string            `json:"applications"`
-	Token        string              `json:"token"`
-	AdminToken   string              `json:"admin_token"`
-	Routers      []string            `json:"routers"`
-	RestoreGuard string              `json:"restore_guard"`
+	RouterAdminToken string              `json:"router_admin_token"`
+	Workloads        map[string]workload `json:"workloads"`
+	Owner            string              `json:"owner"`
+	Applications     []string            `json:"applications"`
+	Token            string              `json:"token"`
+	AdminToken       string              `json:"admin_token"`
+	Routers          []string            `json:"routers"`
+	RestoreGuard     string              `json:"restore_guard"`
 }
 type registration struct {
 	Operation string `json:"operation"`

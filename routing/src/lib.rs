@@ -28,11 +28,22 @@ pub struct Snapshot {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
+pub struct Recovery {
+    pub operation: String,
+    pub digest: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Owner {
     pub snapshot: Snapshot,
     pub reconciled_ms: u64,
     pub stale: bool,
     pub frozen_by: Option<String>,
+    #[serde(default)]
+    pub credential_hash: Option<String>,
+    #[serde(default)]
+    pub recovery: Option<Recovery>,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -73,6 +84,13 @@ impl State {
         }
         let mut candidate = self.clone();
         let entry = candidate.owners.get_mut(owner).ok_or("unknown owner")?;
+        if entry
+            .recovery
+            .as_ref()
+            .is_some_and(|r| r.operation == operation)
+        {
+            return Ok(candidate);
+        }
         match &entry.frozen_by {
             Some(existing) if existing != operation => {
                 return Err("another recovery owns the fence".into());
@@ -85,6 +103,58 @@ impl State {
             .generation
             .checked_add(1)
             .ok_or("generation exhausted")?;
+        Ok(candidate)
+    }
+
+    pub fn recover(
+        &self,
+        operation: &str,
+        next: Snapshot,
+        credential_hash: String,
+        policy: &Policy,
+    ) -> Result<Self, String> {
+        use sha2::{Digest, Sha256};
+        if !name(operation)
+            || credential_hash.len() != 64
+            || !credential_hash.bytes().all(|b| b.is_ascii_hexdigit())
+        {
+            return Err("invalid recovery identity".into());
+        }
+        let digest = format!(
+            "{:x}",
+            Sha256::digest(
+                serde_json::to_vec(&(operation, &next, &credential_hash))
+                    .map_err(|e| e.to_string())?
+            )
+        );
+        let previous = self.owners.get(&next.owner).ok_or("unknown owner")?;
+        if let Some(recovery) = &previous.recovery {
+            if recovery.operation == operation {
+                return if recovery.digest == digest {
+                    Ok(self.clone())
+                } else {
+                    Err("recovery result conflict".into())
+                };
+            }
+        }
+        if previous.frozen_by.as_deref() != Some(operation)
+            || next.incarnation <= previous.snapshot.incarnation
+        {
+            return Err("recovery requires matching fence and newer incarnation".into());
+        }
+        let mut base = self.clone();
+        let owner = base.owners.get_mut(&next.owner).unwrap();
+        owner.snapshot.incarnation = next.incarnation;
+        owner.frozen_by = None;
+        let id = next.owner.clone();
+        let mut candidate = base.accept(&id, next, policy, previous.reconciled_ms)?;
+        let owner = candidate.owners.get_mut(&id).unwrap();
+        owner.stale = true;
+        owner.credential_hash = Some(credential_hash);
+        owner.recovery = Some(Recovery {
+            operation: operation.into(),
+            digest,
+        });
         Ok(candidate)
     }
 
@@ -186,6 +256,8 @@ impl State {
                 reconciled_ms: now_ms,
                 stale: false,
                 frozen_by: None,
+                credential_hash: previous.and_then(|o| o.credential_hash.clone()),
+                recovery: previous.and_then(|o| o.recovery.clone()),
             },
         );
         // Budget the largest deletion/revision representation at admission. This
@@ -198,6 +270,11 @@ impl State {
             owner.snapshot.incarnation = u64::MAX;
             owner.stale = false;
             owner.frozen_by = Some("x".repeat(128));
+            owner.credential_hash = Some("x".repeat(64));
+            owner.recovery = Some(Recovery {
+                operation: "x".repeat(128),
+                digest: "x".repeat(64),
+            });
             for record in owner.snapshot.records.values_mut() {
                 record.revision = u64::MAX;
                 record.deleted = false;

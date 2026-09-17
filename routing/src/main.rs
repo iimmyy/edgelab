@@ -29,6 +29,8 @@ struct Options {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Config {
+    #[serde(default)]
+    admin_token: String,
     owners: BTreeMap<String, Identity>,
 }
 #[derive(Deserialize)]
@@ -65,8 +67,20 @@ async fn publish(
         .owners
         .get(&snapshot.owner)
         .ok_or_else(|| failure(StatusCode::UNAUTHORIZED, "unknown owner"))?;
-    let token = headers.get("authorization").and_then(|v| v.to_str().ok());
-    if token != Some(format!("Bearer {}", identity.token).as_str()) {
+    use sha2::{Digest, Sha256};
+    let token = headers
+        .get("authorization")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.strip_prefix("Bearer "))
+        .unwrap_or("");
+    let expected = server
+        .active
+        .borrow()
+        .owners
+        .get(&snapshot.owner)
+        .and_then(|owner| owner.credential_hash.clone())
+        .unwrap_or_else(|| format!("{:x}", Sha256::digest(identity.token.as_bytes())));
+    if format!("{:x}", Sha256::digest(token.as_bytes())) != expected {
         return Err(failure(
             StatusCode::UNAUTHORIZED,
             "invalid owner credential",
@@ -78,6 +92,19 @@ async fn publish(
             "writer busy; retry complete snapshot",
         )
     })?;
+    let current_hash = server
+        .active
+        .borrow()
+        .owners
+        .get(&snapshot.owner)
+        .and_then(|owner| owner.credential_hash.clone())
+        .unwrap_or_else(|| format!("{:x}", Sha256::digest(identity.token.as_bytes())));
+    if current_hash != expected {
+        return Err(failure(
+            StatusCode::UNAUTHORIZED,
+            "publishing credential fenced",
+        ));
+    }
     let policy = Policy::new(identity.applications.clone());
     let current = server.active.borrow().clone();
     let candidate = current
@@ -99,6 +126,67 @@ async fn publish(
     .await
     .map_err(|e| failure(StatusCode::INTERNAL_SERVER_ERROR, e))?
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RecoveryRequest {
+    owner: String,
+    operation: String,
+    snapshot: Option<Snapshot>,
+    credential_hash: Option<String>,
+}
+async fn recover(
+    Extract(server): Extract<Arc<Server>>,
+    headers: HeaderMap,
+    Json(request): Json<RecoveryRequest>,
+) -> Result<Json<Value>, Failure> {
+    if server.config.admin_token.len() < 32
+        || headers.get("authorization").and_then(|v| v.to_str().ok())
+            != Some(format!("Bearer {}", server.config.admin_token).as_str())
+    {
+        return Err(failure(
+            StatusCode::UNAUTHORIZED,
+            "administrative credential required",
+        ));
+    }
+    let identity = server
+        .config
+        .owners
+        .get(&request.owner)
+        .ok_or_else(|| failure(StatusCode::NOT_FOUND, "owner"))?;
+    let writer = server
+        .writer
+        .clone()
+        .try_lock_owned()
+        .map_err(|_| failure(StatusCode::SERVICE_UNAVAILABLE, "writer busy"))?;
+    let current = server.active.borrow().clone();
+    let result = match (request.snapshot, request.credential_hash) {
+        (None, None) => current.freeze(&request.owner, &request.operation),
+        (Some(snapshot), Some(hash)) if snapshot.owner == request.owner => current.recover(
+            &request.operation,
+            snapshot,
+            hash,
+            &Policy::new(identity.applications.clone()),
+        ),
+        _ => Err("incomplete recovery result".into()),
+    };
+    let candidate = Arc::new(result.map_err(|e| failure(StatusCode::CONFLICT, e))?);
+    tokio::spawn(async move {
+        let _writer = writer;
+        let persisted = candidate.clone();
+        let path = server.path.clone();
+        tokio::task::spawn_blocking(move || storage::save(&path, &persisted))
+            .await
+            .map_err(|e| failure(StatusCode::INTERNAL_SERVER_ERROR, e))?
+            .map_err(|e| failure(StatusCode::INSUFFICIENT_STORAGE, e))?;
+        let response = serde_json::to_value(&candidate.owners[&request.owner])
+            .map_err(|e| failure(StatusCode::INTERNAL_SERVER_ERROR, e))?;
+        server.active.send_replace(candidate);
+        Ok(Json(response))
+    })
+    .await
+    .map_err(|e| failure(StatusCode::INTERNAL_SERVER_ERROR, e))?
+}
+
 #[derive(Deserialize)]
 struct Cursor {
     after: Option<u64>,
@@ -180,6 +268,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     let app = Router::new()
         .route("/snapshot", post(publish))
+        .route("/recovery", post(recover))
         .route("/view", get(view))
         .route("/health", get(health))
         .layer(DefaultBodyLimit::max(VIEW_LIMIT))

@@ -24,6 +24,12 @@ func fatal(e error) {
 	os.Exit(1)
 }
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "recover" {
+		if err := recoverWorker(os.Args[2:]); err != nil {
+			fatal(err)
+		}
+		return
+	}
 	if len(os.Args) > 1 && os.Args[1] == "serve" {
 		if err := serveWorker(os.Args[2:]); err != nil {
 			fatal(err)
