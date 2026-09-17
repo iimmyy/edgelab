@@ -41,7 +41,7 @@ def main():
         results.append({'id':id,'status':'passed','details':details});save('results.json',results);print(id,'passed',flush=True)
     def grow(name,*args,codes=(0,)):
         return command([PROJECT/'bin/grow',*args],name,codes)
-    lab.guard();save('preflight.json',lab.preflight())
+    lab.guard();lab.baseline();save('preflight.json',lab.preflight())
     before=lab.status();lab.storage();lab.network();lab.workloads();after=lab.status()
     assert before['processes']==after['processes']
     save('initial.json',after)
@@ -58,7 +58,7 @@ def main():
             args=['ip','netns','exec',lab.CLIENT,PROJECT/'bin/objects-check','--manifest',out/'ack.jsonl','--count','1','--bytes','65536','--seed',str(100+index)]
             broken=command(args,name+'-failure',codes=(1,))
             if name=='mtu':lab.ns(lab.CLIENT,'ip','link','set','wg0','mtu','1200');lab.ns(lab.SERVER,'ip','link','set','wg0','mtu','1200')
-            elif name=='interface':lab.ns(lab.CLIENT,'ip','link','set','wg0','up')
+            elif name=='interface':lab.ns(lab.CLIENT,'ip','link','set','wg0','up');lab.ns(lab.CLIENT,'ip','route','replace','10.77.0.2/32','dev','wg0')
             elif name=='address':lab.ns(lab.CLIENT,'ip','addr','del','10.77.0.9/32','dev','wg0');lab.ns(lab.CLIENT,'ip','addr','add','10.77.0.1/32','dev','wg0')
             elif name=='endpoint':lab.ns(lab.CLIENT,'wg','set','wg0','peer',lab.public(lab.SERVER),'endpoint','172.30.77.2:51820')
             elif name=='prefix':lab.ns(lab.CLIENT,'wg','set','wg0','peer',lab.public(lab.SERVER),'allowed-ips','10.77.0.2/32')
