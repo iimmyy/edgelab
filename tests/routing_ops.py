@@ -318,6 +318,27 @@ def main():
             time.sleep(0.6)
             traffic(i, f"initial-{i}")
         observations.append("three-workers-two-routers-two-proxies-identity-verified")
+        systemctl("kill", "--signal=SIGSTOP", auxiliary)
+
+        def failed_identity_query():
+            status = request(worker_ports[1], "/status")
+            unknown = status["instances"].get("aux-1", {}).get("state") == "unknown"
+            failed = any(not result["ok"] for result in status["publications"].values())
+            return status if unknown and failed else None
+
+        unknown = until(failed_identity_query)
+        save(args.out / "status-query-failure.json", unknown)
+        systemctl("kill", "--signal=SIGCONT", auxiliary)
+        until(
+            lambda: (
+                request(worker_ports[1], "/status")["instances"]
+                .get("aux-1", {})
+                .get("state")
+                == "verified"
+            )
+        )
+        observations.append("failed-identity-query-reported-unknown")
+
         before = [systemctl("show", "-p", "MainPID", "--value", u) for u in workloads]
         systemctl("restart", workers[0])
         until(lambda: request(worker_ports[0], "/status"))
@@ -849,7 +870,7 @@ def main():
         save(
             args.out / "results.json",
             {
-                "scope": "routing and supervision integration; incomplete Release 4",
+                "scope": "scripted routing and operations profile",
                 "passed": observations,
                 "source_commit": source_commit,
             },
