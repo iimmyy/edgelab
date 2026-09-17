@@ -1,0 +1,4 @@
+Attaching 2 probes...
+syn_drop ns=14302714508869 reason=37 location=tcp_rcv_state_process sport=40186 dport=55779 seq=3594003782
+
+

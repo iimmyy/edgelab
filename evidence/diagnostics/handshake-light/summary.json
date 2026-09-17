@@ -1,0 +1,259 @@
+{
+  "identity": {
+    "backend": 55779,
+    "front": 48415,
+    "binary_sha256": "74fac61291e7e2bedc0baafc1b5dfd939e79dcd24941c0e8f11916e988ba93fa",
+    "target_ms": 500,
+    "concurrency": 100,
+    "payload_bytes": 1024,
+    "capture_ring_files": 24,
+    "capture_file_million_bytes": 128,
+    "capture_snaplen": 96,
+    "capture_filter": "ip and tcp port 55779 and ((tcp[tcpflags] & (tcp-syn|tcp-fin|tcp-rst) != 0) or ((ip[2:2] - ((ip[0] & 15) << 2) - ((tcp[12] & 240) >> 2)) = 0))",
+    "probe_count": 2
+  },
+  "trials": [
+    {
+      "pair": 1,
+      "route": "direct",
+      "traffic": {
+        "attempts": 1068310,
+        "backends": {
+          "diag1": 1068310
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 147.452,
+        "p50_ms": 1.882,
+        "p95_ms": 25.766,
+        "p99_ms": 46.002,
+        "payload_bytes": 1024,
+        "seconds": 60.001280893,
+        "successes": 1068310,
+        "successes_per_second": 17804.786566225346,
+        "timeouts": 0
+      },
+      "kernel_deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 0,
+        "TWRecycled": 1040081,
+        "TCPSYNChallenge": 0,
+        "TCPChallengeACK": 0,
+        "TCPSynRetrans": 0
+      }
+    },
+    {
+      "pair": 1,
+      "route": "proxy",
+      "traffic": {
+        "attempts": 1459017,
+        "backends": {
+          "diag1": 1459017
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 129.919,
+        "p50_ms": 3.739,
+        "p95_ms": 6.665,
+        "p99_ms": 11.061,
+        "payload_bytes": 1024,
+        "seconds": 60.002016424,
+        "successes": 1459017,
+        "successes_per_second": 24316.13280610371,
+        "timeouts": 0
+      },
+      "kernel_deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 1814512,
+        "TWRecycled": 1094101,
+        "TCPSYNChallenge": 0,
+        "TCPChallengeACK": 0,
+        "TCPSynRetrans": 0
+      }
+    },
+    {
+      "pair": 2,
+      "route": "direct",
+      "traffic": {
+        "attempts": 1074898,
+        "backends": {
+          "diag1": 1074898
+        },
+        "concurrency": 100,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 208.739,
+        "p50_ms": 1.848,
+        "p95_ms": 25.92,
+        "p99_ms": 48.335,
+        "payload_bytes": 1024,
+        "seconds": 60.000954935,
+        "successes": 1074898,
+        "successes_per_second": 17914.681544059662,
+        "timeouts": 0
+      },
+      "kernel_deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 126170,
+        "TWRecycled": 939477,
+        "TCPSYNChallenge": 0,
+        "TCPChallengeACK": 0,
+        "TCPSynRetrans": 0
+      }
+    },
+    {
+      "pair": 2,
+      "route": "proxy",
+      "traffic": {
+        "attempts": 1402998,
+        "backends": {
+          "diag1": 1402997
+        },
+        "concurrency": 100,
+        "failures": 1,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 506.09,
+        "p50_ms": 3.908,
+        "p95_ms": 6.958,
+        "p99_ms": 13.985,
+        "payload_bytes": 1024,
+        "seconds": 60.003708942,
+        "successes": 1402997,
+        "successes_per_second": 23381.837968652013,
+        "timeouts": 0
+      },
+      "kernel_deltas": {
+        "ListenOverflows": 0,
+        "ListenDrops": 0,
+        "TCPTimeWaitOverflow": 1308032,
+        "TWRecycled": 1494934,
+        "TCPSYNChallenge": 0,
+        "TCPChallengeACK": 0,
+        "TCPSynRetrans": 0
+      }
+    }
+  ],
+  "proxy_failure": [
+    {
+      "timestamp": "2026-09-17T00:01:54.593708Z",
+      "level": "WARN",
+      "fields": {
+        "event": "connect_timeout",
+        "stage": "tcp_connect",
+        "deadline_source": "application",
+        "app": "diag",
+        "target": "127.0.0.1:55779",
+        "remote": "127.0.0.1:55779",
+        "local": "Some(127.0.0.1:40186)",
+        "so_error": 0,
+        "diagnostic_error": "None"
+      },
+      "target": "edgelab_proxy"
+    },
+    {
+      "timestamp": "2026-09-17T00:01:54.593741Z",
+      "level": "WARN",
+      "fields": {
+        "event": "session_failed",
+        "app": "diag",
+        "error": "backend establishment deadline",
+        "elapsed_ms": 500
+      },
+      "target": "edgelab_proxy"
+    }
+  ],
+  "client_failure": [
+    {
+      "id": 1361476,
+      "started": "2026-09-17T00:01:54.088420327Z",
+      "elapsed_ms": 506.09,
+      "error": "read tcp 127.0.0.1:53430->127.0.0.1:48415: read: connection reset by peer",
+      "timeout": false
+    }
+  ],
+  "matching_kernel_event": {
+    "monotonic_ns": 14302714508869,
+    "utc_approx": "2026-09-17T00:01:54.093597Z",
+    "reason": 37,
+    "reason_name": "TCP_CLOSE",
+    "location": "tcp_rcv_state_process",
+    "sport": 40186,
+    "dport": 55779,
+    "syn_seq": 3594003782
+  },
+  "packet_timeline": [
+    {
+      "utc": "2026-09-17T00:01:54.093578Z",
+      "event": "Previous same-tuple backend FIN",
+      "seq": 4079168570,
+      "ack": 3594003164
+    },
+    {
+      "utc": "2026-09-17T00:01:54.093580Z",
+      "event": "Client ACK of previous backend FIN",
+      "ack": 4079168571
+    },
+    {
+      "utc": "2026-09-17T00:01:54.093585Z",
+      "event": "New SYN on same tuple",
+      "seq": 3594003782
+    },
+    {
+      "utc": "2026-09-17T00:01:54.593708Z",
+      "event": "Proxy application establishment deadline; SO_ERROR=0"
+    },
+    {
+      "utc": "2026-09-17T00:01:54.823056Z",
+      "event": "Later different SYN on same tuple succeeds",
+      "seq": 3605401801
+    }
+  ],
+  "capture_statistics": "tcpdump: listening on lo, link-type EN10MB (Ethernet), snapshot length 96 bytes\n47455416 packets captured\n94912272 packets received by filter\n0 packets dropped by kernel\n",
+  "capture_retention": {
+    "first_unix": 1789603145.203788,
+    "last_unix": 1789603315.929941,
+    "seconds": 170.7261528968811,
+    "files": 24,
+    "bytes": 2947425166
+  },
+  "conclusion": "The reproduced failed SYN matched a kernel TCP_CLOSE drop in tcp_rcv_state_process, five microseconds after finalACK of the preceding same-tuple connection. No SYNACK or RST followed before the500ms applicationdeadline. This establishes the immediate kernel drop path for this event; why lookup/close synchronization delivered the newSYN to a closed socket was not traced. Do not generalize to all prior failures or claim an upstreamkernelbug.",
+  "limitations": [
+    "TCPcontrolpacket filter excludes ordinary payloadpackets; preserves SYN/FIN/RST and pureACK packets.96bytes captures allIPv4/TCPheaders.",
+    "Rotatingring retainedinterval is explicit; clippedtuple derived fromlatesttwofiles.",
+    "Synchronous clocks correlated using recordedtime_ns/monotonic_ns; packetwalltimestamps and tuple+sequence provide independentmatch.",
+    "No source/sysctl/timeouts changed; diagnostic uses existing instrumentedbinary; nofurtherload."
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/torvalds/linux/blob/v6.8/net/ipv4/tcp_input.c#L6203-L6215",
+      "claim": "Upstream6.8 closed-socket receive branch setsTCP_CLOSE and discards."
+    }
+  ],
+  "small_evidence_files": [
+    "failure-packet-excerpt.txt",
+    "failure-tuple-packets.txt",
+    "failure-tuple.pcap",
+    "skb-drop-format.txt",
+    "trace.log",
+    "trace.bt",
+    "identity.json",
+    "capture.log",
+    "run.py"
+  ],
+  "small_evidence_sha256": {
+    "failure-packet-excerpt.txt": "84a4b18436a90ab091541b51ff0c2a5cbf346f63ad928248da46bcab1ae2b130",
+    "failure-tuple-packets.txt": "830d60d5ce4eb20653ee965a286e98d24d96f442f2354483c56db15671fd88bd",
+    "failure-tuple.pcap": "ff1f87092f8066621bd14367c315e8edcd2d6dad5d327798a47c34f6b5f38c45",
+    "skb-drop-format.txt": "51c6dee2efb371df6dec5c33b71ee2567b024511e16da2c951b4f60e6b246304",
+    "trace.log": "bb372c20e45f94ee8816c0123c323182bff012a0bc3fa9972ac20c75983269ab",
+    "trace.bt": "02c0785b946bdac33b754408c3238c902cee5607811448096bfe2cf26df862c8",
+    "identity.json": "a4f7e8efbaab1dac7dbea11af3215eeecd796abb5b9c73c872af851c5dfe3f75",
+    "capture.log": "9f7d6024573839cace69274054ab60384371f751aff1bc90605a4afc14ca5153",
+    "run.py": "b8d89420059d3844f89199f0fbdcdc3226e68e581d770a2b094a213cbb0c45e1"
+  }
+}

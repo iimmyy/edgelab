@@ -1,0 +1,661 @@
+[
+  {
+    "id": "P01",
+    "status": "passed",
+    "details": {
+      "listeners": 3,
+      "observations": [
+        {
+          "attempts": 40,
+          "backends": {
+            "a1": 20,
+            "a2": 20
+          },
+          "concurrency": 4,
+          "failures": 0,
+          "latency_population": "all attempts including failures and timeouts",
+          "max_ms": 1.897,
+          "p50_ms": 1.034,
+          "p95_ms": 1.729,
+          "p99_ms": 1.865,
+          "payload_bytes": 1024,
+          "seconds": 0.011365704,
+          "successes": 40,
+          "successes_per_second": 3519.3596454737867,
+          "timeouts": 0,
+          "client_pid": 24098
+        },
+        {
+          "attempts": 40,
+          "backends": {
+            "a1": 20,
+            "a2": 20
+          },
+          "concurrency": 4,
+          "failures": 0,
+          "latency_population": "all attempts including failures and timeouts",
+          "max_ms": 1.357,
+          "p50_ms": 0.821,
+          "p95_ms": 1.262,
+          "p99_ms": 1.317,
+          "payload_bytes": 1024,
+          "seconds": 0.008272069,
+          "successes": 40,
+          "successes_per_second": 4835.549606754973,
+          "timeouts": 0,
+          "client_pid": 24105
+        },
+        {
+          "attempts": 40,
+          "backends": {
+            "b1": 40
+          },
+          "concurrency": 4,
+          "failures": 0,
+          "latency_population": "all attempts including failures and timeouts",
+          "max_ms": 0.776,
+          "p50_ms": 0.308,
+          "p95_ms": 0.732,
+          "p99_ms": 0.766,
+          "payload_bytes": 1024,
+          "seconds": 0.003813887,
+          "successes": 40,
+          "successes_per_second": 10487.987714371191,
+          "timeouts": 0,
+          "client_pid": 24112
+        }
+      ]
+    },
+    "started": 1789603482.0911818,
+    "finished": 1789603482.1305697
+  },
+  {
+    "id": "P02",
+    "status": "passed",
+    "details": {
+      "dns_and_refusal": {
+        "attempts": 40,
+        "backends": {
+          "a1": 40
+        },
+        "concurrency": 4,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 1.83,
+        "p50_ms": 0.285,
+        "p95_ms": 1.762,
+        "p99_ms": 1.783,
+        "payload_bytes": 1024,
+        "seconds": 0.005120934,
+        "successes": 40,
+        "successes_per_second": 7811.0750890364925,
+        "timeouts": 0,
+        "client_pid": 24132
+      },
+      "timeout_fallback": {
+        "attempts": 4,
+        "backends": {
+          "a1": 4
+        },
+        "concurrency": 1,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 566.808,
+        "p50_ms": 1.79,
+        "p95_ms": 514.016,
+        "p99_ms": 514.016,
+        "payload_bytes": 1024,
+        "seconds": 1.084329653,
+        "successes": 4,
+        "successes_per_second": 3.6889150720292996,
+        "timeouts": 0,
+        "client_pid": 24139
+      },
+      "deadlines": [
+        {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:59033",
+          "remote": "127.0.0.1:59033",
+          "local": "Some(127.0.0.1:47504)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        },
+        {
+          "event": "connect_timeout",
+          "stage": "tcp_connect",
+          "deadline_source": "application",
+          "app": "a",
+          "target": "127.0.0.1:59033",
+          "remote": "127.0.0.1:59033",
+          "local": "Some(127.0.0.1:47508)",
+          "so_error": 0,
+          "diagnostic_error": "None"
+        }
+      ]
+    },
+    "started": 1789603482.1307108,
+    "finished": 1789603483.6938078
+  },
+  {
+    "id": "P03",
+    "status": "passed",
+    "details": {
+      "traffic": {
+        "attempts": 100,
+        "backends": {},
+        "concurrency": 4,
+        "failures": 100,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 0.605,
+        "p50_ms": 0.222,
+        "p95_ms": 0.43,
+        "p99_ms": 0.517,
+        "payload_bytes": 1024,
+        "seconds": 0.005993603,
+        "successes": 0,
+        "successes_per_second": 0,
+        "timeouts": 0,
+        "client_pid": 24145
+      },
+      "deadline_traffic": {
+        "attempts": 4,
+        "backends": {},
+        "concurrency": 2,
+        "failures": 4,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 2074.873,
+        "p50_ms": 2069.271,
+        "p95_ms": 2074.689,
+        "p99_ms": 2074.689,
+        "payload_bytes": 1024,
+        "seconds": 4.144199038,
+        "successes": 0,
+        "successes_per_second": 0,
+        "timeouts": 0,
+        "client_pid": 24152
+      },
+      "before": {
+        "time": 1789603483.7164738,
+        "pid": 24091,
+        "rss_bytes": 5001216,
+        "fds": 12,
+        "threads": 7,
+        "cpu_seconds": 0.03
+      },
+      "after": {
+        "time": 1789603484.027067,
+        "pid": 24091,
+        "rss_bytes": 5001216,
+        "fds": 12,
+        "threads": 7,
+        "cpu_seconds": 0.04
+      }
+    },
+    "started": 1789603483.6942937,
+    "finished": 1789603488.601255
+  },
+  {
+    "id": "P04",
+    "status": "passed",
+    "details": {
+      "attempts": 16,
+      "backends": {
+        "a1": 8,
+        "a2": 8
+      },
+      "concurrency": 4,
+      "failures": 0,
+      "latency_population": "all attempts including failures and timeouts",
+      "max_ms": 5.222,
+      "p50_ms": 3.205,
+      "p95_ms": 4.813,
+      "p99_ms": 4.813,
+      "payload_bytes": 262144,
+      "seconds": 0.013116251,
+      "successes": 16,
+      "successes_per_second": 1219.8607666169241,
+      "timeouts": 0,
+      "client_pid": 24165
+    },
+    "started": 1789603488.6015306,
+    "finished": 1789603488.616553
+  },
+  {
+    "id": "P05",
+    "status": "passed",
+    "details": {
+      "b_budget_ms": 250,
+      "b": {
+        "attempts": 40,
+        "backends": {
+          "b1": 40
+        },
+        "concurrency": 4,
+        "failures": 0,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 0.736,
+        "p50_ms": 0.335,
+        "p95_ms": 0.594,
+        "p99_ms": 0.631,
+        "payload_bytes": 1024,
+        "seconds": 0.003840846,
+        "successes": 40,
+        "successes_per_second": 10414.372250280276,
+        "timeouts": 0,
+        "client_pid": 24180
+      },
+      "rejected": {
+        "attempts": 16,
+        "backends": {},
+        "concurrency": 4,
+        "failures": 16,
+        "latency_population": "all attempts including failures and timeouts",
+        "max_ms": 0.304,
+        "p50_ms": 0.154,
+        "p95_ms": 0.284,
+        "p99_ms": 0.284,
+        "payload_bytes": 1024,
+        "seconds": 0.000849378,
+        "successes": 0,
+        "successes_per_second": 0,
+        "timeouts": 0,
+        "client_pid": 24173
+      },
+      "shared_limit": 8
+    },
+    "started": 1789603488.616764,
+    "finished": 1789603489.0803723
+  },
+  {
+    "id": "P06",
+    "status": "passed",
+    "details": {
+      "before": {
+        "time": 1789603489.0824165,
+        "pid": 24091,
+        "rss_bytes": 5156864,
+        "fds": 12,
+        "threads": 7,
+        "cpu_seconds": 0.07
+      },
+      "after": {
+        "time": 1789603490.8224137,
+        "pid": 24091,
+        "rss_bytes": 5255168,
+        "fds": 28,
+        "threads": 7,
+        "cpu_seconds": 0.14
+      },
+      "rss_growth_budget_bytes": 33554432,
+      "slow_connections": 8,
+      "attempted_bytes_each": 8388608
+    },
+    "started": 1789603489.081656,
+    "finished": 1789603491.2786274
+  },
+  {
+    "id": "P07",
+    "status": "passed",
+    "details": {
+      "baseline": {
+        "time": 1789603491.6140802,
+        "pid": 24091,
+        "rss_bytes": 5259264,
+        "fds": 12,
+        "threads": 7,
+        "cpu_seconds": 0.16
+      },
+      "rounds": [
+        {
+          "time": 1789603491.9883733,
+          "pid": 24091,
+          "rss_bytes": 5271552,
+          "fds": 12,
+          "threads": 7,
+          "cpu_seconds": 0.2
+        },
+        {
+          "time": 1789603492.3307674,
+          "pid": 24091,
+          "rss_bytes": 5271552,
+          "fds": 12,
+          "threads": 7,
+          "cpu_seconds": 0.24
+        },
+        {
+          "time": 1789603492.606162,
+          "pid": 24091,
+          "rss_bytes": 5271552,
+          "fds": 12,
+          "threads": 7,
+          "cpu_seconds": 0.27
+        },
+        {
+          "time": 1789603492.8556874,
+          "pid": 24091,
+          "rss_bytes": 5271552,
+          "fds": 12,
+          "threads": 7,
+          "cpu_seconds": 0.29
+        },
+        {
+          "time": 1789603493.154889,
+          "pid": 24091,
+          "rss_bytes": 5271552,
+          "fds": 12,
+          "threads": 7,
+          "cpu_seconds": 0.32
+        }
+      ],
+      "final_tasks": {
+        "event": "tasks",
+        "sessions": 0,
+        "listeners": 3,
+        "validations": 0,
+        "pending_reload": false,
+        "logs_dropped": 0
+      },
+      "final_admission": [
+        {
+          "event": "admission",
+          "app": "a",
+          "active": 0
+        },
+        {
+          "event": "admission",
+          "app": "b",
+          "active": 0
+        }
+      ]
+    },
+    "started": 1789603491.2796445,
+    "finished": 1789603494.4141743
+  },
+  {
+    "id": "P08",
+    "status": "passed",
+    "details": {
+      "invalid_json_retained": true,
+      "bind_failure_retained": true,
+      "new_listener_verified": true,
+      "old_session_preserved": true
+    },
+    "started": 1789603494.4146419,
+    "finished": 1789603494.7196636
+  },
+  {
+    "id": "P09",
+    "status": "passed",
+    "details": {
+      "midstream_replayed": false,
+      "graceful_completed": true,
+      "forced_drain_seconds": 0.5743196120001812,
+      "drain_expired_logged": true
+    },
+    "started": 1789603494.7201262,
+    "finished": 1789603495.5553122
+  },
+  {
+    "id": "P10",
+    "status": "passed",
+    "details": {
+      "seconds_per_run": 2,
+      "repetitions": 3,
+      "concurrency": 100,
+      "payload_bytes": 1024,
+      "observations": [
+        {
+          "route": "direct",
+          "repetition": 0,
+          "traffic": {
+            "attempts": 48630,
+            "backends": {
+              "a2": 48630
+            },
+            "concurrency": 100,
+            "failures": 0,
+            "latency_population": "all attempts including failures and timeouts",
+            "max_ms": 92.761,
+            "p50_ms": 1.737,
+            "p95_ms": 19.394,
+            "p99_ms": 38.976,
+            "payload_bytes": 1024,
+            "seconds": 2.001608641,
+            "successes": 48630,
+            "successes_per_second": 24295.458664539212,
+            "timeouts": 0,
+            "client_pid": 24342
+          },
+          "resources": {
+            "24335": {
+              "rss_bytes": 4653056,
+              "fds": 12,
+              "cpu_seconds": 0.0
+            },
+            "24079": {
+              "rss_bytes": 10399744,
+              "fds": 237,
+              "cpu_seconds": 1.0999999999999999
+            },
+            "24342": {
+              "role": "traffic client",
+              "rss_bytes": 12488704,
+              "fds": 107,
+              "sampled_cpu_seconds": 5.79
+            }
+          }
+        },
+        {
+          "route": "proxy",
+          "repetition": 0,
+          "traffic": {
+            "attempts": 36038,
+            "backends": {
+              "a2": 36038
+            },
+            "concurrency": 100,
+            "failures": 0,
+            "latency_population": "all attempts including failures and timeouts",
+            "max_ms": 45.989,
+            "p50_ms": 3.87,
+            "p95_ms": 19.104,
+            "p99_ms": 30.663,
+            "payload_bytes": 1024,
+            "seconds": 2.003908298,
+            "successes": 36038,
+            "successes_per_second": 17983.85686409289,
+            "timeouts": 0,
+            "client_pid": 24366
+          },
+          "resources": {
+            "24335": {
+              "rss_bytes": 6397952,
+              "fds": 200,
+              "cpu_seconds": 4.34
+            },
+            "24079": {
+              "rss_bytes": 10457088,
+              "fds": 220,
+              "cpu_seconds": 1.0100000000000002
+            },
+            "24366": {
+              "role": "traffic client",
+              "rss_bytes": 11919360,
+              "fds": 107,
+              "sampled_cpu_seconds": 1.4
+            }
+          }
+        },
+        {
+          "route": "direct",
+          "repetition": 1,
+          "traffic": {
+            "attempts": 110625,
+            "backends": {
+              "a2": 110625
+            },
+            "concurrency": 100,
+            "failures": 0,
+            "latency_population": "all attempts including failures and timeouts",
+            "max_ms": 13.058,
+            "p50_ms": 1.493,
+            "p95_ms": 4.082,
+            "p99_ms": 5.709,
+            "payload_bytes": 1024,
+            "seconds": 2.001240315,
+            "successes": 110625,
+            "successes_per_second": 55278.218798025766,
+            "timeouts": 0,
+            "client_pid": 24375
+          },
+          "resources": {
+            "24335": {
+              "rss_bytes": 6213632,
+              "fds": 12,
+              "cpu_seconds": 0.0
+            },
+            "24079": {
+              "rss_bytes": 10719232,
+              "fds": 257,
+              "cpu_seconds": 2.4099999999999997
+            },
+            "24375": {
+              "role": "traffic client",
+              "rss_bytes": 12226560,
+              "fds": 107,
+              "sampled_cpu_seconds": 3.86
+            }
+          }
+        },
+        {
+          "route": "proxy",
+          "repetition": 1,
+          "traffic": {
+            "attempts": 43213,
+            "backends": {
+              "a2": 43213
+            },
+            "concurrency": 100,
+            "failures": 0,
+            "latency_population": "all attempts including failures and timeouts",
+            "max_ms": 38.917,
+            "p50_ms": 3.577,
+            "p95_ms": 12.906,
+            "p99_ms": 26.944,
+            "payload_bytes": 1024,
+            "seconds": 2.00370989,
+            "successes": 43213,
+            "successes_per_second": 21566.49533730654,
+            "timeouts": 0,
+            "client_pid": 24388
+          },
+          "resources": {
+            "24335": {
+              "rss_bytes": 6623232,
+              "fds": 231,
+              "cpu_seconds": 3.92
+            },
+            "24079": {
+              "rss_bytes": 10248192,
+              "fds": 221,
+              "cpu_seconds": 1.1100000000000003
+            },
+            "24388": {
+              "role": "traffic client",
+              "rss_bytes": 11833344,
+              "fds": 107,
+              "sampled_cpu_seconds": 1.61
+            }
+          }
+        },
+        {
+          "route": "direct",
+          "repetition": 2,
+          "traffic": {
+            "attempts": 111003,
+            "backends": {
+              "a2": 111003
+            },
+            "concurrency": 100,
+            "failures": 0,
+            "latency_population": "all attempts including failures and timeouts",
+            "max_ms": 16.734,
+            "p50_ms": 1.467,
+            "p95_ms": 4.056,
+            "p99_ms": 5.619,
+            "payload_bytes": 1024,
+            "seconds": 2.000728739,
+            "successes": 111003,
+            "successes_per_second": 55481.28431217582,
+            "timeouts": 0,
+            "client_pid": 24398
+          },
+          "resources": {
+            "24335": {
+              "rss_bytes": 6324224,
+              "fds": 12,
+              "cpu_seconds": 0.0
+            },
+            "24079": {
+              "rss_bytes": 10952704,
+              "fds": 237,
+              "cpu_seconds": 2.38
+            },
+            "24398": {
+              "role": "traffic client",
+              "rss_bytes": 13918208,
+              "fds": 107,
+              "sampled_cpu_seconds": 4.02
+            }
+          }
+        },
+        {
+          "route": "proxy",
+          "repetition": 2,
+          "traffic": {
+            "attempts": 43394,
+            "backends": {
+              "a2": 43394
+            },
+            "concurrency": 100,
+            "failures": 0,
+            "latency_population": "all attempts including failures and timeouts",
+            "max_ms": 64.589,
+            "p50_ms": 3.564,
+            "p95_ms": 10.966,
+            "p99_ms": 27.829,
+            "payload_bytes": 1024,
+            "seconds": 2.005103237,
+            "successes": 43394,
+            "successes_per_second": 21641.778437765297,
+            "timeouts": 0,
+            "client_pid": 24408
+          },
+          "resources": {
+            "24335": {
+              "rss_bytes": 7094272,
+              "fds": 171,
+              "cpu_seconds": 3.960000000000001
+            },
+            "24079": {
+              "rss_bytes": 10240000,
+              "fds": 198,
+              "cpu_seconds": 1.0999999999999996
+            },
+            "24408": {
+              "role": "traffic client",
+              "rss_bytes": 11984896,
+              "fds": 107,
+              "sampled_cpu_seconds": 1.63
+            }
+          }
+        }
+      ]
+    },
+    "started": 1789603495.5558412,
+    "finished": 1789603507.7158546
+  }
+]

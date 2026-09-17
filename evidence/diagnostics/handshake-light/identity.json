@@ -1,0 +1,13 @@
+{
+  "backend": 55779,
+  "front": 48415,
+  "binary_sha256": "74fac61291e7e2bedc0baafc1b5dfd939e79dcd24941c0e8f11916e988ba93fa",
+  "target_ms": 500,
+  "concurrency": 100,
+  "payload_bytes": 1024,
+  "capture_ring_files": 24,
+  "capture_file_million_bytes": 128,
+  "capture_snaplen": 96,
+  "capture_filter": "ip and tcp port 55779 and ((tcp[tcpflags] & (tcp-syn|tcp-fin|tcp-rst) != 0) or ((ip[2:2] - ((ip[0] & 15) << 2) - ((tcp[12] & 240) >> 2)) = 0))",
+  "probe_count": 2
+}

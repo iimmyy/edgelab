@@ -1,6 +1,6 @@
 {
   "source_commit": "624c4bf3b3a07fbabcc2f731c5b2f5cda651fcba",
-  "readiness": "pending: backend establishment failures remain unattributed",
+  "readiness": "ready for joint Release 1 review with documented loopback churn limitation",
   "gates": {
     "P01": "passed",
     "P02": "passed",
@@ -34,7 +34,11 @@
     "P01-P10 short and full profiles",
     "Blocked log sink and overlapping reload faults",
     "Exported full evidence matches committed source and artifact hashes",
-    "Missing request history and mismatched commit rejected"
+    "Missing request history and mismatched commit rejected",
+    "Updated P02 deadline/fallback regression and complete short profile passed",
+    "Exported regression evidence matches committed source and unchanged runtime hashes",
+    "Matched proof file hashes verified; independent pcap decoding confirms SYN and no backend control response for 500.123 ms before deadline",
+    "Final raw resolution archive SHA256 recorded and gzip integrity verified"
   ],
   "archives": [
     {
@@ -60,10 +64,16 @@
       "bytes": 18793747,
       "sha256": "6e22750bd2fc2514690219cd71333bbcc5782d03ef00486f87ba7784bd63b959",
       "tracked_in_git": false
+    },
+    {
+      "path": "evidence/raw/handshake-resolution.tar.gz",
+      "bytes": 1540928213,
+      "sha256": "e7996454bd2e9771c760291b0f5c1d1b6d370b7b9f478ec2714d91cf6806164d",
+      "tracked_in_git": false
     }
   ],
   "diagnosis": {
-    "status": "unresolved",
+    "status": "reproduced failure classified: matched kernel TCP_CLOSE SYN drop; earlier individual failures not retrospectively attributed",
     "failure_stage": "tcp_connect",
     "deadline_source": "application",
     "so_error": 0,
@@ -78,7 +88,14 @@
       "failures": 0,
       "capture_kernel_drops": 0,
       "retained_seconds": 204.965,
-      "limitation": "instrumented throughput below original benchmark; lighter alternating diagnostic in progress"
-    }
+      "limitation": "instrumented throughput below original benchmark; lighter alternating diagnostic reproduced the failure"
+    },
+    "proof": "evidence/diagnostics/handshake-light/summary.json"
+  },
+  "regression": {
+    "source_commit": "4a984fef7fb115294dfeff356c305d49a20ebe30",
+    "profile": "P01-P10 short, all passed",
+    "runtime_binaries": "SHA256 identical to full measurement",
+    "deadline_fallback_max_ms": 566.808
   }
 }

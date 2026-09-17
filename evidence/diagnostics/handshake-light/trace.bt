@@ -1,0 +1,13 @@
+
+tracepoint:skb:kfree_skb {
+ $skb=(struct sk_buff *)args->skbaddr; $h=(uint8 *)($skb->head+$skb->transport_header);
+ if (($h[13]&2) && ((($h[2]<<8)|$h[3])==55779)) {
+ printf("syn_drop ns=%llu reason=%d location=%s sport=%d dport=%d seq=%u\n",nsecs,args->reason,ksym(args->location),($h[0]<<8)|$h[1],($h[2]<<8)|$h[3],($h[4]<<24)|($h[5]<<16)|($h[6]<<8)|$h[7]);
+ }
+}
+kprobe:tcp_send_challenge_ack {
+ $sk=(struct sock *)arg0; $tp=(struct tcp_sock *)arg0; $dp=$sk->__sk_common.skc_dport;
+ if($sk->__sk_common.skc_num==55779) {
+ printf("challenge ns=%llu state=%d sport=%d dport=%d rcv_nxt=%u snd_nxt=%u snd_una=%u\n",nsecs,$sk->__sk_common.skc_state,$sk->__sk_common.skc_num,(($dp&255)<<8)|($dp>>8),$tp->rcv_nxt,$tp->snd_nxt,$tp->snd_una);
+ }
+}
