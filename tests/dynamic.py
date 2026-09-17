@@ -170,6 +170,21 @@ def main():
         until(lambda: "worker-1" in request(admin, "/status")["owners"])
         traffic("connected")
         results.append("independent-identity-and-payload")
+        previous_generation = request(admin, "/status")["generation"]
+        original_cache = cache.read_bytes()
+        cache.unlink()
+        cache.mkdir()
+        snapshot["revision"] = 2
+        request(route, "/snapshot", snapshot)
+        until(lambda: request(admin, "/status")["persistence_error"])
+        assert request(admin, "/status")["generation"] == previous_generation
+        traffic("persistence-failed")
+        cache.rmdir()
+        cache.write_bytes(original_cache)
+        until(lambda: request(admin, "/status")["generation"] != previous_generation)
+        assert request(admin, "/status")["persistence_error"] is None
+        results.append("persistence-failure-retains-active-view-and-recovers")
+
         router.kill()
         router.wait(timeout=3)
         until(

@@ -145,11 +145,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         return Err("expected 1..16 owners with credentials and applications".into());
     }
+    let lock = std::fs::OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .open(options.state.with_extension("lock"))?;
+    fs2::FileExt::try_lock_exclusive(&lock)?;
     let state = match storage::load(&options.state, VIEW_LIMIT) {
         Ok(state) => state,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => State::default(),
         Err(e) => return Err(e.into()),
     };
+    let mut validated = State::default();
+    for (id, owner) in &state.owners {
+        let identity = config
+            .owners
+            .get(id)
+            .ok_or("persisted owner missing from configuration")?;
+        validated = validated.accept(
+            id,
+            owner.snapshot.clone(),
+            &Policy::new(identity.applications.clone()),
+            owner.reconciled_ms,
+        )?;
+    }
     let (active, _) = watch::channel(Arc::new(state));
     let server = Arc::new(Server {
         config,
