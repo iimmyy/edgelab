@@ -1,37 +1,37 @@
 # Backend connection deadlines under loopback churn
 
-A reproduced failure came from Linux dropping a new SYN on a closed TCP socket during rapid reuse of the same endpoint tuple. No SYN-ACK or reset reached the proxy, which enforced its configured 500 ms establishment deadline. No proxy or backend application defect was identified in this event. Release 1 is ready for joint review with this workload limitation disclosed.
+I reproduced the failure and it came down to Linux throwing away a new SYN on a closed TCP socket while the same endpoint tuple was getting reused over and over. Nothing came back to the proxy, no SYN-ACK and no reset, so the proxy did exactly what it was told and enforced its 500 ms establishment deadline. I didn't find a defect in the proxy or the backend for this one. Release 1 is ready for joint review as long as this workload limitation goes on the record with it.
 
-This is a lab investigation, not a production incident. The original full measurement recorded four failed proxied requests in 4,152,194 attempts. The updated full measurement at `624c4bf` recorded seven in 4,038,346; its 3,043,141 direct requests succeeded. Those earlier failures did not have equivalent kernel traces, so I cannot retrospectively assign each one this cause. P10 requires complete measurements, including failures, rather than zero errors.
+This is just a lab investigation. Nothing here took down production. The original full measurement had four failed proxied requests out of 4,152,194 attempts. The updated one at `624c4bf` had seven out of 4,038,346, and all 3,043,141 direct requests went through fine. Those earlier failures don't have kernel traces to match against, so I can't go back after the fact and pin this cause on each of them (yea immy has integrity. P10 asks for complete measurements with the failures left in. 
 
 ## The matched failure
 
-The decisive diagnostic preserved TCP control packets and kernel SYN-drop events before starting traffic. Its second proxied run recorded one failure in 1,402,998 attempts, at approximately 23,382 requests/second. Packet capture reported zero drops; listener overflow/drop counters did not increase.
+The diagnostic that finally caught it saved TCP control packets and kernel SYN-drop events before any traffic started. Its second proxied run had one failure across 1,402,998 attempts, at roughly 23,382 requests a second. Packet capture said zero drops, and the listener overflow and drop counters never moved.
 
-For `127.0.0.1:40186 → 127.0.0.1:55779`, on September 17, 2026:
+Here's what happened on `127.0.0.1:40186 → 127.0.0.1:55779`, on September 17, 2026:
 
-| UTC time | Observation |
+| UTC time | What happened |
 | --- | --- |
-| 00:01:54.093578 | Previous connection: backend sends FIN. |
+| 00:01:54.093578 | Previous connection: backend sends its FIN. |
 | 00:01:54.093580 | Client acknowledges that FIN. |
-| 00:01:54.093585 | New connection: SYN with sequence `3594003782`. |
-| Approximately 00:01:54.093597 | Kernel discards that exact tuple and sequence with `TCP_CLOSE`, in `tcp_rcv_state_process`. |
-| 00:01:54.593708 | Proxy reports a TCP establishment deadline; `SO_ERROR=0`. |
+| 00:01:54.093585 | New connection: SYN goes out with sequence `3594003782`. |
+| Around 00:01:54.093597 | Kernel throws away that exact tuple and sequence with `TCP_CLOSE`, inside `tcp_rcv_state_process`. |
+| 00:01:54.593708 | Proxy reports a TCP establishment deadline, `SO_ERROR=0`. |
 
-The packet and kernel records identify the same operation. `SO_ERROR=0` means the kernel had not supplied a socket error, not that establishment succeeded. The [Linux 6.8 receive path](https://github.com/torvalds/linux/blob/v6.8/net/ipv4/tcp_input.c#L6203-L6215) explicitly discards packets delivered to a socket in `TCP_CLOSE`.
+The packet record and the kernel record are pointing at the same operation. `SO_ERROR=0` only means the kernel never handed back a socket error. The [Linux 6.8 receive path](https://github.com/torvalds/linux/blob/v6.8/net/ipv4/tcp_input.c#L6203-L6215) straight up discards packets delivered to a socket sitting in `TCP_CLOSE` lol.
 
 [Matched evidence](evidence/diagnostics/handshake-light/summary.json) · [Packet excerpt](evidence/diagnostics/handshake-light/failure-packet-excerpt.txt) · [Selected packet capture](evidence/diagnostics/handshake-light/failure-tuple.pcap)
 
-The precise ordering of socket lookup and close was not traced. This establishes the immediate kernel drop path; it does not establish an upstream kernel bug.
+I never traced the exact ordering of the socket lookup and the close. So this pins down the immediate kernel drop path and that's as far as it goes. It isn't me claiming there's an upstream kernel bug, which heh you know, there probably is.
 
 ## Investigation and decision
 
-I separated three explanations: a proxy that missed a completed handshake, a backend that stopped accepting, and a kernel handshake failure under local churn. An early SYN-only capture showed an unanswered SYN but could not explain its disposal. Narrow kernel probes observed LAST_ACK challenges on other connections; those were not matches and were not accepted as the cause.
+I had three explanations to pull apart: a proxy that missed a handshake which had actually completed, a backend that stopped accepting, and a kernel handshake failure under local churn. An early SYN-only capture showed me a SYN nobody answered, but it couldn't really tell me what became of it. Narrow kernel probes picked up LAST_ACK challenges on other connections. Those weren't matches, and I wasn't going to just accept them as the cause.
 
-Full packet capture plus TIME_WAIT probes produced five clean trials totaling 4,580,678 attempts, but reduced throughput to roughly 15,000 requests/second. I removed the high-frequency probes and restored the original alternating direct/proxy workload. The lighter capture recovered the original traffic rate and caught the matching `TCP_CLOSE` drop. The earlier clean runs did not establish a fix.
+Full packet capture with TIME_WAIT probes gave me five clean trials, 4,580,678 attempts in total, and dragged throughput down to about 15,000 requests a second. So I pulled the high-frequency probes back out and put the original alternating direct/proxy workload back in. The lighter capture got the original traffic rate back and caught the matching `TCP_CLOSE` drop. 
 
-I kept the 500 ms timeout, kernel settings and initial-connect fallback behavior unchanged. The existing full-backlog fault gives a repeatable unanswered-handshake case. Its regression now checks the TCP stage, application deadline, zero pending socket error, successful fallback with correct identity/payload, and bounded latency. The updated short P01–P10 suite passed; fallback completed within 567 ms in this run. This regression checks the proxy's response to a stalled handshake, not deterministic reproduction of the kernel close path. Runtime binary hashes remain identical to the full measurement.
+I left the 500 ms timeout alone, left the kernel settings alone, as well i left the initial-connect fallback behaviour alone. The full-backlog fault I already had gives me a repeatable unanswered-handshake case, so its regression now checks the TCP stage, the application deadline, the zero pending socket error, a successful fallback with the right identity and payload, and bounded latency. The updated short P01 through P10 suite passed, with fallback finishing inside 567 ms on that run. What that regression actually checks is how the proxy reacts to a stalled handshake.
 
-Customer update: high-churn local traffic can lose a fresh connection before the application accepts it. The proxy ends that attempt at its deadline and tries another configured target when available. With a single target, the client sees failure. Existing streams are never replayed, and all observed failures remain in the evidence.
+Customer update: high-churn local traffic can definitely lose a fresh connection before the application ever accepts it. The proxy ends that attempt when its deadline hits and moves on to another configured target if there is one. With only one target, the client sees a failure. Existing streams never get replayed, and every failure I observed is still sitting in the evidence of course.
 
-Handoff: review the matched tuple, deadline contract and disclosed measurement errors. The [release record](evidence/release.json) links the results and checksummed raw archives. Large captures remain local and on `infra-lab`; the private GitHub repository includes the small proof package. No further release work starts before the joint review.
+Handoff: have a look at the matched tuple, the deadline contract, and the measurement errors I've disclosed. The [release record](evidence/release.json) links the results and the checksummed raw archives. The big captures stay local and on `infra-lab`, and the private GitHub repo carries the small proof package.

@@ -1,64 +1,38 @@
 # EdgeLab
 
-A small edge-hosting lab I can deploy, break, inspect, and recover. Built with AI assistance. This is an independent project inspired by public Fly.io exercises, not an official assessment.
+A small edge-hosting lab that I can deploy, break, poke around inside, and put back together. Built of course with AI assistance (I mean come on lol) and shaped by the public Fly.io exercises. It's my own project and nobody's grading it. Just thought it would be fun.
 
-Release 1 contains a Rust TCP proxy, Go identity/echo backends, and an independent Go traffic verifier. Release 2 adds an isolated WireGuard network, immutable object storage, and restartable LVM growth. Release 3 prepares supported OCI images on thin storage and reconciles interrupted worker operations. Distributed routing remains planned.
+The first three releases cover a Rust TCP proxy, private networking, object storage that actually sticks around, and a Go worker that gets images ready on thin storage. Distributed routing and the combined demo are what's coming next.
 
-## Run the failure demonstration
+Why I made the calls I made, along with the library contracts I'm leaning on, is all in the [design notes](NOTES.md). The [incident record](INCIDENT.md) though walks through how I chased down a connection timeout :D
 
-In Linux, with Rust 1.98.1, Go 1.22 or newer, a C compiler, and Python 3:
+## Build and run
 
-```sh
-bash lab/build.sh
-python3 tests/verify.py --out .run/review --benchmark-seconds 2
-python3 tests/control.py --out .run/control
-```
+The lab runs on an ARM64 Ubuntu VM. I edit the source on my Mac and keep builds and runtime data over on the VM. The one I'm using right now is `Multipass`,  set up with an astonishing 4 CPUs, 8 GiB RAM and a 64 GiB disk. (I know, impressive specs)
 
-The driver starts only its own processes, verifies payloads and identity, fills an application's connection budget, tests broken targets and configuration, kills a backend midstream, and drains the proxy. It writes every attempt, proxy logs, resource samples, and gate results. Cleanup stops only the processes it started. The output directory must be new.
-
-For the full three-repetition comparison (100 concurrent requests, 1 KiB each, 60 seconds per direct/proxy run):
-
-```sh
-python3 tests/verify.py --out .run/full --benchmark-seconds 60
-python3 lab/check-evidence.py .run/full --commit "$(git rev-parse HEAD)"
-```
-
-The short profile checks the same behaviors with shorter measurements; its timings are not a substitute for the full profile. Verification requires 1 GiB available memory and 6 GiB free disk for raw evidence. At source commit `624c4bf`, P01–P10 and the additional control tests passed. The full profile recorded seven failures in 4,038,346 proxied attempts and none in 3,043,141 direct attempts. A later diagnostic matched a reproduced timeout to Linux dropping a SYN on a closed TCP socket during rapid loopback reuse. Release 1 retains this disclosed limitation; the earlier individual failures lack equivalent traces. See the [incident investigation](INCIDENT.md) and [machine-readable release record](evidence/release.json).
-
-The committed evidence contains summaries and every unexpected failed request. Full attempt histories, logs and diagnostic captures are archived locally in `evidence/raw/`; smaller histories and proof files also remain on the VM under `.run/`. Duplicate packet rings were removed from the VM only after their archive hashes matched; archive hashes are in the release record. These large archives are excluded from Git. To validate the full exported run, extract `evidence/raw/release-1-async.tar.gz` into a temporary directory and run `lab/check-evidence.py` against its `release-1-async` directory with commit `624c4bf3b3a07fbabcc2f731c5b2f5cda651fcba`.
-
-## Try it by hand
-
-Run these in separate terminals:
-
-```sh
-bin/echo --listen 127.0.0.1:9101 --instance echo-a
-bin/echo --listen 127.0.0.1:9102 --instance echo-b
-target/release/edgelab-proxy --config lab/config.json
-bin/traffic --address 127.0.0.1:8101 --instances echo-a,echo-b
-```
-
-Stop one backend and repeat the traffic command: new connections fall back to the survivor. Existing TCP streams cannot be replayed. Send SIGHUP to the proxy after editing the configuration; send SIGTERM for bounded draining. Logs are JSON on stderr through a bounded, lossy queue. A blocked log sink cannot extend the drain deadline. The control tests exercise blocked logging and overlapping reloads.
-
-The proxy accepts `Apps`, `Name`, `Ports`, and `Targets`. Defaults are 128 connections per application, 8 KiB buffers in each direction, 500 ms per target, 2 seconds total establishment including DNS, and 5 seconds drain grace. `--help` lists the overrides. Listeners bind to loopback by default.
-
-## Work from the Mac
-
-The authorized Multipass VM is `infra-lab`: 4 CPUs, 8 GiB RAM, and a 64 GiB disk. Source is edited here; compilation and tests run on its Linux filesystem. Commit changes, then:
+Commit your source locally first, then sync and build:
 
 ```sh
 bash lab/sync.sh
 multipass exec infra-lab -- bash -lc 'cd ~/edgelab && bash lab/build.sh'
-multipass exec infra-lab -- bash -lc 'cd ~/edgelab && python3 tests/verify.py --out .run/review --benchmark-seconds 2'
 ```
 
-The sync records the source commit without requiring a second Git working tree. The VM currently supplies Ubuntu's Go compiler; the evidence records its exact version. Rust is pinned and Rust dependencies are locked. No cloud account is needed.
+The build wants Rust 1.98.1, Go 1.22 or newer, and a C compiler. The tests want Python 3 on top of that. For networking and storage you'll also need `wireguard-tools`, `nftables`, `lvm2`, `e2fsprogs`, `tcpdump`, and `curl`.
 
-## Network and storage demonstration
+Run everything below inside the VM, from `~/edgelab`. Give every run a brand new evidence directory.
 
-Release 2 uses four physically allocated 1,800 MiB loopback disks and two network namespaces. The object client retains its own hashes; the controller records an absolute LV target in SQLite before changing storage. The default growth step is 500 MiB at 80% usage, with a two-second poll/cooldown, a 6,144 MiB cap, and a 512 MiB VG reserve.
+### Proxy
 
-On the disposable ARM64 Ubuntu VM, install `wireguard-tools`, `nftables`, `lvm2`, `e2fsprogs`, `tcpdump`, and `curl`. Build and sync the committed source as above. From a fresh fixture:
+```sh
+python3 tests/verify.py --out .run/proxy-review --benchmark-seconds 2
+python3 tests/control.py --out .run/control-review
+```
+
+That essentially covers forwarding, fallback, half-close, overload isolation, reloads and shutdown. The short profile tells you the behaviour is right. If you want real numbers out of it, run `--benchmark-seconds 60`.
+
+### Networking and storage
+
+Start from a fresh networking and storage fixture:
 
 ```sh
 sudo python3 lab/linux.py init --confirm-disposable
@@ -67,15 +41,11 @@ sudo python3 tests/storage_network.py --out .run/storage-review
 sudo python3 tests/lab_lifecycle.py
 ```
 
-The final command tests refusal paths and scoped cleanup, then removes the owned fixture. For another full run, initialize it again and choose a new evidence directory. `lab/linux.py status` reports routes, public WireGuard state, firewall counters, process identity, and storage identity. `fault --name endpoint` breaks a running tunnel; `baseline` restores the known network configuration. `down` deletes only this lab's namespaces and disposable storage.
+The last command checks setup and cleanup, then pulls the fixture it owns back out. `lab/linux.py status` lets you look at it while it's still running. If there's already a fixture sitting there and you want to start over, `sudo python3 lab/linux.py down` clears it out, disposable storage and data included.
 
-These are authored fault replays, not withheld diagnosis exercises. The MTU case simulates an underlay size limit with a packet filter and repairs it by lowering the tunnel MTU. A complete replay checks seven network faults, an in-place composite repair, recovery of existing data, growth under writes, competing controllers, a process interruption after LV expansion, exhausted backing space, and sole-owner failure. The machine record is [Release 2 evidence](evidence/release-2.json). The fresh replay passed N01–N03 and S01–S06, retaining 955 acknowledged objects (3,943,628,800 bytes) with no unexpected object failures. L01/L02 and the rounded-target interruption regression also passed. Full evidence is archived in `evidence/raw/release-2.tar.gz`; extract it and run `lab/check-storage-evidence.py` against `release-2-final` with commit `671ebb64a7728ff43f616518e755f62cf7c4144b`.
+### Image preparation
 
-## Image preparation and recovery
-
-Release 3's Go worker verifies an owned OCI fixture, applies its layers inside a separate extraction process rooted at the mounted thin volume, seals the origin read-only, and creates a distinct writable thin snapshot for each operation. Readiness requires an active device. A repeated operation retains its snapshot identity.
-
-On the same disposable VM, after building and syncing committed source:
+Start from a fresh worker fixture:
 
 ```sh
 sudo python3 lab/worker.py up
@@ -83,16 +53,16 @@ sudo python3 tests/worker.py --out .run/image-review
 sudo python3 lab/worker.py status
 ```
 
-Use a fresh worker fixture for the full replay. `lab/worker.py down` removes that worker's pool and state; the networking/storage fixture is separate. The suite generates its own image store and independent expected hashes. It tests whiteouts, corrupt/missing/unsupported input, archive containment, real copy-on-write isolation, concurrent requests, 18 interruption points, and data/metadata capacity guards. This proves filesystem preparation and activation; it does not claim a VM runtime.
+The suite builds its own image store and checks the mounted files against hashes it worked out on its own, so nothing is being graded against its own homework. `sudo python3 lab/worker.py down` takes out the worker's pool and state. That fixture is its own thing, completely separate from the networking and storage one.
 
-The supported subset is Linux/ARM64, one to four gzip tar layers, root-owned regular files and directories, and normal/opaque whiteouts. Links, special files, PAX attributes and privileged modes are rejected. Limits are 16 MiB per blob, 64 MiB expanded content, 4,096 entries, a 512 MiB blob cache and 128 retained operations. The CLI serializes mutations; a competing caller gets `worker busy` and may retry after the current operation exits.
+## Results
 
-W01–W07 passed at `f7962ed`, producing 21 distinct registered snapshots. The [Release 3 record](evidence/release-3.json) links the measured limits and evidence. Extract `evidence/raw/release-3.tar.gz` and check its `worker-evidence` directory with `lab/check-worker-evidence.py --commit f7962ed9cf924c6fcf165cd32c83968db081fc9f`.
+| Release | What what made it | Output |
+| --- | --- | --- |
+| 1 | P01 through P10 and the control tests all passed. The full measurement did catch seven failures across 4,038,346 proxied attempts, (0_0) and nothing at all across 3,043,141 direct ones. (^.^) | [Proxy record](evidence/release.json) |
+| 2 | Network, storage and lifecycle gates did pass. All 955 acknowledged objects came back verified after recovery. | [Storage record](evidence/release-2.json) |
+| 3 | W01 through W07 passed, 18 interruption points were included, with 21 distinct snapshots then registered. | [Worker record](evidence/release-3.json) |
 
-## Read the implementation
+Those seven proxy failures and what they actually mean are laid out in the incident record. Everything here is local measurement and fault replays I wrote myself. Killing a process doesn't tell you much about whole-VM or physical-host durability. Though image tests prove filesystem preparation and snapshot activation. They don't make this a VM runtime.
 
-The proxy owns admission and forwarding. The echo fixture reports identity and returns bytes. The verifier independently checks both. Python orchestrates faults and reads Linux `/proc`; it does not replace the Go traffic generator.
-
-[Design and approved next releases](NOTES.md) · [Original acceptance inventory](lab/acceptance-manifest.json)
-
-Limits: one Linux VM, static routing, and bounded application-space buffers rather than a bound on all kernel memory. Storage interruption tests cover process termination; whole-VM and physical-host durability remain untested. Full management APIs and telemetry belong to later releases. The original acceptance inventory remains unchanged; executed results live separately.
+Every evidence record says which commit it came from and which raw archive goes with it. The big archives stay local under `evidence/raw/`. The checkers in `lab/` take an extracted run and verify it against those commits. The [original acceptance inventory](lab/acceptance-manifest.json) stays separate from the executed results, and that's on purpose.
